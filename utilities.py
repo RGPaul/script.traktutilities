@@ -32,7 +32,7 @@ except:
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
-apikey = __settings__.getSetting("apikey")
+apikey = '0a698a20b222d0b8637298f6920bf03a'
 username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
@@ -48,13 +48,7 @@ def notification( header, message, time=5000, icon=__settings__.getAddonInfo( "i
     xbmc.executebuiltin( "XBMC.Notification(%s,%s,%i,%s)" % ( header, message, time, icon ) )
 
 def checkSettings(daemon=False):
-    if apikey == "":
-        if daemon:
-            notification("Trakt Utilities", __language__(1105).encode( "utf-8", "ignore" )) # please enter a valid API Key in settings
-        else:
-            xbmcgui.Dialog().ok("Trakt Utilities", __language__(1105).encode( "utf-8", "ignore" )) # please enter a valid API Key in settings
-        return False
-    elif username == "":
+    if username == "":
         if daemon:
             notification("Trakt Utilities", __language__(1106).encode( "utf-8", "ignore" )) # please enter your Username and Password in settings
         else:
@@ -69,7 +63,7 @@ def checkSettings(daemon=False):
     
     return True
 
-# get dbpath
+# get database path
 def getDBPath():
     datapath = xbmc.translatePath("special://database")
     path = os.path.join(datapath, 'MyVideos44.db')
@@ -102,7 +96,8 @@ def getMoviesFromTrakt(daemon=False):
         pass
 
     return data
-    
+
+# get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
     trakt_movies = {}
 

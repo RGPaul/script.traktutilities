@@ -11,7 +11,7 @@
     <string id="1008">Auto sync seen TVShows at startup</string>
     
     <!-- Info -->
-    <string id="1105">please enter a valid API Key in settings</string>
+    <string id="1105"></string>
     <string id="1106">please enter your Username and Password in settings</string>
     <string id="1107">please enter your Password in settings</string>
     <string id="1108">can't connect to trakt</string>
