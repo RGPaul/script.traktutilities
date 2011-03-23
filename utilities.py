@@ -361,7 +361,7 @@ def syncSeenMovies(daemon=False):
         Debug ("dbpath = None")
         if not daemon:
             xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-        return # dbpath not set - unknown operating system?
+        return # dbpath not set
     
     # sqlite till jsonrpc supports playcount update
     db = sqlite3.connect(dbpath)
@@ -951,7 +951,7 @@ def syncSeenTVShows(daemon=False):
                     notification("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
                 else:
                     xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-                return # dbpath not set - unknown operating system?
+                return # dbpath not set
 
             # sqlite till jsonrpc supports playcount update
             db = sqlite3.connect(dbpath)
