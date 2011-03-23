@@ -480,9 +480,23 @@ def updateTVShowCollection(daemon=False):
                 return
             
         seasons = getSeasonsFromXBMC(xbmc_tvshows['tvshows'][i])
-        tvshow['title'] = xbmc_tvshows['tvshows'][i]['title']
-        tvshow['year'] = xbmc_tvshows['tvshows'][i]['year']
-        tvshow['tvdb_id'] = xbmc_tvshows['tvshows'][i]['imdbnumber']
+        try:
+            tvshow['title'] = xbmc_tvshows['tvshows'][i]['title']
+        except KeyError:
+            # no title? try label
+            try:
+                tvshow['title'] = xbmc_tvshows['tvshows'][i]['label']
+            except KeyError:
+                # no titel, no laben ... sorry no upload ...
+                continue
+                
+        try:
+            tvshow['year'] = xbmc_tvshows['tvshows'][i]['year']
+            tvshow['tvdb_id'] = xbmc_tvshows['tvshows'][i]['imdbnumber']
+        except KeyError:
+            # no year, no imdb id ... sorry no upload ...
+            continue
+            
         tvshow['episodes'] = []
         for j in range(0, seasons['total']):
             while True:
@@ -601,7 +615,7 @@ def cleanTVShowCollection(daemon=False):
         try:
             xbmc_tvshows_tvdbid[xbmc_tvshows['tvshows'][i]['imdbnumber']] = xbmc_tvshows['tvshows'][i]
         except KeyError:
-            continue
+            continue # missing data, skip tvshow
     
     for trakt_tvshow in trakt_tvshows.items():
         if not daemon:
@@ -610,10 +624,16 @@ def cleanTVShowCollection(daemon=False):
             if progress.iscanceled():
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1134).encode( "utf-8", "ignore" )) # Progress Aborted
                 return
+        
+        try:
+            tvshow['title'] = trakt_tvshow[1]['title']
+            tvshow['year'] = trakt_tvshow[1]['year']
+            tvshow['tvdb_id'] = trakt_tvshow[1]['tvdb_id']
+        except KeyError:
+            # something went wrong
+            Debug("cleanTVShowCollection: KeyError trakt_tvshow[1] title, year or tvdb_id")
+            continue # skip this tvshow
             
-        tvshow['title'] = trakt_tvshow[1]['title']
-        tvshow['year'] = trakt_tvshow[1]['year']
-        tvshow['tvdb_id'] = trakt_tvshow[1]['tvdb_id']
         tvshow['episodes'] = []
         try:
             xbmc_tvshow = xbmc_tvshows_tvdbid[trakt_tvshow[1]['tvdb_id']]
@@ -744,12 +764,13 @@ def syncSeenTVShows(daemon=False):
                 break
         
         seasons = getSeasonsFromXBMC(xbmc_tvshows['tvshows'][i])
-        tvshow['title'] = xbmc_tvshows['tvshows'][i]['title']
-        tvshow['year'] = xbmc_tvshows['tvshows'][i]['year']
         try:
+            tvshow['title'] = xbmc_tvshows['tvshows'][i]['title']
+            tvshow['year'] = xbmc_tvshows['tvshows'][i]['year']
             tvshow['tvdb_id'] = xbmc_tvshows['tvshows'][i]['imdbnumber']
         except KeyError:
-            continue
+            continue # missing data, skip
+            
         tvshow['episodes'] = []
         
         for j in range(0, seasons['total']):
@@ -877,9 +898,12 @@ def syncSeenTVShows(daemon=False):
             if progress.iscanceled():
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1134).encode( "utf-8", "ignore" )) # Progress Aborted
                 return
-        
-        tvshow_to_set['title'] = tvshow['title']
-        tvshow_to_set['tvdb_id'] = tvshow['tvdb_id']
+        try:
+            tvshow_to_set['title'] = tvshow['title']
+            tvshow_to_set['tvdb_id'] = tvshow['tvdb_id']
+        except KeyError:
+            continue # missing data, skip to next tvshow
+            
         tvshow_to_set['episodes'] = []
         
         Debug("checking: " + tvshow['title'])
