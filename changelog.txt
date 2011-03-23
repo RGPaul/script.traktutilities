@@ -1,4 +1,8 @@
 
+Version 0.1.1 Beta
+    - fixed some possible KeyError's
+    - no need of API Key from user anymore
+
 Version 0.1 Beta
     - Sync seen TVShows with Trakt
     - Sync seen Movies with Trakt
