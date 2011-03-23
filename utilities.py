@@ -572,7 +572,7 @@ def updateTVShowCollection(daemon=False):
         if not daemon:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1136).encode( "utf-8", "ignore" )) # No new episodes in XBMC library to update
 
-# updates tvshow collection entries on trakt (don't unlibrary)
+# removes deleted tvshow episodes from trakt collection (unlibrary)
 def cleanTVShowCollection(daemon=False):
 
     if not daemon:
