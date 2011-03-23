@@ -1,0 +1,11 @@
+
+Version 0.1 Beta
+    - Sync seen TVShows with Trakt
+    - Sync seen Movies with Trakt
+    - Update / Clean Movie Collection
+    - Update / Clean TVShow Collection
+
+ToDo for future versions:
+    - auto update (sorry, but yet you have to check for updates yourself)
+    - option for silent sync at xbmc startup
+        

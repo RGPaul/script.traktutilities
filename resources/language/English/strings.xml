@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+    <!-- Preferences -->
+	<string id="1001">Enable debug mode</string>
+    <string id="1002">API Key (found on trakt --&gt; Settings --&gt; API)</string>
+    <string id="1003">Username</string>
+    <string id="1004">Password</string>
+    <string id="1005">Auto update Movies Collection at startup</string>
+    <string id="1006">Auto update TVShow Collection at startup</string>
+    <string id="1007">Auto sync seen Movies at startup</string>
+    <string id="1008">Auto sync seen TVShows at startup</string>
+    
+    <!-- Info -->
+    <string id="1105">please enter a valid API Key in settings</string>
+    <string id="1106">please enter your Username and Password in settings</string>
+    <string id="1107">please enter your Password in settings</string>
+    <string id="1108">can't connect to trakt</string>
+    <string id="1109">Error</string>
+    <string id="1120">Checking Database for Updates</string>
+    <string id="1121">Error uploading movie collection</string>
+    <string id="1122">No new movies in XBMC library to update</string>
+    <string id="1123">Error uploading seen movies</string>
+    <string id="1124">no new seen movies to update for trakt</string>
+    <string id="1125">Movies will be added to Trakt Collection</string> <!-- XX Movies will be added to Trakt Collection -->
+    <string id="1126">Movies updated on Trakt</string> <!-- XX Movies updated -->
+    <string id="1127">Movies will be added as seen on Trakt</string> <!-- XX Movies will be added as seen on Trakt -->
+    <string id="1128">no new seen movies to update for xbmc</string>
+    <string id="1129">Movies updated on XBMC</string>
+    <string id="1130">No movies to unlibrary on trakt</string>
+    <string id="1131">TVShow Episodes will be added to Trakt Collection</string>
+    <string id="1132">Checking Database for new Movies</string>
+    <string id="1133">Checking Database for new Episodes</string>
+    <string id="1134">Progress aborted by user</string>
+    <string id="1135">Error uploading TVShow collection</string>
+    <string id="1136">No new episodes in XBMC library to update</string>
+    <string id="1137">Episodes sucessfully updated to Trakt</string>
+    <string id="1138">Movies skipped</string>
+    <string id="1139">Checking Database for deleted Movies</string>
+    <string id="1140">Checking Database for deleted Episodes</string>
+    <string id="1141">TVShow Episodes will be removed from Trakt Collection</string>
+    <string id="1142">No episodes to remove from trakt</string>
+    <string id="1143">Checking XBMC Database for new seen Episodes</string>
+    <string id="1144">TVShow Episodes will be added as seen on Trakt</string>
+    <string id="1145">Error uploading seen TVShows</string>
+    <string id="1146">No new seen episodes in XBMC library to update</string>
+    <string id="1147">Movies will be added as seen on XBMC</string>
+    <string id="1148">Checking Trakt Database for new seen Episodes</string>
+    <string id="1149">TVShow Episodes will be set as seen on XBMC</string>
+    <string id="1150">updating XBMC Database</string>
+    <string id="1151">No new seen episodes on Trakt to update</string>
+    <string id="1152">Error: can't open XBMC Movie Database</string>
+    
+    <!-- Menu -->
+    <string id="1210">Update Movie Collection</string>
+    <string id="1211">Sync seen Movies</string>
+    <string id="1212">Update TVShow Collection</string>
+    <string id="1213">Sync seen TVShows</string>
+    <string id="1214">Clean Movie Collection</string>
+    <string id="1215">Clean TVSow Collection</string>
+    
+</strings>

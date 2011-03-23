@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+<setting id="apikey" type="text" label="1002" default="" />
+<setting id="username" type="text" label="1003" default="" />
+<setting id="password" type="text" option="hidden" label="1004" default="" />
+<setting id="debug" type="bool" label="1001" default="false"/>
+
+<!--
+<setting id="autosync_moviecollection" type="bool" label="1005" default="false"/>
+<setting id="autosync_tvshowcollection" type="bool" label="1006" default="false"/>
+<setting id="autosync_seenmovies" type="bool" label="1007" default="false"/>
+<setting id="autosync_seentvshows" type="bool" label="1008" default="false"/>
+-->
+
+
+</settings>
