@@ -504,6 +504,10 @@ def updateTVShowCollection(daemon=False):
                 episodes = getEpisodesFromXBMC(xbmc_tvshows['tvshows'][i], seasonid)
                 if episodes['total'] > 0:
                     break
+                if seasonid > 50:  # maybe something went wrong
+                    break          # is there any tvshow out there with 50 seasons ?
+            if seasonid > 50:
+                continue
             try:
                 foundseason = False
                 for k in range(0, len(trakt_tvshows[xbmc_tvshows['tvshows'][i]['imdbnumber']]['seasons'])):
@@ -663,6 +667,10 @@ def cleanTVShowCollection(daemon=False):
                                 break
                         if count >= xbmc_seasons['total']:
                             break
+                        if seasonid > 50:  # maybe something went wrong
+                            break          # is there any tvshow out there with 50 seasons ?
+                    if seasonid > 50:
+                        continue
                 if foundseason == False:
                     Debug("Season not found: " + trakt_tvshow[1]['title'] + ": " + trakt_tvshow[1]['seasons'][i]['season'])
                     # delte season from trakt collection
@@ -779,6 +787,10 @@ def syncSeenTVShows(daemon=False):
                 episodes = getEpisodesFromXBMC(xbmc_tvshows['tvshows'][i], seasonid)
                 if episodes['total'] > 0:
                     break
+                if seasonid > 50:  # maybe something went wrong
+                    break          # is there any tvshow out there with 50 seasons ?
+            if seasonid > 50:
+                continue
             try:
                 foundseason = False
                 for k in range(0, len(trakt_tvshows[xbmc_tvshows['tvshows'][i]['imdbnumber']]['seasons'])):
