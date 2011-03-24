@@ -8,6 +8,9 @@ This add-on isn't a replacement for the official trakt add-on. It's an addition 
 This is an open-source project.
 I'll do my best, but the use is at own risk.
 
+ATTENTION:
+This Add-on needs library mode. All Movies / TVShows, that are not in library mode will be ignored.
+
 Utilities:
     - Update Movie Collection:
         updates your trakt movie library (not the seen movies) with your xbmc collection
