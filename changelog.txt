@@ -14,5 +14,7 @@ Version 0.1 Beta
 
 ToDo for future versions:
     - auto update (sorry, but yet you have to check for updates yourself)
+    - option to ask for rating at movie finished
+    - option to ask for rating at tvshow episode finished
     - option for silent sync at xbmc startup
         
