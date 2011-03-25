@@ -10,7 +10,7 @@
              library="default.py">
     <provides>video</provides>
   </extension>
-  <extension point="xbmc.service"
+  <extension point="xbmc.service" name="TraktUtilities.service"
              library="service.py">
   </extension>
   <extension point="xbmc.addon.metadata">
