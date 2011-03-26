@@ -90,7 +90,7 @@ def getMoviesFromTrakt(daemon=False):
 
     try:
         if data['status'] == 'failure':
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + data['error']) # Error
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     except TypeError:
         pass
@@ -120,7 +120,7 @@ def getWatchedTVShowsFromTrakt(daemon=False):
 
     try:
         if data['status'] == 'failure':
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + data['error']) # Error
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     except TypeError:
         pass
@@ -141,7 +141,7 @@ def getTVShowCollectionFromTrakt(daemon=False):
 
     try:
         if data['status'] == 'failure':
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + data['error']) # Error
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     except TypeError:
         pass
@@ -241,6 +241,8 @@ def updateMovieCollection(daemon=False):
         
         jdata = json.dumps({'username': username, 'password': pwd, 'movies': movie_collection})
         
+        # refresh connection (don't want to get tcp timeout)
+        conn = httplib.HTTPConnection('api.trakt.tv')
         conn.request('POST', '/movie/library/' + apikey, jdata, headers)
         response = conn.getresponse()
         
@@ -254,9 +256,9 @@ def updateMovieCollection(daemon=False):
             if not daemon:
                 xbmcgui.Dialog().ok("Trakt Utilities", str(len(movie_collection) - data['skipped']) + " " + __language__(1126).encode( "utf-8", "ignore" ), str(data['skipped']) + " " + __language__(1126).encode( "utf-8", "ignore" )) # Movies updated on Trakt / Movies skipped
         elif data['status'] == 'failure':
-            Debug ("Error uploading movie collection: " + data['error'])
+            Debug ("Error uploading movie collection: " + str(data['error']))
             if not daemon:
-                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), data['error']) # Error uploading movie collection
+                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
     else:
         if not daemon:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1122).encode( "utf-8", "ignore" )) # No new movies in XBMC library to update
@@ -319,6 +321,8 @@ def syncSeenMovies(daemon=False):
     
         jdata = json.dumps({'username': username, 'password': pwd, 'movies': movies_seen})
         
+        # refresh connection (don't want to get tcp timeout)
+        conn = httplib.HTTPConnection('api.trakt.tv')
         conn.request('POST', '/movie/seen/' + apikey, jdata, headers)
         response = conn.getresponse()
 
@@ -331,9 +335,9 @@ def syncSeenMovies(daemon=False):
                 Debug ("skipped movies: " + str(data['skipped_movies']))
             notification ("Trakt Utilities", str(len(movies_seen) - data['skipped']) + " " + __language__(1126).encode( "utf-8", "ignore" )) # Movies updated
         elif data['status'] == 'failure':
-            Debug ("Error uploading seen movies: " + data['error'])
+            Debug ("Error uploading seen movies: " + str(data['error']))
             if not daemon:
-                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1123).encode( "utf-8", "ignore" ), data['error']) # Error uploading seen movies
+                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1123).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading seen movies
     else:
         if not daemon:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1124).encode( "utf-8", "ignore" )) # no new seen movies to update for trakt
@@ -430,6 +434,8 @@ def cleanMovieCollection(daemon=False):
     if len(to_unlibrary) > 0:
         jdata = json.dumps({'username': username, 'password': pwd, 'movies': to_unlibrary})
         
+        # refresh connection (don't want to get tcp timeout)
+        conn = httplib.HTTPConnection('api.trakt.tv')
         conn.request('POST', '/movie/unlibrary/' + apikey, jdata, headers)
         response = conn.getresponse()
         
@@ -438,15 +444,15 @@ def cleanMovieCollection(daemon=False):
         Debug(str(data))
         
         if data['status'] == 'success':
-            Debug ("successfully cleared collection: " + data['message'])
+            Debug ("successfully cleared collection: " + str(data['message']))
             if not daemon:
-                xbmcgui.Dialog().ok("Trakt Utilities", data['message'])
+                xbmcgui.Dialog().ok("Trakt Utilities", str(data['message']))
         elif data['status'] == 'failure':
-            Debug ("Error uploading movie collection: " + data['error'])
+            Debug ("Error uploading movie collection: " + str(data['error']))
             if daemon:
-                notification("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), data['error']) # Error uploading movie collection
+                notification("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
             else:
-                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), data['error']) # Error uploading movie collection
+                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
     else:
         xbmcgui.Dialog().ok("Trakt Utilities", __language__(1130).encode( "utf-8", "ignore" )) # No new movies in library to update
 
@@ -564,6 +570,9 @@ def updateTVShowCollection(daemon=False):
         
         error = None
         
+        # refresh connection (don't want to get tcp timeout)
+        conn = httplib.HTTPConnection('api.trakt.tv')
+        
         for i in range(0, len(tvshows_toadd)):
             jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': tvshows_toadd[i]['tvdb_id'], 'title': tvshows_toadd[i]['title'], 'year': tvshows_toadd[i]['year'], 'episodes': tvshows_toadd[i]['episodes']})
             
@@ -573,9 +582,9 @@ def updateTVShowCollection(daemon=False):
             data = json.loads(response.read())
             
             if data['status'] == 'success':
-                Debug ("successfully uploaded collection: " + data['message'])
+                Debug ("successfully uploaded collection: " + str(data['message']))
             elif data['status'] == 'failure':
-                Debug ("Error uploading tvshow collection: " + data['error'])
+                Debug ("Error uploading tvshow collection: " + str(data['error']))
                 error = data['error']
                 
         if error == None:
@@ -714,7 +723,10 @@ def cleanTVShowCollection(daemon=False):
                 return
             
         error = None
-            
+        
+        # refresh connection (don't want to get tcp timeout)
+        conn = httplib.HTTPConnection('api.trakt.tv')
+        
         for i in range(0, len(to_unlibrary)):
             jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': to_unlibrary[i]['tvdb_id'], 'title': to_unlibrary[i]['title'], 'year': to_unlibrary[i]['year'], 'episodes': to_unlibrary[i]['episodes']})
             
@@ -724,9 +736,9 @@ def cleanTVShowCollection(daemon=False):
             data = json.loads(response.read())
             
             if data['status'] == 'success':
-                Debug ("successfully updated collection: " + data['message'])
+                Debug ("successfully updated collection: " + str(data['message']))
             elif data['status'] == 'failure':
-                Debug ("Error uploading tvshow collection: " + data['error'])
+                Debug ("Error uploading tvshow collection: " + str(data['error']))
                 error = data['error']
         
         if error == None:
@@ -856,7 +868,10 @@ def syncSeenTVShows(daemon=False):
         if choice == True:
         
             error = None
-        
+            
+            # refresh connection (don't want to get tcp timeout)
+            conn = httplib.HTTPConnection('api.trakt.tv')
+            
             for i in range(0, len(set_as_seen)):
                 jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': set_as_seen[i]['tvdb_id'], 'title': set_as_seen[i]['title'], 'year': set_as_seen[i]['year'], 'episodes': set_as_seen[i]['episodes']})
             
@@ -866,9 +881,9 @@ def syncSeenTVShows(daemon=False):
                 data = json.loads(response.read())
             
                 if data['status'] == 'success':
-                    Debug ("successfully uploaded collection: " + data['message'])
+                    Debug ("successfully uploaded collection: " + str(data['message']))
                 elif data['status'] == 'failure':
-                    Debug ("Error uploading tvshow collection: " + data['error'])
+                    Debug ("Error uploading tvshow collection: " + str(data['error']))
                     error = data['error']
                 
             if error == None:
