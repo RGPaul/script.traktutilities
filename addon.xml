@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.TraktUtilities"
-       name="Trakt Utilities"
-       version="0.1.3"
-       provider-name="Manromen">
-  <requires>
-    <import addon="xbmc.python" version="1.0"/>
-  </requires>
-  <extension point="xbmc.python.script"
-             library="default.py">
-    <provides>video</provides>
-  </extension>
-  <extension point="xbmc.service" name="TraktUtilities.service"
-             library="service.py">
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary lang="en">some trakt utilities</summary>
-    <description lang="en">Trakt Utilities Beta
+    name="Trakt Utilities"
+    version="0.1.4"
+    provider-name="Manromen">
+    <requires>
+        <import addon="xbmc.python" version="1.0"/>
+    </requires>
+    <extension point="xbmc.python.script" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" name="TraktUtilities.service" library="service.py"/>
+    <extension point="xbmc.addon.repository" name="Manromen XBMC Addons">
+        <info compressed="true">http://dl.dropbox.com/u/1711476/XBMC-Repository/addons.xml</info>
+        <checksum>http://dl.dropbox.com/u/1711476/XBMC-Repository/addons.xml.md5</checksum>
+        <datadir zip="true">http://dl.dropbox.com/u/1711476/XBMC-Repository</datadir>
+    </extension>
+    <extension point="xbmc.addon.metadata" name="TraktUtilities.metadata">
+        <summary lang="en">some trakt utilities</summary>
+        <description lang="en">Trakt Utilities
     Synchronise Movies / TVShows with Trakt (more infos and account creation: http://trakt.tv/).
     This plugin isn't a replacement for the official trakt plugin. It's a supplement to the trakt plugin.
     
-    This is a Beta, every use is at own risk.
+    This is an open-source project.
+    I'll do my best, but the use is at own risk.
     
     Utilities:
         - Update Movie Collection:
@@ -31,11 +34,11 @@
             seen movies from trakt will be set as seen on xbmc
             it don't sets movies as unseen
         
-        - Update TVShow Collection:
-            same like Update Movie Collection, but for TVShows.
+        - Update TV Show Collection:
+            same like Update Movie Collection, but for TV Shows.
             
-        - Sync seen TVShows:
-            same like Sync seen Movies, but for TVShows.
+        - Sync seen TV Shows:
+            same like Sync seen Movies, but for TV Shows.
             
         - Clean Movie Collection:
             this will remove deleted movies from the trakt collection (unlibrary, it will not set movies as unseen).
@@ -43,24 +46,21 @@
             don't use this function, if you collect data about your DVDs, Blu-Rays, etc.
             this will unlibrary all movies, that are not listed in xbmc
             
-        - Clean TVShow Collection:
-            same like Clean Movie Collection, but for TVShows
+        - Clean TV Show Collection:
+            same like Clean Movie Collection, but for TV Shows
     
-    The Utilities for TVShows only work yet, if your scraper is TVDB (http://thetvdb.com/).
+    The Utilities for TV Shows only work yet, if your scraper is TVDB (http://thetvdb.com/).
     
     Special Thanks to: Justin Nemeth and Sean Rudford, for the great Trakt project.
-    
-    ToDo for future versions:
-        - auto update (sorry, but yet you have to check for updates yourself)
-        - option for silent sync at xbmc startup
-        
-    </description>
-    <platform>all</platform>
-    <summary lang="en">Trakt Utilities Beta
+      
+        </description>
+        <platform>all</platform>
+        <summary lang="en">Trakt Utilities
     Synchronise Movies / TVShows with Trakt (more infos and account creation: http://trakt.tv/).
     This plugin isn't a replacement for the official trakt plugin. It's a supplement to the trakt plugin.
     
-    This is a Beta, every use is at own risk.
+    This is an open-source project.
+    I'll do my best, but the use is at own risk.
     
     Utilities:
         - Update Movie Collection:
@@ -72,11 +72,11 @@
             seen movies from trakt will be set as seen on xbmc
             it don't sets movies as unseen
         
-        - Update TVShow Collection:
-            same like Update Movie Collection, but for TVShows.
+        - Update TV Show Collection:
+            same like Update Movie Collection, but for TV Shows.
             
-        - Sync seen TVShows:
-            same like Sync seen Movies, but for TVShows.
+        - Sync seen TV Shows:
+            same like Sync seen Movies, but for TV Shows.
             
         - Clean Movie Collection:
             this will remove deleted movies from the trakt collection (unlibrary, it will not set movies as unseen).
@@ -84,17 +84,13 @@
             don't use this function, if you collect data about your DVDs, Blu-Rays, etc.
             this will unlibrary all movies, that are not listed in xbmc
             
-        - Clean TVShow Collection:
-            same like Clean Movie Collection, but for TVShows
+        - Clean TV Show Collection:
+            same like Clean Movie Collection, but for TV Shows
     
-    The Utilities for TVShows only work yet, if your scraper is TVDB (http://thetvdb.com/).
+    The Utilities for TV Shows only work yet, if your scraper is TVDB (http://thetvdb.com/).
     
     Special Thanks to: Justin Nemeth and Sean Rudford, for the great Trakt project.
     
-    ToDo for future versions:
-        - auto update (sorry, but yet you have to check for updates yourself)
-        - option for silent sync at xbmc startup
-        
-    </summary>
-  </extension>
+        </summary>
+    </extension>
 </addon>

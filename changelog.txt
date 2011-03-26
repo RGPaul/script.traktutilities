@@ -1,3 +1,5 @@
+Version 0.1.4
+    - added update functionality
 
 Version 0.1.3
     - some small fixes (some possible tcp timeouts etc.)
@@ -18,7 +20,6 @@ Version 0.1
     - Update / Clean TVShow Collection
 
 ToDo for future versions:
-    - auto update (sorry, but yet you have to check for updates yourself)
     - option to ask for rating at movie finished
     - option to ask for rating at tvshow episode finished
     - option for silent sync at xbmc startup
