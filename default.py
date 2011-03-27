@@ -10,7 +10,7 @@ from utilities import *
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
-Debug("id: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
+Debug("default: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
 
 # Usermenu:
 def menu():

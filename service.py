@@ -7,7 +7,7 @@ from utilities import *
 
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 
-Debug("id: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
+Debug("service: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
 
 """
 Debug ("SERVICE: " + os.getcwd())
