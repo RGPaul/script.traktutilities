@@ -32,13 +32,13 @@ def menu():
                 updateMovieCollection()
             elif select == 1: # Sync seen Movies
                 syncSeenMovies()
-            elif select == 2: # Update TVShow Collection
+            elif select == 2: # Update TV Show Collection
                 updateTVShowCollection()
-            elif select == 3: # Sync seen TVShows
+            elif select == 3: # Sync seen TV Shows
                 syncSeenTVShows()
             elif select == 4: # Clean Movie Collection
                 cleanMovieCollection()
-            elif select == 5: # Clean TVShow Collection
+            elif select == 5: # Clean TV Show Collection
                 cleanTVShowCollection()
 
 menu()
