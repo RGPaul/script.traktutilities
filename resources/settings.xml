@@ -7,9 +7,9 @@
 <!--
 <setting id="autosync_moviecollection" type="bool" label="1005" default="false"/>
 <setting id="autosync_tvshowcollection" type="bool" label="1006" default="false"/>
-<setting id="autosync_seenmovies" type="bool" label="1007" default="false"/>
-<setting id="autosync_seentvshows" type="bool" label="1008" default="false"/>
 -->
 
+<setting id="autosync_seenmovies" type="bool" label="1007" default="false"/>
+<setting id="autosync_seentvshows" type="bool" label="1008" default="false"/>
 
 </settings>
