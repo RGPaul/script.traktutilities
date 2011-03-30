@@ -1,4 +1,4 @@
-next Version:
+Version 0.1.5:
     - added german language
     - fixed a NameError
     - fixed a Database path issue - will now use current highest available Database
