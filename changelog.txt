@@ -1,5 +1,7 @@
 next Version:
     - added german language
+    - fixed a NameError
+    - fixed a Database path issue - will now use current highest available Database
 
 Version 0.1.4:
     - added update functionality
