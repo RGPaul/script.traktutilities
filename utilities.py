@@ -999,9 +999,9 @@ def syncSeenTVShows(daemon=False):
             if dbpath == None:
                 Debug ("dbpath = None")
                 if daemon:
-                    notification("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+                    notification("Trakt Utilities", __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
                 else:
-                    xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+                    xbmcgui.Dialog().ok("Trakt Utilities", __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
                 return # dbpath not set
 
             # sqlite till jsonrpc supports playcount update
