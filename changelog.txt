@@ -1,5 +1,7 @@
-next Version:
+Version 0.1.5:
     - added german language
+    - fixed a NameError
+    - fixed a Database path issue
 
 Version 0.1.4:
     - added update functionality
@@ -23,7 +25,8 @@ Version 0.1:
     - Update / Clean TVShow Collection
 
 ToDo for future versions:
+    - option for silent sync at xbmc startup
     - option to ask for rating at movie finished
     - option to ask for rating at tvshow episode finished
-    - option for silent sync at xbmc startup
+    - watchlist support
         

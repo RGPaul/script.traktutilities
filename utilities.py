@@ -66,11 +66,31 @@ def checkSettings(daemon=False):
 # get database path
 def getDBPath():
     datapath = xbmc.translatePath("special://database")
-    path = os.path.join(datapath, 'MyVideos44.db')
+    myVideosList = []
+    dirList=os.listdir(datapath)
+    for fname in dirList:
+        if fname.startswith('MyVideos'):
+            c1 = 8; c2 = 9
+            for i in range(9, len(fname)):
+                if fname[i] == '.':
+                    c2 = i
+                    break
+            try:
+                number = int(fname[c1:c2])
+                myVideosList.append((fname, number))
+            except ValueError:
+                pass
+    
+    # sort list by database number
+    myVideosList.sort(key=lambda file: file[1])
+
+    # return last in list (highest number should be current database)
+    path = os.path.join(datapath, myVideosList[len(myVideosList)-1][0])
     if os.path.isfile(path):
         return path
     else:
-        path = os.path.join(datapath, 'MyVideos34.db')
+        # no file? try the second highest database
+        path = os.path.join(datapath, myVideosList[len(myVideosList)-2][0])
         if os.path.isfile(path):
             return path
     return None
@@ -999,9 +1019,9 @@ def syncSeenTVShows(daemon=False):
             if dbpath == None:
                 Debug ("dbpath = None")
                 if daemon:
-                    notification("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+                    notification("Trakt Utilities", __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
                 else:
-                    xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+                    xbmcgui.Dialog().ok("Trakt Utilities", __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
                 return # dbpath not set
 
             # sqlite till jsonrpc supports playcount update
