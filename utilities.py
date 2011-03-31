@@ -296,7 +296,13 @@ def syncSeenMovies(daemon=False):
         try:
             imdbid = xbmc_movies[i]['imdbnumber']
         except KeyError:
-            Debug("skipping " + xbmc_movies[i]['title'] + " - no IMDbID found")
+            try:
+                Debug("skipping " + xbmc_movies[i]['title'] + " - no IMDbID found")
+            except KeyError:
+                try:
+                    Debug("skipping " + xbmc_movies[i]['label'] + " - no IMDbID found")
+                except KeyError:
+                    Debug("skipping a movie - no IMDbID, title, or label found")
             continue
             
         try:
