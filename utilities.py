@@ -226,7 +226,13 @@ def updateMovieCollection(daemon=False):
         try:
             imdbid = xbmc_movies[i]['imdbnumber']
         except KeyError:
-            Debug("skipping " + xbmc_movies[i]['title'] + " - no IMDbID found")
+            try:
+                Debug("skipping " + xbmc_movies[i]['label'] + " - no IMDb ID found")
+            except KeyError:
+                try:
+                    Debug("skipping " + xbmc_movies[i]['titel'] + " - no IMDb ID found")
+                except KeyError:
+                    Debug("skipping a movie: no title and no IMDb ID found")
             continue
         
         try:
@@ -238,7 +244,19 @@ def updateMovieCollection(daemon=False):
                 except KeyError:
                     movie_collection.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year']})
             else:
-                Debug("skipping " + xbmc_movies[i]['title'] + " - unknown year")
+                try:
+                    movie_collection.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': 0})
+                except KeyError:
+                    try:
+                        movie_collection.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': 0})
+                    except KeyError:
+                        try:
+                            movie_collection.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['label'], 'year': 0})
+                        except KeyError:
+                            try:
+                                movie_collection.append({'imdb_id': imdbid, 'title': "", 'year': 0})
+                            except KeyError:
+                                Debug("skipping a movie: no title, label, year and IMDb ID found")
                 
     if not daemon:
         progress.close()
@@ -274,7 +292,7 @@ def updateMovieCollection(daemon=False):
             if data['skipped'] > 0:
                 Debug ("skipped movies: " + str(data['skipped_movies']))
             if not daemon:
-                xbmcgui.Dialog().ok("Trakt Utilities", str(len(movie_collection) - data['skipped']) + " " + __language__(1126).encode( "utf-8", "ignore" ), str(data['skipped']) + " " + __language__(1126).encode( "utf-8", "ignore" )) # Movies updated on Trakt / Movies skipped
+                xbmcgui.Dialog().ok("Trakt Utilities", str(len(movie_collection) - data['skipped']) + " " + __language__(1126).encode( "utf-8", "ignore" ), str(data['skipped']) + " " + __language__(1138).encode( "utf-8", "ignore" )) # Movies updated on Trakt / Movies skipped
         elif data['status'] == 'failure':
             Debug ("Error uploading movie collection: " + str(data['error']))
             if not daemon:
