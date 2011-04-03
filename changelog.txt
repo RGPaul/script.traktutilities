@@ -1,4 +1,7 @@
 Version 0.1.5:
+    - fixed a KeyError
+
+Version 0.1.5:
     - added german language
     - fixed a NameError
     - fixed a Database path issue
