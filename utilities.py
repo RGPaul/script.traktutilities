@@ -435,6 +435,11 @@ def setXBMCMoviePlaycount(imdb_id, playcount, cursor):
 # removes deleted movies from trakt collection
 def cleanMovieCollection(daemon=False):
 
+    if not daemon:
+        choice = xbmcgui.Dialog().yesno("Trakt Utilities", __language__(1153).encode( "utf-8", "ignore" ), __language__(1154).encode( "utf-8", "ignore" ), __language__(1155).encode( "utf-8", "ignore" )) # 
+        if choice == False:
+            return
+
     # get the required informations
     trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
@@ -627,6 +632,11 @@ def updateTVShowCollection(daemon=False):
 
 # removes deleted tvshow episodes from trakt collection (unlibrary)
 def cleanTVShowCollection(daemon=False):
+
+    if not daemon:
+        choice = xbmcgui.Dialog().yesno("Trakt Utilities", __language__(1156).encode( "utf-8", "ignore" ), __language__(1154).encode( "utf-8", "ignore" ), __language__(1155).encode( "utf-8", "ignore" )) # 
+        if choice == False:
+            return
 
     if not daemon:
         progress = xbmcgui.DialogProgress()
@@ -1055,7 +1065,8 @@ def syncSeenTVShows(daemon=False):
     
             db.commit()
             cursor.close()
-            progress.close()
+            if not daemon:
+                progress.close()
     else:
         if not daemon:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1151).encode( "utf-8", "ignore" )) # No new seen episodes on Trakt to update
@@ -1081,3 +1092,13 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount, cursor):
                 idfile = row2[0]
                 Debug("idFile: " + str(idfile) + " setting playcount...")
                 cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))
+
+
+"""
+for later:
+First call "Player.GetActivePlayers" to determine the currently active player (audio, video or picture).
+If it is audio or video call Audio/VideoPlaylist.GetItems and read the "current" field to get the position of the
+currently playling item in the playlist. The "items" field contains an array of all items in the playlist and "items[current]" is
+the currently playing file. You can also tell jsonrpc which fields to return for every item in the playlist and therefore you'll have all the information you need.
+
+"""

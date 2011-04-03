@@ -49,6 +49,11 @@
     <string id="1150">updating XBMC Database</string>
     <string id="1151">No new seen Episodes on Trakt to update</string>
     <string id="1152">Error: can't open XBMC Movie Database</string>
+    <string id="1153">This will remove all Movies from your Trakt Collection</string>
+    <string id="1154">that are not in the XBMC library.</string>
+    <string id="1155">Do you want to continue?</string>
+    <string id="1156">This will remove all TV Shows from your Trakt Collection</string>
+
     
     <!-- Menu -->
     <string id="1210">Update Movie Collection</string>
