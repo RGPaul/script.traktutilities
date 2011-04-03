@@ -1,3 +1,7 @@
+Version 0.2.0:
+    - added auto sync seen movies / tv shows at startup
+    - added warning for clean collection
+
 Version 0.1.5:
     - fixed a KeyError
 
