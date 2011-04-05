@@ -935,9 +935,9 @@ def syncSeenTVShows(daemon=False):
                 data = json.loads(response.read())
             
                 if data['status'] == 'success':
-                    Debug ("successfully uploaded collection: " + str(data['message']))
+                    Debug ("successfully uploaded tvshow: " + str(data['message']))
                 elif data['status'] == 'failure':
-                    Debug ("Error uploading tvshow collection: " + str(data['error']))
+                    Debug ("Error uploading tvshow: " + str(data['error']))
                     error = data['error']
                 
             if error == None:
