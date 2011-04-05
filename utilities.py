@@ -947,7 +947,7 @@ def syncSeenTVShows(daemon=False):
                     xbmcgui.Dialog().ok("Trakt Utilities", __language__(1137).encode( "utf-8", "ignore" )) # Episodes sucessfully updated to Trakt
             else:
                 if daemon:
-                    notificationxbmcgui.Dialog().ok("Trakt Utilities", __language__(1145).encode( "utf-8", "ignore" ) + str(error)) # Error uploading seen TVShows
+                    notification("Trakt Utilities", __language__(1145).encode( "utf-8", "ignore" ) + str(error)) # Error uploading seen TVShows
                 else:
                     xbmcgui.Dialog().ok("Trakt Utilities", __language__(1145).encode( "utf-8", "ignore" ), error) # Error uploading seen TVShows
     else:
