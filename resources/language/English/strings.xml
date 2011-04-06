@@ -54,6 +54,12 @@
     <string id="1155">Do you want to continue?</string>
     <string id="1156">This will remove all TV Shows from your Trakt Collection</string>
 
+    <!-- -->
+    <string id="1180">start movie collection update</string>
+    <string id="1181">start tvshow collection update</string>
+    <string id="1182">start sync seen movies</string>
+    <string id="1183">start sync seen tv shows</string>
+    <string id="1184">update / sync done</string>
     
     <!-- Menu -->
     <string id="1210">Update Movie Collection</string>
