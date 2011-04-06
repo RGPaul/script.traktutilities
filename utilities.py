@@ -272,10 +272,10 @@ def updateMovieCollection(daemon=False):
 
     # add movies to trakt library (collection):
     if len(movie_collection) > 0:
-    
-        choice = xbmcgui.Dialog().yesno("Trakt Utilities", str(len(movie_collection)) + " " + __language__(1125).encode( "utf-8", "ignore" ), movies_string) # Movies will be added to Trakt Collection
-        if choice == False:
-            return
+        if not daemon:
+            choice = xbmcgui.Dialog().yesno("Trakt Utilities", str(len(movie_collection)) + " " + __language__(1125).encode( "utf-8", "ignore" ), movies_string) # Movies will be added to Trakt Collection
+            if choice == False:
+                return
         
         jdata = json.dumps({'username': username, 'password': pwd, 'movies': movie_collection})
         
