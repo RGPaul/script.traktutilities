@@ -1,3 +1,7 @@
+Version 0.3.0:
+    - menu restructured
+    - you can show your watchlist now
+
 Version 0.2.2:
     - some bugfixes
     - added auto update movie / tvshow collection at startup
