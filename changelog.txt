@@ -1,3 +1,6 @@
+Version 0.3.1:
+    - Bugfix Update
+
 Version 0.3.0:
     - menu restructured
     - you can show your watchlist now
