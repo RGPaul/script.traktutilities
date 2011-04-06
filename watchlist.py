@@ -66,7 +66,6 @@ def showWatchlistMovies():
         
         xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
         
-        
         """
         movie = data[select]
         
