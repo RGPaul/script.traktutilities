@@ -1,6 +1,7 @@
 Version 0.3.0:
     - menu restructured
     - you can show your watchlist now
+    - updated compatibility to new json rpc since nightly build April, 5. 2011
 
 Version 0.2.2:
     - some bugfixes

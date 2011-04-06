@@ -164,9 +164,9 @@ def updateTVShowCollection(daemon=False):
     tvshow = {}
     foundseason = False
         
-    for i in range(0, xbmc_tvshows['total']):
+    for i in range(0, xbmc_tvshows['limits']['total']):
         if not daemon:
-            progress.update(100 / xbmc_tvshows['total'] * i)
+            progress.update(100 / xbmc_tvshows['limits']['total'] * i)
             if progress.iscanceled():
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1134).encode( "utf-8", "ignore" )) # Progress Aborted
                 return
@@ -190,11 +190,13 @@ def updateTVShowCollection(daemon=False):
             continue
             
         tvshow['episodes'] = []
-        for j in range(0, seasons['total']):
+        
+        for j in range(0, seasons['limits']['total']):
             while True:
                 seasonid += 1
                 episodes = getEpisodesFromXBMC(xbmc_tvshows['tvshows'][i], seasonid)
-                if episodes['total'] > 0:
+                
+                if episodes['limits']['total'] > 0:
                     break
                 if seasonid > 50:  # maybe something went wrong
                     break          # is there any tv show out there with 51+ seasons ?
@@ -370,7 +372,7 @@ def cleanTVShowCollection(daemon=False):
     progresscount = -1
     
     # make xbmc tvshows searchable by tvdbid
-    for i in range(0, xbmc_tvshows['total']):
+    for i in range(0, xbmc_tvshows['limits']['total']):
         try:
             xbmc_tvshows_tvdbid[xbmc_tvshows['tvshows'][i]['imdbnumber']] = xbmc_tvshows['tvshows'][i]
         except KeyError:
@@ -400,11 +402,14 @@ def cleanTVShowCollection(daemon=False):
             xbmc_seasons = getSeasonsFromXBMC(xbmc_tvshow)
             for i in range(0, len(trakt_tvshow[1]['seasons'])):
                 count = 0
-                for j in range(0, xbmc_seasons['total']):
+                
+                
+                
+                for j in range(0, xbmc_seasons['limits']['total']):
                     while True:
                         seasonid += 1
                         xbmc_episodes = getEpisodesFromXBMC(xbmc_tvshow, seasonid)
-                        if xbmc_episodes['total'] > 0:
+                        if xbmc_episodes['limits']['total'] > 0:
                             count += 1
                             if trakt_tvshow[1]['seasons'][i]['season'] == seasonid:
                                 foundseason = True
@@ -412,7 +417,7 @@ def cleanTVShowCollection(daemon=False):
                                 for k in range(0, len(trakt_tvshow[1]['seasons'][i]['episodes'])):
                                     episodeid = trakt_tvshow[1]['seasons'][i]['episodes'][k]
                                     found = False
-                                    for l in range(0, xbmc_episodes['total']):
+                                    for l in range(0, xbmc_episodes['limits']['total']):
                                         if xbmc_episodes['episodes'][l]['episode'] == episodeid:
                                             found = True
                                             break
@@ -420,7 +425,7 @@ def cleanTVShowCollection(daemon=False):
                                         # delte episode from trakt collection
                                         tvshow['episodes'].append({'season': seasonid, 'episode': episodeid})
                                 break
-                        if count >= xbmc_seasons['total']:
+                        if count >= xbmc_seasons['limits']['total']:
                             break
                         if seasonid > 50:  # maybe something went wrong
                             break          # is there any tvshow out there with 50 seasons ?
@@ -529,20 +534,20 @@ def syncSeenMovies(daemon=False):
             # if seen, add it
             if xbmc_movies[i]['playcount'] > 0:
                 if xbmc_movies[i]['year'] > 0:
-                    try:
-                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastPlayed'], '%Y-%m-%d %H:%M:%S')))})
+                    try:                         
+                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
                     except KeyError:
-                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastPlayed'], '%Y-%m-%d %H:%M:%S')))})
+                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
                 else:
                     Debug("skipping " + xbmc_movies[i]['title'] + " - unknown year")
             continue
             
         if xbmc_movies[i]['playcount'] > 0 and trakt_movie['plays'] == 0:
             if xbmc_movies[i]['year'] > 0:
-                try:
-                    movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastPlayed'], '%Y-%m-%d %H:%M:%S')))})
+                try: 
+                    movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
                 except KeyError:
-                    movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastPlayed'], '%Y-%m-%d %H:%M:%S')))})
+                    movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
             else:
                 Debug("skipping " + xbmc_movies[i]['title'] + " - unknown year")
     
@@ -662,9 +667,9 @@ def syncSeenTVShows(daemon=False):
     seasonid = -1
     tvshow = {}
     
-    for i in range(0, xbmc_tvshows['total']):
+    for i in range(0, xbmc_tvshows['limits']['total']):
         if not daemon:
-            progress.update(100 / xbmc_tvshows['total'] * i)
+            progress.update(100 / xbmc_tvshows['limits']['total'] * i)
             if progress.iscanceled():
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1134).encode( "utf-8", "ignore" )) # Progress Aborted
                 break
@@ -679,11 +684,11 @@ def syncSeenTVShows(daemon=False):
             
         tvshow['episodes'] = []
         
-        for j in range(0, seasons['total']):
+        for j in range(0, seasons['limits']['total']):
             while True:
                 seasonid += 1
                 episodes = getEpisodesFromXBMC(xbmc_tvshows['tvshows'][i], seasonid)
-                if episodes['total'] > 0:
+                if episodes['limits']['total'] > 0:
                     break
                 if seasonid > 50:  # maybe something went wrong
                     break          # is there any tvshow out there with 50 seasons ?
@@ -794,7 +799,7 @@ def syncSeenTVShows(daemon=False):
     xbmc_tvshows_tvdbid = {}
     
     # make xbmc tvshows searchable by tvdbid
-    for i in range(0, xbmc_tvshows['total']):
+    for i in range(0, xbmc_tvshows['limits']['total']):
         try:
             xbmc_tvshows_tvdbid[xbmc_tvshows['tvshows'][i]['imdbnumber']] = xbmc_tvshows['tvshows'][i]
         except KeyError:
@@ -832,7 +837,7 @@ def syncSeenTVShows(daemon=False):
                 continue # tvshow not in xbmc library
 
             xbmc_episodes = getEpisodesFromXBMC(xbmc_tvshow, seasonid)
-            if xbmc_episodes['total'] > 0:
+            if xbmc_episodes['limits']['total'] > 0:
                 # sort xbmc episodes by id
                 xbmc_episodes_byid = {}
                 for i in xbmc_episodes['episodes']:
