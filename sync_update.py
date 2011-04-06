@@ -534,20 +534,34 @@ def syncSeenMovies(daemon=False):
             # if seen, add it
             if xbmc_movies[i]['playcount'] > 0:
                 if xbmc_movies[i]['year'] > 0:
-                    try:                         
-                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
+                    try:
+                        test = xbmc_movies[i]['lastplayed']
+                        try:                         
+                            movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
+                        except KeyError:
+                            movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
                     except KeyError:
-                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
+                        try:
+                            movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount']})
+                        except KeyError:
+                            movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount']})
                 else:
                     Debug("skipping " + xbmc_movies[i]['title'] + " - unknown year")
             continue
             
         if xbmc_movies[i]['playcount'] > 0 and trakt_movie['plays'] == 0:
             if xbmc_movies[i]['year'] > 0:
-                try: 
-                    movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
+                try:
+                    test = xbmc_movies[i]['lastplayed']
+                    try: 
+                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
+                    except KeyError:
+                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
                 except KeyError:
-                    movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
+                    try:
+                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount']})
+                    except KeyError:
+                        movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount']})
             else:
                 Debug("skipping " + xbmc_movies[i]['title'] + " - unknown year")
     
