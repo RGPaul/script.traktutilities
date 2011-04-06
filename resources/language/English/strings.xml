@@ -66,18 +66,23 @@
     <string id="1211">Friends</string>
     <string id="1212">Recommendations</string>
     <string id="1213">Trending Movies / TV Shows</string>
-    <string id="1214"></string>
+    <string id="1214">Update / Sync / Clean</string>
     <string id="1215"></string>
     <string id="1216"></string>
+
+    <!-- Submenu -->
     <string id="1217">Update Movie Collection</string>
     <string id="1218">Sync seen Movies</string>
     <string id="1219">Update TV Show Collection</string>
     <string id="1220">Sync seen TV Shows</string>
     <string id="1221">Clean Movie Collection</string>
     <string id="1222">Clean TV Show Collection</string>
-    
-    <!-- Submenu -->
+
     <string id="1250">Trending Movies</string>
     <string id="1251">Trending TV Shows</string>
+
+    <string id="1252">Watchlist Movies</string>
+    <string id="1253">Watchlist TV Shows</string>
+    <string id="1254">Watchlist Episodes</string>
     
 </strings>
