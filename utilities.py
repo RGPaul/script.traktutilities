@@ -233,6 +233,45 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount, cursor):
                 Debug("idFile: " + str(idfile) + " setting playcount...")
                 cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))
 
+# returns list of movies from watchlist
+def getWatchlistMoviesFromTrakt():
+    try:
+        conn.request('GET', '/user/watchlist/movies.json/' + apikey + "/" + username)
+    except socket.error:
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
+
+# returns list of tv shows from watchlist
+def getWatchlistTVShowsFromTrakt():
+    try:
+        conn.request('GET', '/user/watchlist/shows.json/' + apikey + "/" + username)
+    except socket.error:
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
 
 """
 for later:

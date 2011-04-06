@@ -43,7 +43,19 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 
 # list watchlist movies
 def showWatchlistMovies():
+    
     options = []
+    data = getWatchlistMoviesFromTrakt()
+
+    for movie in data:
+        try:
+            options.append(movie['title'])
+        except KeyError:
+            pass # Error ? skip this movie
+            
+    if len(options) == 0:
+        xbmcgui.Dialog().ok("Trakt Utilities", "there are no movies in your watchlist")
+        return
     
     while True:
         select = xbmcgui.Dialog().select(__language__(1252).encode( "utf-8", "ignore" ), options) # Watchlist Movies
@@ -51,8 +63,42 @@ def showWatchlistMovies():
         if select == -1:
             Debug ("menu quit by user")
             return
+        
+        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        
+        
+        """
+        movie = data[select]
+        
+        title_label = xbmcgui.ControlLabel(100, 250, 75, movie['title'], angle=45)
+        movie_window = xbmcgui.Window(10000)
+        movie_window.addControl(title_label)
+        
+        movie_window.doModal()
+        """
 
 # list watchlist tv shows
 def showWatchlistTVShows():
-    pass
+
+    options = []
+    data = getWatchlistTVShowsFromTrakt()
+
+    for tvshow in data:
+        try:
+            options.append(tvshow['title'])
+        except KeyError:
+            pass # Error ? skip this movie
+    
+    if len(options) == 0:
+        xbmcgui.Dialog().ok("Trakt Utilities", "there are no tv shows in your watchlist")
+        return
+    
+    while True:
+        select = xbmcgui.Dialog().select(__language__(1252).encode( "utf-8", "ignore" ), options) # Watchlist Movies
+        Debug("Select: " + str(select))
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+        
+        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
     
