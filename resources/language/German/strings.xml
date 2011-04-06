@@ -51,11 +51,11 @@
     <string id="1152">Error: kann XBMC Datenbank nicht öffnen</string>
     
     <!-- Menu -->
-    <string id="1210">Aktualisiere Filmsammlung</string>
-    <string id="1211">Synchronisiere gesehene Filme</string>
-    <string id="1212">Aktualisiere Seriensammlung</string>
-    <string id="1213">Synchronisiere gesehene Serien</string>
-    <string id="1214">Bereinige Filmsammlung</string>
-    <string id="1215">Bereinige Seriensammlung</string>
+    <string id="1217">Aktualisiere Filmsammlung</string>
+    <string id="1218">Synchronisiere gesehene Filme</string>
+    <string id="1219">Aktualisiere Seriensammlung</string>
+    <string id="1220">Synchronisiere gesehene Serien</string>
+    <string id="1221">Bereinige Filmsammlung</string>
+    <string id="1222">Bereinige Seriensammlung</string>
     
 </strings>

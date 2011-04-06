@@ -4,6 +4,7 @@
 
 import xbmc,xbmcaddon,xbmcgui
 from utilities import *
+from sync_update import *
 
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
