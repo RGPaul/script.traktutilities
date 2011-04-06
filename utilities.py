@@ -41,7 +41,7 @@ conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 def Debug(msg, force=False):
-    if (debug or force):
+    if (debug == 'true' or force):
         print "Trakt Utilities: " + msg.encode( "utf-8", "ignore" )
 
 def notification( header, message, time=5000, icon=__settings__.getAddonInfo( "icon" ) ):
@@ -225,6 +225,10 @@ def updateMovieCollection(daemon=False):
                 return
         try:
             imdbid = xbmc_movies[i]['imdbnumber']
+            try:
+                Debug("found Movie: " + xbmc_movies[i]['label'] + " - IMDb ID: " + str(imdbid))
+            except KeyError:
+                Debug("found Movie with IMDb ID: " + str(imdbid))
         except KeyError:
             try:
                 Debug("skipping " + xbmc_movies[i]['label'] + " - no IMDb ID found")
@@ -542,14 +546,14 @@ def updateTVShowCollection(daemon=False):
             try:
                 tvshow['title'] = xbmc_tvshows['tvshows'][i]['label']
             except KeyError:
-                # no titel, no laben ... sorry no upload ...
+                # no titel, no label ... sorry no upload ...
                 continue
                 
         try:
             tvshow['year'] = xbmc_tvshows['tvshows'][i]['year']
             tvshow['tvdb_id'] = xbmc_tvshows['tvshows'][i]['imdbnumber']
         except KeyError:
-            # no year, no imdb id ... sorry no upload ...
+            # no year, no tvdb id ... sorry no upload ...
             continue
             
         tvshow['episodes'] = []
@@ -560,7 +564,7 @@ def updateTVShowCollection(daemon=False):
                 if episodes['total'] > 0:
                     break
                 if seasonid > 50:  # maybe something went wrong
-                    break          # is there any tvshow out there with 50 seasons ?
+                    break          # is there any tv show out there with 51+ seasons ?
             if seasonid > 50:
                 continue
             try:
