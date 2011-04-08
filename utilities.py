@@ -249,7 +249,8 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount, cursor):
 # returns list of movies from watchlist
 def getWatchlistMoviesFromTrakt():
     try:
-        conn.request('GET', '/user/watchlist/movies.json/' + apikey + "/" + username)
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/user/watchlist/movies.json/' + apikey + "/" + username, jdata)
     except socket.error:
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
@@ -269,7 +270,8 @@ def getWatchlistMoviesFromTrakt():
 # returns list of tv shows from watchlist
 def getWatchlistTVShowsFromTrakt():
     try:
-        conn.request('GET', '/user/watchlist/shows.json/' + apikey + "/" + username)
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/user/watchlist/shows.json/' + apikey + "/" + username, jdata)
     except socket.error:
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
