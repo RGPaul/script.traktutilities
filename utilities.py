@@ -218,7 +218,7 @@ def getMoviesFromXBMC():
         try:
             return result['result']['movies']
         except KeyError:
-            return []
+            return [] # Error returns an empty list
 
 # sets the playcount of a given movie by imdbid
 def setXBMCMoviePlaycount(imdb_id, playcount, cursor):
@@ -290,6 +290,14 @@ def getWatchlistTVShowsFromTrakt():
         pass
     
     return data
+
+"""
+ToDo:
+- check xbmc json returns for error
+
+
+"""
+
 
 """
 for later:
