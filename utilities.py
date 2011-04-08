@@ -215,7 +215,10 @@ def getMoviesFromXBMC():
         result = xbmc.executeJSONRPC(rpccmd)
         result = json.loads(result)
         
-        return result['result']['movies']
+        try:
+            return result['result']['movies']
+        except KeyError:
+            return []
 
 # sets the playcount of a given movie by imdbid
 def setXBMCMoviePlaycount(imdb_id, playcount, cursor):
