@@ -291,6 +291,10 @@ def getWatchlistTVShowsFromTrakt():
     
     return data
 
+# displays information of a given movie
+def displayMovieInformation()
+    pass
+
 """
 ToDo:
 - check xbmc json returns for error
