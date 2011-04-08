@@ -1,3 +1,6 @@
+Version :
+    - accessing watchlists for protected accounts (othrayte)
+
 Version 0.3.1:
     - Bugfix Update
 
