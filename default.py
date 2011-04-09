@@ -8,6 +8,7 @@ from utilities import *
 from sync_update import *
 from watchlist import *
 from recommend import *
+from friends import *
 from trending import *
 
 #read settings
@@ -35,7 +36,7 @@ def menu():
             if select == 0: # Watchlist
                 submenuWatchlist()
             elif select == 1: # Friends
-                xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+                showFriends()
             elif select == 2: # Recommendations
                 submenuRecommendations()
             elif select == 3: # Trending Movies / TV Shows
@@ -111,5 +112,5 @@ def submenuRecommendations():
             showRecommendedMovies()
         elif select == 1: # Watchlist TV Shows
             showRecommendedTVShows()
-    
+
 menu()

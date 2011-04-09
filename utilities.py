@@ -455,6 +455,29 @@ def getTrendingTVShowsFromTrakt():
         pass
     
     return data
+
+def getFriendsFromTrakt():
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/user/friends.json/'+apikey+'/'+username, jdata)
+    except socket.error:
+        Debug("getFriendsFromTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("getFriendsFromTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
+    
 """
 ToDo:
 - check xbmc json returns for error
