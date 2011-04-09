@@ -1,0 +1,36 @@
+<window>
+  <defaultcontrol>1</defaultcontrol>
+  <coordinates>
+    <system>1</system>
+    <posx>0</posx>
+    <posy>0</posy>
+  </coordinates>
+  <animation effect="fade" time="250">WindowOpen</animation>
+  <animation effect="fade" time="250">WindowClose</animation>
+  <controls>
+    <control type="group" id="2">
+      <posx>100</posx>
+      <posy>50</posy>
+      <control type="image">
+        <posx>0</posx>
+        <posy>0</posy>
+        <width>1080</width>
+        <height>650</height>
+        <texture border="40">default-panel.png</texture>
+      </control>
+      
+      <control type="label" id="3">
+        <description>movie title</description>
+        <posx>30</posx>
+        <posy>30</posy>
+        <width>1050</width>
+        <height>40</height>
+        <font>font18</font>
+        <textcolor>white</textcolor>
+        <aligny>center</aligny>
+        <align>center</align>
+      </control>
+
+    </control>
+  </controls>
+</window>

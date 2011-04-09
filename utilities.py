@@ -485,8 +485,16 @@ def getFriendsFromTrakt():
     return data
 
 # displays information of a given movie
-def displayMovieInformation()
-    pass
+def displayMovieInformation(movie):
+    Debug("DISPLAY INFO: " + str(movie)) # for better dev
+    
+    import movieinfowindow as miw
+    ui = miw.MovieInfoWindow( "movie_information.xml" , os.getcwd(), "Default")
+    ui.setTitle(movie['title'])
+    ui.doModal()
+    del ui
+    
+    
     
 """
 ToDo:

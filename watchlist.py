@@ -67,7 +67,10 @@ def showWatchlistMovies():
             Debug ("menu quit by user")
             return
 		
-        playMovie(data[select]['imdb_id'], data[select]['title'])
+        displayMovieInformation(data[select]) # ToDo: this won't work if there was any movie skipped
+        
+        
+        #playMovie(data[select]['imdb_id'], data[select]['title'])
         
         """
         movie = data[select]
