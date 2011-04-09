@@ -100,7 +100,8 @@ def getDBPath():
 def getMoviesFromTrakt(daemon=False):
 
     try:
-        conn.request('GET', '/user/library/movies/all.json/' + apikey + "/" + username)
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/user/library/movies/all.json/' + apikey + "/" + username, jdata)
     except socket.error:
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
@@ -130,7 +131,8 @@ def traktMovieListByImdbID(data):
 def getWatchedTVShowsFromTrakt(daemon=False):
     
     try:
-        conn.request('GET', '/user/library/shows/watched.json/' + apikey + "/" + username)
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/user/library/shows/watched.json/' + apikey + "/" + username, jdata)
     except socket.error:
         Debug("getWatchedTVShowsFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
@@ -153,7 +155,8 @@ def getWatchedTVShowsFromTrakt(daemon=False):
 def getTVShowCollectionFromTrakt(daemon=False):
     
     try:
-        conn.request('GET', '/user/library/shows/collection.json/' + apikey + "/" + username)
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/user/library/shows/collection.json/' + apikey + "/" + username, jdata)
     except socket.error:
         Debug("getTVShowCollectionFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
