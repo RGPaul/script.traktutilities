@@ -46,6 +46,9 @@ def showWatchlistMovies():
     
     options = []
     data = getWatchlistMoviesFromTrakt()
+    
+    if data == None: # data = None => there was an error
+        return # error already displayed in utilities.py
 
     for movie in data:
         try:

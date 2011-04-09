@@ -134,6 +134,7 @@ def getWatchedTVShowsFromTrakt(daemon=False):
         jdata = json.dumps({'username': username, 'password': pwd})
         conn.request('POST', '/user/library/shows/watched.json/' + apikey + "/" + username, jdata)
     except socket.error:
+        Debug("getWatchedTVShowsFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
@@ -142,6 +143,7 @@ def getWatchedTVShowsFromTrakt(daemon=False):
 
     try:
         if data['status'] == 'failure':
+            Debug("getWatchedTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     except TypeError:
@@ -156,6 +158,7 @@ def getTVShowCollectionFromTrakt(daemon=False):
         jdata = json.dumps({'username': username, 'password': pwd})
         conn.request('POST', '/user/library/shows/collection.json/' + apikey + "/" + username, jdata)
     except socket.error:
+        Debug("getTVShowCollectionFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
@@ -164,6 +167,7 @@ def getTVShowCollectionFromTrakt(daemon=False):
 
     try:
         if data['status'] == 'failure':
+            Debug("getTVShowCollectionFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     except TypeError:
@@ -178,7 +182,19 @@ def getTVShowsFromXBMC():
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
     
-    return result['result']
+    # check for error
+    try:
+        error = result['error']
+        Debug("getTVShowsFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+    
+    try:
+        return result['result']
+    except KeyError:
+        Debug("getTVShowsFromXBMC: KeyError: result['result']")
+        return None
 
     
 # get seasons for a given tvshow from XBMC
@@ -187,8 +203,20 @@ def getSeasonsFromXBMC(tvshow):
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
+    
+    # check for error
+    try:
+        error = result['error']
+        Debug("getSeasonsFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
 
-    return result['result']
+    try:
+        return result['result']
+    except KeyError:
+        Debug("getSeasonsFromXBMC: KeyError: result['result']")
+        return None
     
 # get episodes for a given tvshow / season from XBMC
 def getEpisodesFromXBMC(tvshow, season):
@@ -196,32 +224,41 @@ def getEpisodesFromXBMC(tvshow, season):
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
-    
-    Debug ("RESULT: " + str(result))
 
-    return result['result']
+    # check for error
+    try:
+        error = result['error']
+        Debug("getEpisodesFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+
+    try:
+        return result['result']
+    except KeyError:
+        Debug("getEpisodesFromXBMC: KeyError: result['result']")
+        return None
 
 # get movies from XBMC
 def getMoviesFromXBMC():
-    # ToDo: this is outdated - if Eden releases: update
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastPlayed']}, 'id': 1})
-    
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
+
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
     
-    # for backward compatibility - ToDo: clean with Eden stable release
+    # check for error
+    try:
+        error = result['error']
+        Debug("getMoviesFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+    
     try:
         return result['result']['movies']
+        Debug("getMoviesFromXBMC: KeyError: result['result']['movies']")
     except KeyError:
-        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
-    
-        result = xbmc.executeJSONRPC(rpccmd)
-        result = json.loads(result)
-        
-        try:
-            return result['result']['movies']
-        except KeyError:
-            return [] # Error returns an empty list
+        return None
 
 # sets the playcount of a given movie by imdbid
 def setXBMCMoviePlaycount(imdb_id, playcount, cursor):
@@ -258,6 +295,7 @@ def getWatchlistMoviesFromTrakt():
         jdata = json.dumps({'username': username, 'password': pwd})
         conn.request('POST', '/user/watchlist/movies.json/' + apikey + "/" + username, jdata)
     except socket.error:
+        Debug("getWatchlistMoviesFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
@@ -266,6 +304,7 @@ def getWatchlistMoviesFromTrakt():
 
     try:
         if data['status'] == 'failure':
+            Debug("getWatchlistMoviesFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     except TypeError:
@@ -279,6 +318,7 @@ def getWatchlistTVShowsFromTrakt():
         jdata = json.dumps({'username': username, 'password': pwd})
         conn.request('POST', '/user/watchlist/shows.json/' + apikey + "/" + username, jdata)
     except socket.error:
+        Debug("getWatchlistMoviesFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
@@ -287,6 +327,7 @@ def getWatchlistTVShowsFromTrakt():
 
     try:
         if data['status'] == 'failure':
+            Debug("getWatchlistMoviesFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     except TypeError:

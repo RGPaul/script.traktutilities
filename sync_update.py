@@ -47,6 +47,9 @@ def updateMovieCollection(daemon=False):
     # get the required informations
     trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
+    
+    if xbmc_movies == None or trakt_movies == None: # error
+        return
 
     movie_collection = []
     
@@ -152,6 +155,9 @@ def updateTVShowCollection(daemon=False):
     # get the required informations
     trakt_tvshowlist = getTVShowCollectionFromTrakt()
     xbmc_tvshows = getTVShowsFromXBMC()
+    
+    if xbmc_tvshows == None or trakt_tvshowlist == None: # error
+        return
     
     trakt_tvshows = {}
 
@@ -298,6 +304,9 @@ def cleanMovieCollection(daemon=False):
     # get the required informations
     trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
+    
+    if xbmc_movies == None or trakt_movies == None: # error
+        return
 
     to_unlibrary = []
     
@@ -357,6 +366,9 @@ def cleanTVShowCollection(daemon=False):
     # get the required informations
     trakt_tvshowlist = getTVShowCollectionFromTrakt()
     xbmc_tvshows = getTVShowsFromXBMC()
+    
+    if xbmc_tvshows == None or trakt_tvshowlist == None: # error
+        return
     
     trakt_tvshows = {}
 
@@ -512,6 +524,9 @@ def syncSeenMovies(daemon=False):
     # get the required informations
     trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
+    
+    if xbmc_movies == None or trakt_movies == None: # error
+        return
         
     movies_seen = []
 
@@ -671,6 +686,9 @@ def syncSeenTVShows(daemon=False):
     # get the required informations
     trakt_tvshowlist = getWatchedTVShowsFromTrakt()
     xbmc_tvshows = getTVShowsFromXBMC()
+    
+    if xbmc_tvshows == None or trakt_tvshowlist == None: # error
+        return
     
     trakt_tvshows = {}
 
