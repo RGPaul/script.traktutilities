@@ -200,25 +200,15 @@ def getEpisodesFromXBMC(tvshow, season):
 
 # get movies from XBMC
 def getMoviesFromXBMC():
-    # ToDo: this is outdated - if Eden releases: update
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastPlayed']}, 'id': 1})
-    
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
+
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
     
-    # for backward compatibility - ToDo: clean with Eden stable release
     try:
         return result['result']['movies']
     except KeyError:
-        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
-    
-        result = xbmc.executeJSONRPC(rpccmd)
-        result = json.loads(result)
-        
-        try:
-            return result['result']['movies']
-        except KeyError:
-            return [] # Error returns an empty list
+        return [] # Error returns an empty list
 
 # sets the playcount of a given movie by imdbid
 def setXBMCMoviePlaycount(imdb_id, playcount, cursor):
