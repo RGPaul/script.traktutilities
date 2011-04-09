@@ -33,7 +33,7 @@ def showRecommendedMovies():
             pass # Error ? skip this movie
     
     if len(options) == 0:
-        xbmcgui.Dialog().ok("Trakt Utilities", "there are no movies recommended for you")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1158).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no movies recommended for you
         return
     
     while True:
@@ -61,7 +61,7 @@ def showRecommendedTVShows():
             pass # Error ? skip this movie
     
     if len(options) == 0:
-        xbmcgui.Dialog().ok("Trakt Utilities", "there are no tv shows recommended for you")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1159).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows recommended for you
         return
     
     while True:
@@ -70,4 +70,4 @@ def showRecommendedTVShows():
         if select == -1:
             Debug ("menu quit by user")
             return
-        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1157).encode( "utf-8", "ignore" )) # Trakt Utilities, comming soon

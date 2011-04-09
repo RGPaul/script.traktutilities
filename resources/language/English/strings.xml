@@ -53,6 +53,11 @@
     <string id="1154">that are not in the XBMC library.</string>
     <string id="1155">Do you want to continue?</string>
     <string id="1156">This will remove all TV Shows from your Trakt Collection</string>
+    <string id="1157">comming soon</string>
+    <string id="1158">there are no movies recommended for you</string>
+    <string id="1159">there are no tv shows recommended for you</string>
+    <string id="1160">there are no movies in your watchlist</string>
+    <string id="1161">there are no tv shows in your watchlist</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>
@@ -60,6 +65,9 @@
     <string id="1182">start sync seen movies</string>
     <string id="1183">start sync seen tv shows</string>
     <string id="1184">update / sync done</string>
+    
+    <!-- Titles -->
+    <string id="1201">Trakt Utilities</string>
     
     <!-- Menu -->
     <string id="1210">Watchlist</string>

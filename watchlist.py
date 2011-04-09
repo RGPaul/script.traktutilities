@@ -57,7 +57,7 @@ def showWatchlistMovies():
             pass # Error ? skip this movie
             
     if len(options) == 0:
-        xbmcgui.Dialog().ok("Trakt Utilities", "there are no movies in your watchlist")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1160).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no movies in your watchlist
         return
     
     while True:
@@ -92,7 +92,7 @@ def showWatchlistTVShows():
             pass # Error ? skip this movie
     
     if len(options) == 0:
-        xbmcgui.Dialog().ok("Trakt Utilities", "there are no tv shows in your watchlist")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1161).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows in your watchlist
         return
     
     while True:
@@ -102,5 +102,5 @@ def showWatchlistTVShows():
             Debug ("menu quit by user")
             return
         
-        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1157).encode( "utf-8", "ignore" )) # Trakt Utilities, comming soon
     
