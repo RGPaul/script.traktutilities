@@ -52,7 +52,7 @@ def showWatchlistMovies():
 
     for movie in data:
         try:
-            options.append(movie['title'])
+            options.append(movie['title']+" ["+str(movie['year'])+"]")
         except KeyError:
             pass # Error ? skip this movie
             
@@ -66,8 +66,8 @@ def showWatchlistMovies():
         if select == -1:
             Debug ("menu quit by user")
             return
-        
-        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+		
+        playMovie(data[select]['imdb_id'], data[select]['title'])
         
         """
         movie = data[select]
