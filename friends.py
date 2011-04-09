@@ -26,8 +26,6 @@ def showFriends():
     if data == None: # data = None => there was an error
         return # error already displayed in utilities.py
     
-    Debug(str(data))
-
     for friend in data:
         try:
             if friend['full_name'] != None:
