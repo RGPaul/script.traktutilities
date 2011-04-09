@@ -25,10 +25,15 @@ def showFriends():
     
     if data == None: # data = None => there was an error
         return # error already displayed in utilities.py
+    
+    Debug(str(data))
 
     for friend in data:
         try:
-            options.append(friend['full_name']+" ("+friend['username']+")")
+            if friend['full_name'] != None:
+                options.append(friend['full_name']+" ("+friend['username']+")")
+            else:
+                options.append(friend['username'])
         except KeyError:
             pass # Error ? skip this movie
     
