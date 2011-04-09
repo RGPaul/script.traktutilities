@@ -335,6 +335,7 @@ def getWatchlistTVShowsFromTrakt():
     
     return data
 
+# @author Adrian Cowan (othrayte)
 def getRecommendedMoviesFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -356,7 +357,8 @@ def getRecommendedMoviesFromTrakt():
         pass
     
     return data
-    
+
+# @author Adrian Cowan (othrayte)
 def getRecommendedTVShowsFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -380,6 +382,7 @@ def getRecommendedTVShowsFromTrakt():
     return data
     
 # Play movie
+# @author Adrian Cowan (othrayte)
 def playMovie(imdb_id, title):
     # sqlite till xbmc/jsonrpc supports selecting a single movie
     dbpath = getDBPath()
@@ -394,9 +397,9 @@ def playMovie(imdb_id, title):
     # Get file by movies IMDB id or by name
     cursor.execute('select idFile from movie where c09=? union select idFile from movie where upper(c00)=?', (imdb_id, title.upper()))
     result = cursor.fetchall()
-    print result
+    Debug("found movie file: " + str(result))
     if len(result) == 0:
-        xbmcgui.Dialog().ok("Trakt Utilities", "Could not find " + options[select] + " in your library")
+        xbmcgui.Dialog().ok("Trakt Utilities", "Could not find " + title + " in your library")
     else:
         idfile = result[0][0]
         # Get filename of file by fileid
@@ -414,6 +417,7 @@ def playMovie(imdb_id, title):
             xbmc.Player().play(path+filename)
         xbmc.executebuiltin("ActivateWindow(videooverlay)")
 
+# @author Adrian Cowan (othrayte)
 def getTrendingMoviesFromTrakt():
     try:
         conn.request('GET', '/movies/trending.json/' + apikey)
@@ -434,7 +438,8 @@ def getTrendingMoviesFromTrakt():
         pass
     
     return data
-    
+
+# @author Adrian Cowan (othrayte)
 def getTrendingTVShowsFromTrakt():
     try:
         conn.request('GET', '/shows/trending.json/' + apikey)
@@ -456,6 +461,7 @@ def getTrendingTVShowsFromTrakt():
     
     return data
 
+# @author Adrian Cowan (othrayte)
 def getFriendsFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -480,7 +486,6 @@ def getFriendsFromTrakt():
     
 """
 ToDo:
-- check xbmc json returns for error
 
 
 """
