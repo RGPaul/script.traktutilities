@@ -64,8 +64,39 @@ def showWatchlistMovies():
             Debug ("menu quit by user")
             return
         
-        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        # sqlite till xbmc/jsonrpc supports selecting a single movie
+        dbpath = getDBPath()
+        if dbpath == None:
+            Debug ("dbpath = None")
+            if not daemon:
+                xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+            return # dbpath not set
         
+        db = sqlite3.connect(dbpath)
+        cursor = db.cursor()
+        # Get file by movies IMDB id or by name
+        cursor.execute('select idFile from movie where c09=? union select idFile from movie where upper(c00)=?', (data[select]['imdb_id'],data[select]['title'].upper()))
+        result = cursor.fetchall()
+        print result
+        if len(result) == 0:
+            xbmcgui.Dialog().ok("Trakt Utilities", "Could not find " + options[select] + " in your library")
+        else:
+            idfile = result[0][0]
+            # Get filename of file by fileid
+            cursor.execute('select strFilename from files  where idFile=?',(idfile,))
+            filename = cursor.fetchall()[0][0]
+            if filename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
+                xbmc.Player().play(filename)
+            else :
+                # Get the path of the file by fileid
+                cursor.execute('select idPath from files  where idFile=?',(idfile,))
+                idpath = cursor.fetchall()[0][0]
+                cursor.execute('select strPath from path  where idPath=?',(idpath,))
+                path = cursor.fetchall()[0][0]
+                
+                xbmc.Player().play(path+filename)
+            xbmc.executebuiltin("ActivateWindow(videooverlay)")
+		
         """
         movie = data[select]
         
