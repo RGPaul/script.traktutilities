@@ -39,8 +39,7 @@ def menu():
             elif select == 2: # Recommendations
                 submenuRecommendations()
             elif select == 3: # Trending Movies / TV Shows
-                #submenuTrendingMoviesTVShows()
-                xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+                submenuTrendingMoviesTVShows()
             elif select == 4: # Update / Sync / Clean
                 submenuUpdateSyncClean()
 

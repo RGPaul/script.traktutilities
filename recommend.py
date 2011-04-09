@@ -37,7 +37,7 @@ def showRecommendedMovies():
         return
     
     while True:
-        select = xbmcgui.Dialog().select(__language__(1255).encode( "utf-8", "ignore" ), options) # Watchlist Movies
+        select = xbmcgui.Dialog().select(__language__(1255).encode( "utf-8", "ignore" ), options) # Recommended Movies
         Debug("Select: " + str(select))
         if select == -1:
             Debug ("menu quit by user")
@@ -65,7 +65,7 @@ def showRecommendedTVShows():
         return
     
     while True:
-        select = xbmcgui.Dialog().select(__language__(1256).encode( "utf-8", "ignore" ), options) # Watchlist Movies
+        select = xbmcgui.Dialog().select(__language__(1256).encode( "utf-8", "ignore" ), options) # Recommended Movies
         Debug("Select: " + str(select))
         if select == -1:
             Debug ("menu quit by user")

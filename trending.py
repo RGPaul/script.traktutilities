@@ -42,7 +42,54 @@ conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 def showTrendingMovies():
-    pass
+
+    options = []
+    data = getTrendingMoviesFromTrakt()
+    
+    if data == None: # data = None => there was an error
+        return # error already displayed in utilities.py
+
+    for movie in data:
+        try:
+            options.append(movie['title'])
+        except KeyError:
+            pass # Error ? skip this movie
+    
+    if len(options) == 0:
+        xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending movies")
+        return
+    
+    while True:
+        select = xbmcgui.Dialog().select(__language__(1250).encode( "utf-8", "ignore" ), options) # Trending Movies
+        Debug("Select: " + str(select))
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+        
+        playMovie(data[select]['imdb_id'], data[select]['title'])
 
 def showTrendingTVShows():
-    pass
+
+    options = []
+    data = getTrendingTVShowsFromTrakt()
+    
+    if data == None: # data = None => there was an error
+        return # error already displayed in utilities.py
+
+    for tvshow in data:
+        try:
+            options.append(tvshow['title'])
+        except KeyError:
+            pass # Error ? skip this movie
+    
+    if len(options) == 0:
+        xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending tv shows")
+        return
+    
+    while True:
+        select = xbmcgui.Dialog().select(__language__(1251).encode( "utf-8", "ignore" ), options) # Trending Movies
+        Debug("Select: " + str(select))
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")

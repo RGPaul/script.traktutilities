@@ -413,6 +413,48 @@ def playMovie(imdb_id, title):
             
             xbmc.Player().play(path+filename)
         xbmc.executebuiltin("ActivateWindow(videooverlay)")
+
+def getTrendingMoviesFromTrakt():
+    try:
+        conn.request('GET', '/movies/trending.json/' + apikey)
+    except socket.error:
+        Debug("getTrendingMoviesFromTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("getTrendingMoviesFromTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
+    
+def getTrendingTVShowsFromTrakt():
+    try:
+        conn.request('GET', '/shows/trending.json/' + apikey)
+    except socket.error:
+        Debug("getTrendingTVShowsFromTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("getTrendingTVShowsFromTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
 """
 ToDo:
 - check xbmc json returns for error
