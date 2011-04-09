@@ -7,6 +7,7 @@ import xbmcgui,xbmcaddon,xbmc
 from utilities import *
 from sync_update import *
 from watchlist import *
+from recommend import *
 from trending import *
 
 #read settings
@@ -36,7 +37,7 @@ def menu():
             elif select == 1: # Friends
                 xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
             elif select == 2: # Recommendations
-                xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+                submenuRecommendations()
             elif select == 3: # Trending Movies / TV Shows
                 #submenuTrendingMoviesTVShows()
                 xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
@@ -97,4 +98,19 @@ def submenuWatchlist():
         elif select == 1: # Watchlist TV Shows
             showWatchlistTVShows()
 
+def submenuRecommendations():
+    
+    options = [__language__(1255).encode( "utf-8", "ignore" ), __language__(1256).encode( "utf-8", "ignore" )]
+    
+    while True:
+        select = xbmcgui.Dialog().select(__language__(1212).encode( "utf-8", "ignore" ), options)
+        Debug("Select: " + str(select))
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+        if select == 0: # Watchlist Movies
+            showRecommendedMovies()
+        elif select == 1: # Watchlist TV Shows
+            showRecommendedTVShows()
+    
 menu()

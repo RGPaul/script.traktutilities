@@ -318,7 +318,7 @@ def getWatchlistTVShowsFromTrakt():
         jdata = json.dumps({'username': username, 'password': pwd})
         conn.request('POST', '/user/watchlist/shows.json/' + apikey + "/" + username, jdata)
     except socket.error:
-        Debug("getWatchlistMoviesFromTrakt: can't connect to trakt")
+        Debug("getWatchlistTVShowsFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
@@ -327,7 +327,7 @@ def getWatchlistTVShowsFromTrakt():
 
     try:
         if data['status'] == 'failure':
-            Debug("getWatchlistMoviesFromTrakt: Error: " + str(data['error']))
+            Debug("getWatchlistTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     except TypeError:
@@ -335,6 +335,84 @@ def getWatchlistTVShowsFromTrakt():
     
     return data
 
+def getRecommendedMoviesFromTrakt():
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/recommendations/movies/' + apikey, jdata)
+    except socket.error:
+        Debug("getRecommendedMoviesFromTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("getRecommendedMoviesFromTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
+    
+def getRecommendedTVShowsFromTrakt():
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/recommendations/shows/' + apikey, jdata)
+    except socket.error:
+        Debug("getRecommendedTVShowsFromTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("getRecommendedTVShowsFromTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
+    
+# Play movie
+def playMovie(imdb_id, title):
+    # sqlite till xbmc/jsonrpc supports selecting a single movie
+    dbpath = getDBPath()
+    if dbpath == None:
+        Debug ("dbpath = None")
+        if not daemon:
+            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+        return # dbpath not set
+    
+    db = sqlite3.connect(dbpath)
+    cursor = db.cursor()
+    # Get file by movies IMDB id or by name
+    cursor.execute('select idFile from movie where c09=? union select idFile from movie where upper(c00)=?', (imdb_id, title.upper()))
+    result = cursor.fetchall()
+    print result
+    if len(result) == 0:
+        xbmcgui.Dialog().ok("Trakt Utilities", "Could not find " + options[select] + " in your library")
+    else:
+        idfile = result[0][0]
+        # Get filename of file by fileid
+        cursor.execute('select strFilename from files  where idFile=?',(idfile,))
+        filename = cursor.fetchall()[0][0]
+        if filename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
+            xbmc.Player().play(filename)
+        else :
+            # Get the path of the file by fileid
+            cursor.execute('select idPath from files  where idFile=?',(idfile,))
+            idpath = cursor.fetchall()[0][0]
+            cursor.execute('select strPath from path  where idPath=?',(idpath,))
+            path = cursor.fetchall()[0][0]
+            
+            xbmc.Player().play(path+filename)
+        xbmc.executebuiltin("ActivateWindow(videooverlay)")
 """
 ToDo:
 - check xbmc json returns for error
