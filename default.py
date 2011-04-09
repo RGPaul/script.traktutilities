@@ -35,12 +35,12 @@ def menu():
             if select == 0: # Watchlist
                 submenuWatchlist()
             elif select == 1: # Friends
-                xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1157).encode( "utf-8", "ignore" )) # Trakt Utilities, comming soon
             elif select == 2: # Recommendations
                 submenuRecommendations()
             elif select == 3: # Trending Movies / TV Shows
                 #submenuTrendingMoviesTVShows()
-                xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1157).encode( "utf-8", "ignore" )) # Trakt Utilities, comming soon
             elif select == 4: # Update / Sync / Clean
                 submenuUpdateSyncClean()
 
