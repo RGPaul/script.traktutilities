@@ -1,33 +1,9 @@
 # -*- coding: utf-8 -*-
-# @author Ralph-Gordon Paul
+# @author Ralph-Gordon Paul, Adrian Cowan (othrayte)
 # 
 
-import os
 import xbmc,xbmcaddon,xbmcgui
-import time, socket
-import simplejson as json
 from utilities import *
-
-try:
-    # Python 3.0 +
-    import http.client as httplib
-except ImportError:
-    # Python 2.7 and earlier
-    import httplib
-
-try:
-  # Python 2.6 +
-  from hashlib import sha as sha
-except ImportError:
-  # Python 2.5 and earlier
-  import sha
-  
-try:
-    # Python 2.4
-    import pysqlite2.dbapi2 as sqlite3
-except:
-    # Python 2.6 +
-    import sqlite3 
 
 # read settings
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
@@ -41,37 +17,39 @@ debug = __settings__.getSetting( "debug" )
 conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
-def showTrendingMovies():
+# list reccomended movies
+def showRecommendedMovies():
 
     options = []
-    data = getTrendingMoviesFromTrakt()
+    data = getRecommendedMoviesFromTrakt()
     
     if data == None: # data = None => there was an error
         return # error already displayed in utilities.py
 
     for movie in data:
         try:
-            options.append(movie['title'])
+            options.append(movie['title']+" ["+str(movie['year'])+"]")
         except KeyError:
             pass # Error ? skip this movie
     
     if len(options) == 0:
-        xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending movies")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1158).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no movies recommended for you
         return
     
     while True:
-        select = xbmcgui.Dialog().select(__language__(1250).encode( "utf-8", "ignore" ), options) # Trending Movies
+        select = xbmcgui.Dialog().select(__language__(1255).encode( "utf-8", "ignore" ), options) # Recommended Movies
         Debug("Select: " + str(select))
         if select == -1:
             Debug ("menu quit by user")
             return
         
         playMovie(data[select]['imdb_id'], data[select]['title'])
-
-def showTrendingTVShows():
+    
+# list reccomended tv shows
+def showRecommendedTVShows():
 
     options = []
-    data = getTrendingTVShowsFromTrakt()
+    data = getRecommendedTVShowsFromTrakt()
     
     if data == None: # data = None => there was an error
         return # error already displayed in utilities.py
@@ -83,13 +61,13 @@ def showTrendingTVShows():
             pass # Error ? skip this movie
     
     if len(options) == 0:
-        xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending tv shows")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1159).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows recommended for you
         return
     
     while True:
-        select = xbmcgui.Dialog().select(__language__(1251).encode( "utf-8", "ignore" ), options) # Trending Movies
+        select = xbmcgui.Dialog().select(__language__(1256).encode( "utf-8", "ignore" ), options) # Recommended Movies
         Debug("Select: " + str(select))
         if select == -1:
             Debug ("menu quit by user")
             return
-        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1157).encode( "utf-8", "ignore" )) # Trakt Utilities, comming soon
