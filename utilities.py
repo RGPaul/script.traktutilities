@@ -6,7 +6,6 @@ import os
 import xbmc,xbmcaddon,xbmcgui
 import time, socket
 import simplejson as json
-import urllib
 import movieinfowindow
 
 try:
@@ -510,7 +509,7 @@ def getFriendsFromTrakt():
 def displayMovieInformation(movie):
     
     # display info window
-    ui = movieinfowindow.MovieInfoWindow()
+    ui = movieinfowindow.MovieInfoWindow("movie-info.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initWindow(movie)
     ui.doModal()
     del ui

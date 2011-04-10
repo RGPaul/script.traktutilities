@@ -1,0 +1,88 @@
+<window>
+    <defaultcontrol>101</defaultcontrol>
+    <coordinates>
+        <system>1</system>
+        <posx>0</posx>
+        <posy>0</posy>
+    </coordinates>
+    
+    <animation effect="fade" time="250">WindowOpen</animation>
+    <animation effect="fade" time="250">WindowClose</animation>
+    
+    <controls>
+        <control type="image" id="2">
+            <description>Background</description>
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>1280</width>
+            <height>800</height>
+            <aspectratio>scale down</aspectratio>
+        </control>
+
+        <control type="lable" id="3">
+            <description>Movie Title</description>
+            <posx>0</posx>
+            <posy>30</posy>
+            <width>1280</width>
+            <height>80</height>
+            <align>center</align>
+            <textcolor>FFFFFFFF</textcolor>
+        </control>
+
+        <control type="textbox" id="4">
+            <description>Movie Overview</description>
+            <posx>600</posx>
+            <posy>200</posy>
+            <width>1300</width>
+            <height>435</height>
+            <font>font13</font>
+            
+        </control>
+
+        <control type="image" id="5">
+            <description>Movie Poster</description>
+            <posx>30</posx>
+            <posy>30</posy>
+            <width>400</width>
+            <height>600</height>
+            <aspectratio>scale down</aspectratio>
+        </control>
+
+        <control type="button" id="6">
+            <description>Play</description>
+            <posx>1000</posx>
+            <posy>900</posy>
+            <width>100</width>
+            <height>50</height>
+            <font>font13</font>
+            <colordiffuse>FF444444</colordiffuse>
+            <label>Play</label>
+            <textcolor>FFFFFFFF</textcolor>
+            <focusedcolor>FF009CFF</focusedcolor>
+            <disabledcolor>80FFFFFF</disabledcolor>
+            <align>center</align>
+            <aligny>center</aligny>
+        </control>
+
+        <control type="lable" id="7">
+            <description>Movie Year</description>
+            <posx>30</posx>
+            <posy>800</posy>
+            <width>1280</width>
+            <height>40</height>
+            <align>left</align>
+            <textcolor>FFFFFFFF</textcolor>
+        </control>
+
+        <control type="lable" id="8">
+            <description>Movie Runtime</description>
+            <posx>30</posx>
+            <posy>840</posy>
+            <width>1280</width>
+            <height>40</height>
+            <align>left</align>
+            <textcolor>FFFFFFFF</textcolor>
+        </control>
+        
+    </controls>
+</window>
