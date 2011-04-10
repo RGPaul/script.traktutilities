@@ -6,6 +6,8 @@ import os
 import xbmc,xbmcaddon,xbmcgui
 import time, socket
 import simplejson as json
+import urllib
+import movieinfowindow
 
 try:
     # Python 3.0 +
@@ -487,10 +489,18 @@ def getFriendsFromTrakt():
 # displays information of a given movie
 def displayMovieInformation(movie):
     Debug("DISPLAY INFO: " + str(movie)) # for better dev
+    Debug("POSTER: " + movie['images']['poster'])
     
-    import movieinfowindow as miw
-    ui = miw.MovieInfoWindow( "movie_information.xml" , os.getcwd(), "Default")
+    # download movie poster
+    traktPoster = urllib.urlopen(movie['images']['poster'])
+    localPoster = open(os.getcwd() + os.sep + "data" + os.sep + "poster.jpg", 'w')
+    localPoster.write(traktPoster.read())
+    traktPoster.close()
+    localPoster.close()
+    
+    ui = movieinfowindow.MovieInfoWindow( "movie_information.xml" , os.getcwd(), "Default")
     ui.setTitle(movie['title'])
+    ui.setOverview(movie['overview'])
     ui.doModal()
     del ui
     
