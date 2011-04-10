@@ -489,7 +489,7 @@ def displayMovieInformation(movie):
     Debug("DISPLAY INFO: " + str(movie)) # for better dev
     
     import movieinfowindow as miw
-    ui = miw.MovieInfoWindow( "movie_information.xml" , os.getcwd(), "Default")
+    ui = miw.MovieInfoWindow( "movie_information.xml" , __settings__.getAddonInfo('path'), "Default")
     ui.setTitle(movie['title'])
     ui.doModal()
     del ui
