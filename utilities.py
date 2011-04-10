@@ -488,19 +488,10 @@ def getFriendsFromTrakt():
 
 # displays information of a given movie
 def displayMovieInformation(movie):
-    Debug("DISPLAY INFO: " + str(movie)) # for better dev
-    Debug("POSTER: " + movie['images']['poster'])
     
-    # download movie poster
-    traktPoster = urllib.urlopen(movie['images']['poster'])
-    localPoster = open(os.getcwd() + os.sep + "data" + os.sep + "poster.jpg", 'w')
-    localPoster.write(traktPoster.read())
-    traktPoster.close()
-    localPoster.close()
-    
-    ui = movieinfowindow.MovieInfoWindow( "movie_information.xml" , os.getcwd(), "Default")
-    ui.setTitle(movie['title'])
-    ui.setOverview(movie['overview'])
+    # display info window
+    ui = movieinfowindow.MovieInfoWindow()
+    ui.initWindow(movie)
     ui.doModal()
     del ui
     
