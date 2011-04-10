@@ -380,10 +380,9 @@ def getRecommendedTVShowsFromTrakt():
         pass
     
     return data
-    
-# Play movie
+
 # @author Adrian Cowan (othrayte)
-def playMovie(imdb_id, title):
+def getMovieIdFromXBMC(imdb_id, title):
     # sqlite till xbmc/jsonrpc supports selecting a single movie
     dbpath = getDBPath()
     if dbpath == None:
@@ -395,12 +394,33 @@ def playMovie(imdb_id, title):
     db = sqlite3.connect(dbpath)
     cursor = db.cursor()
     # Get file by movies IMDB id or by name
-    cursor.execute('select idFile from movie where c09=? union select idFile from movie where upper(c00)=?', (imdb_id, title.upper()))
+    cursor.execute('select idMovie from movie where c09=? union select idFile from movie where upper(c00)=?', (imdb_id, title.upper()))
     result = cursor.fetchall()
-    Debug("found movie file: " + str(result))
     if len(result) == 0:
-        xbmcgui.Dialog().ok("Trakt Utilities", "Could not find " + title + " in your library")
+        return -1;
+    return result[0][0]
+    
+# @author Adrian Cowan (othrayte)
+def playMovieById(idMovie):
+
+    # sqlite till xbmc/jsonrpc supports selecting a single movie
+    dbpath = getDBPath()
+    if dbpath == None:
+        Debug ("dbpath = None")
+        if not daemon:
+            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+        return # dbpath not set
+    
+    db = sqlite3.connect(dbpath)
+    cursor = db.cursor()
+    # Get file by movies IMDB id or by name
+    if idMovie == -1:
+        return # invalid movie id
     else:
+        cursor.execute('select idFile from movie where idMovie=?', (idMovie,))
+        result = cursor.fetchall()
+        if len(result) == 0:
+            return # movie id not found
         idfile = result[0][0]
         # Get filename of file by fileid
         cursor.execute('select strFilename from files  where idFile=?',(idfile,))
