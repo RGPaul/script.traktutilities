@@ -508,7 +508,21 @@ def getFriendsFromTrakt():
         pass
     
     return data
+
+# @author Adrian Cowan (othrayte)
+def getWatchingFromTraktForUser(name):
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd})
+        conn.request('POST', '/user/watching.json/'+apikey+'/'+name, jdata)
+    except socket.error:
+        Debug("getWatchingFromTraktForUser: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
     
+    return data
 """
 ToDo:
 
