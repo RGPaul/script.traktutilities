@@ -52,7 +52,11 @@ def showWatchlistMovies():
 
     for movie in data:
         try:
-            options.append(movie['title']+" ["+str(movie['year'])+"]")
+            movie['idMovie'] = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
+            localcopy = "   "
+            if movie['idMovie'] != -1:
+                localcopy = "> "
+            options.append(localcopy+movie['title']+" ["+str(movie['year'])+"]")
         except KeyError:
             pass # Error ? skip this movie
             
@@ -67,7 +71,10 @@ def showWatchlistMovies():
             Debug ("menu quit by user")
             return
 		
-        playMovieById(getMovieIdFromXBMC(data[select]['imdb_id'], data[select]['title']))
+        if data[select]['idMovie'] == -1:
+            xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1162).encode( "utf-8", "ignore" )) # Trakt Utilities, This movie was not found in XBMC's library
+            pass
+        playMovieById(data[select]['idMovie'])
         
         """
         movie = data[select]
