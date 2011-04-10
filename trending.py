@@ -60,8 +60,11 @@ def showTrendingMovies():
     for movie in data:
         i+=1
         try:
-            options.append(movie['title'])
-            
+            movie['idMovie'] = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
+            localcopy = "   "
+            if movie['idMovie'] != -1:
+                localcopy = "> "
+            options.append(localcopy+movie['title']+" ["+str(movie['year'])+"]")
             if progress.iscanceled():
                 return
             progress.update(80+(20*i)/len(data))
@@ -81,7 +84,10 @@ def showTrendingMovies():
             Debug ("menu quit by user")
             return
         
-        playMovieById(getMovieIdFromXBMC([select]['imdb_id'], data[select]['title']))
+        if data[select]['idMovie'] == -1:
+            xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1162).encode( "utf-8", "ignore" )) # Trakt Utilities, This movie was not found in XBMC's library
+            pass
+        playMovieById(data[select]['idMovie'])
 
 def showTrendingTVShows():
 
