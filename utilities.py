@@ -425,6 +425,10 @@ def playMovieById(idMovie):
         # Get filename of file by fileid
         cursor.execute('select strFilename from files  where idFile=?',(idfile,))
         filename = cursor.fetchall()[0][0]
+        
+        messagewindow = xbmcgui.Window()
+        messagewindow.addControl(xbmcgui.ControlLabel(560, 490, 800, 100, "Movie started from Trakt Utilities.\nPress escape to go back.", alignment=6)) # alignment=6 center both vertically and horizontally
+        
         if filename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
             xbmc.Player().play(filename)
         else :
@@ -435,6 +439,7 @@ def playMovieById(idMovie):
             path = cursor.fetchall()[0][0]
             
             xbmc.Player().play(path+filename)
+        messagewindow.doModal()
         xbmc.executebuiltin("ActivateWindow(videooverlay)")
 
 # @author Adrian Cowan (othrayte)
