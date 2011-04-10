@@ -17,7 +17,7 @@ debug = __settings__.getSetting( "debug" )
 conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
-# list reccomended movies
+# @author Adrian Cowan (othrayte)
 def showFriends():
 
     options = []
@@ -26,8 +26,6 @@ def showFriends():
     if data == None: # data = None => there was an error
         return # error already displayed in utilities.py
     
-    Debug(str(data))
-
     for friend in data:
         try:
             if friend['full_name'] != None:
@@ -47,6 +45,50 @@ def showFriends():
         if select == -1:
             Debug ("menu quit by user")
             return
-        
-        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        showFriendSubmenu(data[select])
+
+# @author Adrian Cowan (othrayte)   
+def showFriendSubmenu(user):
+    #check what (if anything) the user is watching
+    watchdata = getWatchingFromTraktForUser(user['username'])
+    currentitem = "Nothing"
+    if len(watchdata) != 0:
+        if watchdata['type'] == "movie":
+            currentitem = watchdata['movie']['title']+" ["+str(watchdata['movie']['year'])+"]"
+        elif watchdata['type'] == "episode":
+            currentitem = watchdata['show']['title']+" "+str(watchdata['episode']['season'])+"x"+str(watchdata['episode']['number'])+" - "+watchdata['episode']['title']
     
+    options = [(__language__(1280)+": "+currentitem).encode( "utf-8", "ignore" ), __language__(1281).encode( "utf-8", "ignore" ), __language__(1282).encode( "utf-8", "ignore" ), __language__(1283).encode( "utf-8", "ignore" ), __language__(1284).encode( "utf-8", "ignore" )]
+    while True:
+        select = xbmcgui.Dialog().select((__language__(1211)+" - "+user['username']).encode( "utf-8", "ignore" ), options)
+        Debug("Select: " + str(select))
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+        else:
+            if select == 0: # Select (friends) currenty playing
+                xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+            elif select == 1: # Friends watchlist
+                showFriendsWatchlist(user)
+            elif select == 2: # Friends watched
+                showFriendsWatched(user)
+            elif select == 3: # Friends library
+                showFriendsLibrary(user)
+            elif select == 4: # Friends profile
+                showFriendsProfile(user)
+
+# @author Adrian Cowan (othrayte)
+def showFriendsWatchlist(user):
+    xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+
+# @author Adrian Cowan (othrayte)
+def showFriendsWatched(user):
+    xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+
+# @author Adrian Cowan (othrayte)
+def showFriendsLibrary(user):
+    xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+
+# @author Adrian Cowan (othrayte)
+def showFriendsProfile(user):
+    xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
