@@ -43,17 +43,32 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 
 def showTrendingMovies():
 
+    #show progress to user
+    progress = xbmcgui.DialogProgress()
+    progress.create("Trakt Utilities", __language__(1162).encode( "utf-8", "ignore" )) # Retreiving information from Trakt servers
+    
     options = []
+    progress.update(1)
     data = getTrendingMoviesFromTrakt()
     
     if data == None: # data = None => there was an error
         return # error already displayed in utilities.py
-
+    
+    progress.update(80,  __language__(1163).encode( "utf-8", "ignore" )) # Cross-referencing with local information
+    
+    i = 0;
     for movie in data:
+        i+=1
         try:
             options.append(movie['title'])
+            
+            if progress.iscanceled():
+                return
+            progress.update(80+(20*i)/len(data))
         except KeyError:
             pass # Error ? skip this movie
+    
+    progress.close()
     
     if len(options) == 0:
         xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending movies")
