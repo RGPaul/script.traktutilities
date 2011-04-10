@@ -43,7 +43,7 @@ def showRecommendedMovies():
             Debug ("menu quit by user")
             return
         
-        playMovie(data[select]['imdb_id'], data[select]['title'])
+        playMovieById(getMovieIdFromXBMC(data[select]['imdb_id'], data[select]['title']))
     
 # list reccomended tv shows
 def showRecommendedTVShows():
