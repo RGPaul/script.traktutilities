@@ -144,7 +144,11 @@ class WatchlistWindow(xbmcgui.WindowXML):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]
-            playMovieById(getMovieIdFromXBMC(movie['imdb_id'], movie['title']))
+            movie_id = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
+            if movie_id == -1: # Error
+                xbmcgui.Dialog().ok(movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" ))
+            else:
+                playMovieById(movie_id)
 
 # list watchlist tv shows
 def showWatchlistTVShows():
