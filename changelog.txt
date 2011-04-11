@@ -1,6 +1,6 @@
-Version :
+next Version :
     - movies can directly placed from watchlist / trending window (othrayte)
-    - added menu for movie watchlist
+    - added menu for movies: watchlist / trending (manromen / othrayte)
     - catching some more possible errors / added some debug output
     - changed some get functions to push functions (for protected users) (othrayte))
     - accessing watchlists for protected accounts (othrayte)
