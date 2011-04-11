@@ -268,11 +268,11 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
     #    match = re.findall( "<field>(.*?)</field><field>(.*?)</field>", xml_data, re.DOTALL )
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    sql_data = "select idFile from movie where movie.c09=" + str(imdb_id)
-    xml_data = xbmc.executehttpapi("QueryVideoDatabase(" + sql_data + ")")
-    #xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+    sql_data = "select movie.idFile from movie where movie.c09=%s" % str(imdb_id)
+    #xml_data = xbmc.executehttpapi("QueryVideoDatabase(" + sql_data + ")")
+    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
     
-    print ("Trakt Utilities XML DATA: " + xml_data)
+    print ("XML DATA: " + xml_data)
     
     #cursor.execute('select idFile from movie where c09=?', (imdb_id,))
     #idfile = cursor.fetchall()[0][0]
