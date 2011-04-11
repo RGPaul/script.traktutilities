@@ -80,8 +80,6 @@
             <height>200</height>
             <onup>106</onup>
             <ondown>110</ondown>
-            <onleft>1</onleft>
-            <onright>1</onright>
             <visible>true</visible>
             <orientation>horizontal</orientation>
             <itemlayout width="110" height="150">

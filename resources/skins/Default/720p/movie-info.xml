@@ -59,9 +59,9 @@
 
         <control type="button" id="106">
             <description>Play</description>
-            <posx>1000</posx>
+            <posx>0</posx>
             <posy>600</posy>
-            <width>100</width>
+            <width>1280</width>
             <height>50</height>
             <font>font13</font>
             <colordiffuse>FF444444</colordiffuse>
@@ -71,6 +71,10 @@
             <disabledcolor>80FFFFFF</disabledcolor>
             <align>center</align>
             <aligny>center</aligny>
+            <onup>106</onup>
+            <ondown>106</ondown>
+            <onleft>106</onleft>
+            <onright>106</onright>
         </control>
 
         <control type="label" id="107">

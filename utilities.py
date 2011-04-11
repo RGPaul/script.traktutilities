@@ -398,7 +398,7 @@ def getMovieIdFromXBMC(imdb_id, title):
     cursor.execute('select idMovie from movie where c09=? union select idFile from movie where upper(c00)=?', (imdb_id, title.upper()))
     result = cursor.fetchall()
     if len(result) == 0:
-        return -1;
+        return -1
     return result[0][0]
     
 # @author Adrian Cowan (othrayte)
