@@ -146,7 +146,7 @@ class WatchlistWindow(xbmcgui.WindowXML):
             movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]
             movie_id = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
             if movie_id == -1: # Error
-                xbmcgui.Dialog().ok(movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" ))
+                xbmcgui.Dialog().ok("Trakt Utilities", movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
             else:
                 playMovieById(movie_id)
 
