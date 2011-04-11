@@ -60,9 +60,9 @@ def showWatchlistMovies():
         i+=1
         try:
             movie['idMovie'] = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
-            localcopy = "   "
+            localcopy = ur"\u25A2 "
             if movie['idMovie'] != -1:
-                localcopy = "> "
+                localcopy = ur"\u25A3 "
             options.append(localcopy+movie['title']+" ["+str(movie['year'])+"]")
             if progress.iscanceled():
                 return
