@@ -7,6 +7,7 @@ import xbmc,xbmcaddon,xbmcgui
 import time, socket
 import simplejson as json
 import movieinfowindow
+import urllib, re
 
 try:
     # Python 3.0 +
@@ -262,12 +263,20 @@ def getMoviesFromXBMC():
         return None
 
 # sets the playcount of a given movie by imdbid
-def setXBMCMoviePlaycount(imdb_id, playcount, cursor):
-    # sqlite till jsonrpc supports playcount update
+def setXBMCMoviePlaycount(imdb_id, playcount):
+
+    #    match = re.findall( "<field>(.*?)</field><field>(.*?)</field>", xml_data, re.DOTALL )
+    # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    cursor.execute('select idFile from movie where c09=?', (imdb_id,))
-    idfile = cursor.fetchall()[0][0]
-    cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))    
+    sql_data = "select idFile from movie where movie.c09=" + str(imdb_id)
+    xml_data = xbmc.executehttpapi("QueryVideoDatabase(" + sql_data + ")")
+    #xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+    
+    print ("Trakt Utilities XML DATA: " + xml_data)
+    
+    #cursor.execute('select idFile from movie where c09=?', (imdb_id,))
+    #idfile = cursor.fetchall()[0][0]
+    #cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))    
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount, cursor):
