@@ -72,6 +72,7 @@ def showWatchlistMovies():
     ui.doModal()
     del ui
 
+# @author Ralph-Gordon Paul, Adrian Cowan (othrayte)
 class WatchlistWindow(xbmcgui.WindowXML):
 
     movies = None
