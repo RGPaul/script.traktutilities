@@ -51,17 +51,27 @@
         <control type="label" id="107">
             <description>Movie Year</description>
             <posx>50</posx>
-            <posy>450</posy>
+            <posy>430</posy>
             <width>200</width>
             <height>40</height>
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
-            <label></label>
         </control>
 
         <control type="label" id="108">
             <description>Movie Runtime</description>
+            <posx>50</posx>
+            <posy>450</posy>
+            <width>300</width>
+            <height>40</height>
+            <align>left</align>
+            <font>font20</font>
+            <textcolor>FFFFFFFF</textcolor>
+        </control>
+        
+        <control type="label" id="111">
+            <description>Movie Rating</description>
             <posx>50</posx>
             <posy>470</posy>
             <width>300</width>
@@ -69,7 +79,6 @@
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
-            <label></label>
         </control>
         
         <control type="list" id="110">

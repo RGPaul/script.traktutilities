@@ -49,6 +49,7 @@ YEAR = 107
 RUNTIME = 108
 TAGLINE = 109
 MOVIE_LIST = 110
+RATING = 111
 
 #get actioncodes from keymap.xml
 ACTION_PREVIOUS_MENU = 10
@@ -131,6 +132,12 @@ class WatchlistMovieWindow(xbmcgui.WindowXML):
             Debug("KeyError for Runtime")
         except TypeError:
             Debug("TypeError for Runtime")
+        try:
+            self.getControl(RATING).setLabel("Rating: " + self.movies[current]['certification'])
+        except KeyError:
+            Debug("KeyError for Runtime")
+        except TypeError:
+            Debug("TypeError for Runtime")
         
     def onFocus( self, controlId ):
     	self.controlId = controlId
@@ -139,7 +146,7 @@ class WatchlistMovieWindow(xbmcgui.WindowXML):
         from utilities import Debug
         
         if action == ACTION_PREVIOUS_MENU:
-            Debug("Closing MovieInfoWindow")
+            Debug("Closing WatchlistMovieWindow")
             self.close()
         elif action.getId() in (1,2,107):
             self.listUpdate()
