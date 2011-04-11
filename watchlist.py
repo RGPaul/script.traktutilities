@@ -67,13 +67,13 @@ def showWatchlistMovies():
         return
         
     # display watchlist movie list
-    ui = WatchlistWindow("watchlist.xml", __settings__.getAddonInfo('path'), "Default")
+    ui = WatchlistMovieWindow("watchlist-movies.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initWindow(movies)
     ui.doModal()
     del ui
 
 # @author Ralph-Gordon Paul, Adrian Cowan (othrayte)
-class WatchlistWindow(xbmcgui.WindowXML):
+class WatchlistMovieWindow(xbmcgui.WindowXML):
 
     movies = None
 
