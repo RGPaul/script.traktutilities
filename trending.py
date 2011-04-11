@@ -44,6 +44,7 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 def showTrendingMovies():
 
     options = []
+    movies = []
     data = getTrendingMoviesFromTrakt()
     
     if data == None: # data = None => there was an error
@@ -52,6 +53,7 @@ def showTrendingMovies():
     for movie in data:
         try:
             options.append(movie['title'])
+            movies.append(movie)
         except KeyError:
             pass # Error ? skip this movie
     
@@ -66,7 +68,11 @@ def showTrendingMovies():
             Debug ("menu quit by user")
             return
         
-        playMovieById(getMovieIdFromXBMC([select]['imdb_id'], data[select]['title']))
+        movie_id = getMovieIdFromXBMC(movies[select]['imdb_id'], movies[select]['title'])
+        if movie_id == -1:
+            xbmcgui.Dialog().ok("Trakt Utilities", movies[select]['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
+        else:
+            playMovieById(movie_id)
 
 def showTrendingTVShows():
 
