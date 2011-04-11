@@ -645,10 +645,6 @@ def syncSeenMovies(daemon=False):
             xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
         return # dbpath not set
     
-    # sqlite till jsonrpc supports playcount update
-    db = sqlite3.connect(dbpath)
-    cursor = db.cursor()
-    
     movies_string = ""
     for i in range(0, len(movies_seen)):
         if i == 0:
@@ -665,9 +661,7 @@ def syncSeenMovies(daemon=False):
                 return
         
         for i in range(0, len(movies_seen)):
-            setXBMCMoviePlaycount(movies_seen[i]['imdb_id'], movies_seen[i]['plays'], cursor) # set playcount on xbmc
-        db.commit()
-        cursor.close()
+            setXBMCMoviePlaycount(movies_seen[i]['imdb_id'], movies_seen[i]['plays']) # set playcount on xbmc
         if daemon:
             notification("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1129).encode( "utf-8", "ignore" )) # Movies updated on XBMC
         else:
@@ -926,10 +920,6 @@ def syncSeenTVShows(daemon=False):
                 else:
                     xbmcgui.Dialog().ok("Trakt Utilities", __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
                 return # dbpath not set
-
-            # sqlite till jsonrpc supports playcount update
-            db = sqlite3.connect(dbpath)
-            cursor = db.cursor()
             
             if not daemon:
                 progress = xbmcgui.DialogProgress()
@@ -942,16 +932,12 @@ def syncSeenTVShows(daemon=False):
                     progress_count += 1
                     if progress.iscanceled():
                         xbmcgui.Dialog().ok("Trakt Utilities", __language__(1134).encode( "utf-8", "ignore" )) # Progress Aborted
-                        db.rollback()
-                        cursor.close()
                         progress.close()
                         return
                     
                 for episode in tvshow['episodes']:
-                    setXBMCEpisodePlaycount(tvshow['tvdb_id'], episode[0], episode[1], 1, cursor)
+                    setXBMCEpisodePlaycount(tvshow['tvdb_id'], episode[0], episode[1], 1)
     
-            db.commit()
-            cursor.close()
             if not daemon:
                 progress.close()
     else:
