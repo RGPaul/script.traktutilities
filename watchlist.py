@@ -129,15 +129,15 @@ class WatchlistMovieWindow(xbmcgui.WindowXML):
         try:
             self.getControl(TAGLINE).setLabel(self.movies[current]['tagline'])
         except KeyError:
-            Debug("KeyError for Runtime")
+            Debug("KeyError for Tagline")
         except TypeError:
-            Debug("TypeError for Runtime")
+            Debug("TypeError for Tagline")
         try:
             self.getControl(RATING).setLabel("Rating: " + self.movies[current]['certification'])
         except KeyError:
-            Debug("KeyError for Runtime")
+            Debug("KeyError for Rating")
         except TypeError:
-            Debug("TypeError for Runtime")
+            Debug("TypeError for Rating")
         
     def onFocus( self, controlId ):
     	self.controlId = controlId
