@@ -1,4 +1,5 @@
 Version :
+    - movies can directly placed from watchlist / trending window (othrayte)
     - added menu for movie watchlist
     - catching some more possible errors / added some debug output
     - changed some get functions to push functions (for protected users) (othrayte))
