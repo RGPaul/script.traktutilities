@@ -45,6 +45,7 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 def showWatchlistMovies():
     
     options = []
+    movies = []
     data = getWatchlistMoviesFromTrakt()
     
     if data == None: # data = None => there was an error
@@ -53,6 +54,7 @@ def showWatchlistMovies():
     for movie in data:
         try:
             options.append(movie['title']+" ["+str(movie['year'])+"]")
+            movies.append(movie)
         except KeyError:
             pass # Error ? skip this movie
             
@@ -67,7 +69,7 @@ def showWatchlistMovies():
             Debug ("menu quit by user")
             return
 		
-        displayMovieInformation(data[select]) # ToDo: this won't work if there was any movie skipped
+        displayMovieInformation(movies[select])
         
         
         #playMovie(data[select]['imdb_id'], data[select]['title'])
