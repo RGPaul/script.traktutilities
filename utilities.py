@@ -196,7 +196,6 @@ def getTVShowsFromXBMC():
     except KeyError:
         Debug("getTVShowsFromXBMC: KeyError: result['result']")
         return None
-
     
 # get seasons for a given tvshow from XBMC
 def getSeasonsFromXBMC(tvshow):
@@ -290,6 +289,25 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount, cursor):
                 Debug("idFile: " + str(idfile) + " setting playcount...")
                 cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))
 
+# @author Adrian Cowan (othrayte)
+def getMovieIdFromXBMC(imdb_id, title):
+    # sqlite till xbmc/jsonrpc supports selecting a single movie
+    dbpath = getDBPath()
+    if dbpath == None:
+        Debug ("dbpath = None")
+        if not daemon:
+            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+        return # dbpath not set
+    
+    db = sqlite3.connect(dbpath)
+    cursor = db.cursor()
+    # Get file by movies IMDB id or by name
+    cursor.execute('select idMovie from movie where c09=? union select idFile from movie where upper(c00)=?', (imdb_id, title.upper()))
+    result = cursor.fetchall()
+    if len(result) == 0:
+        return -1
+    return result[0][0]
+   
 # returns list of movies from watchlist
 def getWatchlistMoviesFromTrakt():
     try:
@@ -383,62 +401,6 @@ def getRecommendedTVShowsFromTrakt():
     return data
 
 # @author Adrian Cowan (othrayte)
-def getMovieIdFromXBMC(imdb_id, title):
-    # sqlite till xbmc/jsonrpc supports selecting a single movie
-    dbpath = getDBPath()
-    if dbpath == None:
-        Debug ("dbpath = None")
-        if not daemon:
-            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-        return # dbpath not set
-    
-    db = sqlite3.connect(dbpath)
-    cursor = db.cursor()
-    # Get file by movies IMDB id or by name
-    cursor.execute('select idMovie from movie where c09=? union select idFile from movie where upper(c00)=?', (imdb_id, title.upper()))
-    result = cursor.fetchall()
-    if len(result) == 0:
-        return -1
-    return result[0][0]
-    
-# @author Adrian Cowan (othrayte)
-def playMovieById(idMovie):
-
-    # sqlite till xbmc/jsonrpc supports selecting a single movie
-    dbpath = getDBPath()
-    if dbpath == None:
-        Debug ("dbpath = None")
-        if not daemon:
-            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-        return # dbpath not set
-    
-    db = sqlite3.connect(dbpath)
-    cursor = db.cursor()
-    # Get file by movies IMDB id or by name
-    if idMovie == -1:
-        return # invalid movie id
-    else:
-        cursor.execute('select idFile from movie where idMovie=?', (idMovie,))
-        result = cursor.fetchall()
-        if len(result) == 0:
-            return # movie id not found
-        idfile = result[0][0]
-        # Get filename of file by fileid
-        cursor.execute('select strFilename from files  where idFile=?',(idfile,))
-        filename = cursor.fetchall()[0][0]
-       
-        if filename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
-            xbmc.Player().play(filename)
-        else :
-            # Get the path of the file by fileid
-            cursor.execute('select idPath from files  where idFile=?',(idfile,))
-            idpath = cursor.fetchall()[0][0]
-            cursor.execute('select strPath from path  where idPath=?',(idpath,))
-            path = cursor.fetchall()[0][0]
-            
-            xbmc.Player().play(path+filename)
-
-# @author Adrian Cowan (othrayte)
 def getTrendingMoviesFromTrakt():
     try:
         conn.request('GET', '/movies/trending.json/' + apikey)
@@ -505,16 +467,6 @@ def getFriendsFromTrakt():
     
     return data
 
-# displays information of a given movie
-def displayMovieInformation(movie):
-    
-    # display info window
-    ui = movieinfowindow.MovieInfoWindow("movie-info.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(movie)
-    ui.doModal()
-    del ui
-    
-
 # @author Adrian Cowan (othrayte)
 def getWatchingFromTraktForUser(name):
     try:
@@ -529,6 +481,53 @@ def getWatchingFromTraktForUser(name):
     data = json.loads(response.read())
     
     return data
+
+# @author Adrian Cowan (othrayte)
+def playMovieById(idMovie):
+
+    # sqlite till xbmc/jsonrpc supports selecting a single movie
+    dbpath = getDBPath()
+    if dbpath == None:
+        Debug ("dbpath = None")
+        if not daemon:
+            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
+        return # dbpath not set
+    
+    db = sqlite3.connect(dbpath)
+    cursor = db.cursor()
+    # Get file by movies IMDB id or by name
+    if idMovie == -1:
+        return # invalid movie id
+    else:
+        cursor.execute('select idFile from movie where idMovie=?', (idMovie,))
+        result = cursor.fetchall()
+        if len(result) == 0:
+            return # movie id not found
+        idfile = result[0][0]
+        # Get filename of file by fileid
+        cursor.execute('select strFilename from files  where idFile=?',(idfile,))
+        filename = cursor.fetchall()[0][0]
+       
+        if filename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
+            xbmc.Player().play(filename)
+        else :
+            # Get the path of the file by fileid
+            cursor.execute('select idPath from files  where idFile=?',(idfile,))
+            idpath = cursor.fetchall()[0][0]
+            cursor.execute('select strPath from path  where idPath=?',(idpath,))
+            path = cursor.fetchall()[0][0]
+            
+            xbmc.Player().play(path+filename)
+
+# displays information of a given movie
+def displayMovieInformation(movie):
+    
+    # display info window
+    ui = movieinfowindow.MovieInfoWindow("movie-info.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initWindow(movie)
+    ui.doModal()
+    del ui
+
 """
 ToDo:
 
