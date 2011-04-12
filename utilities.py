@@ -264,24 +264,14 @@ def getMoviesFromXBMC():
 # sets the playcount of a given movie by imdbid
 def setXBMCMoviePlaycount(imdb_id, playcount):
 
-    #    match = re.findall( "<field>(.*?)</field><field>(.*?)</field>", xml_data, re.DOTALL )
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    #cursor.execute('select idFile from movie where c09=?', (imdb_id,))
     sql_data = "select movie.idFile from movie where movie.c09='%s'" % str(imdb_id)
-    #xml_data = xbmc.executehttpapi("QueryVideoDatabase(" + sql_data + ")")
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    #idfile = cursor.fetchall()[0][0]
     match = re.findall( "<field>(.\d+)</field>", xml_data,)
     
-    print ("MATCH: " + str(match))
-    
-    sql_data = "update files set files.playcount=%s where files.idFile=%s" % (str(playcount), match[0])
+    sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), match[0])
     xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    
-    print ("XML DATA: " + str(xml_data))
-    
-    #cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))    
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount, cursor):
