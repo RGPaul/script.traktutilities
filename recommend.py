@@ -61,7 +61,7 @@ def showRecommendedMovies():
             Debug ("menu quit by user")
             return
         
-        if data[select]['idMovie'] == -1:
+        if data[select]['idMovie'] == -1: # Movie wasn't found in XBMC's library
             xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1162).encode( "utf-8", "ignore" )) # Trakt Utilities, This movie was not found in XBMC's library
             pass
         playMovieById(data[select]['idMovie'])

@@ -103,7 +103,7 @@ def showTrendingTVShows():
         except KeyError:
             pass # Error ? skip this movie
     
-    if len(options) == 0:
+    if len(options) == 0: # Movie wasn't found in XBMC's library
         xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending tv shows")
         return
     
