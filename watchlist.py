@@ -49,6 +49,7 @@ YEAR = 107
 RUNTIME = 108
 TAGLINE = 109
 MOVIE_LIST = 110
+RATING = 111
 
 #get actioncodes from keymap.xml
 ACTION_PREVIOUS_MENU = 10
@@ -57,6 +58,7 @@ ACTION_SELECT_ITEM = 7
 # list watchlist movies
 def showWatchlistMovies():
     
+    options = []
     movies = getWatchlistMoviesFromTrakt()
     
     if movies == None: # data = None => there was an error
@@ -67,12 +69,13 @@ def showWatchlistMovies():
         return
         
     # display watchlist movie list
-    ui = WatchlistWindow("watchlist.xml", __settings__.getAddonInfo('path'), "Default")
+    ui = WatchlistMovieWindow("watchlist-movies.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initWindow(movies)
     ui.doModal()
     del ui
 
-class WatchlistWindow(xbmcgui.WindowXML):
+# @author Ralph-Gordon Paul, Adrian Cowan (othrayte)
+class WatchlistMovieWindow(xbmcgui.WindowXML):
 
     movies = None
 
@@ -127,9 +130,15 @@ class WatchlistWindow(xbmcgui.WindowXML):
         try:
             self.getControl(TAGLINE).setLabel(self.movies[current]['tagline'])
         except KeyError:
-            Debug("KeyError for Runtime")
+            Debug("KeyError for Tagline")
         except TypeError:
-            Debug("TypeError for Runtime")
+            Debug("TypeError for Tagline")
+        try:
+            self.getControl(RATING).setLabel("Rating: " + self.movies[current]['certification'])
+        except KeyError:
+            Debug("KeyError for Rating")
+        except TypeError:
+            Debug("TypeError for Rating")
         
     def onFocus( self, controlId ):
     	self.controlId = controlId
@@ -138,13 +147,17 @@ class WatchlistWindow(xbmcgui.WindowXML):
         from utilities import Debug
         
         if action == ACTION_PREVIOUS_MENU:
-            Debug("Closing MovieInfoWindow")
+            Debug("Closing WatchlistMovieWindow")
             self.close()
         elif action.getId() in (1,2,107):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]
-            playMovieById(getMovieIdFromXBMC(movie['imdb_id'], movie['title']))
+            movie_id = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
+            if movie_id == -1: # Error
+                xbmcgui.Dialog().ok("Trakt Utilities", movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
+            else:
+                playMovieById(movie_id)
 
 # list watchlist tv shows
 def showWatchlistTVShows():

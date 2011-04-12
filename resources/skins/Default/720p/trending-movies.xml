@@ -23,6 +23,7 @@
             <align>center</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
 
         <control type="label" id="109">
@@ -34,6 +35,7 @@
             <align>center</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
 
         <control type="textbox" id="104">
@@ -46,22 +48,47 @@
             <visible>true</visible>
             <autoscroll delay="3000" time="1000" repeat="10000">!Control.HasFocus(13)</autoscroll>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
 
+        <control type="label" id="112">
+            <description>Watchers</description>
+            <posx>50</posx>
+            <posy>410</posy>
+            <width>300</width>
+            <height>40</height>
+            <align>left</align>
+            <font>font20</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
+        </control>
+        
         <control type="label" id="107">
             <description>Movie Year</description>
             <posx>50</posx>
-            <posy>450</posy>
+            <posy>430</posy>
             <width>200</width>
             <height>40</height>
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
-            <label></label>
+            <shadowcolor>00000000</shadowcolor>
         </control>
 
         <control type="label" id="108">
             <description>Movie Runtime</description>
+            <posx>50</posx>
+            <posy>450</posy>
+            <width>300</width>
+            <height>40</height>
+            <align>left</align>
+            <font>font20</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
+        </control>
+        
+        <control type="label" id="111">
+            <description>Movie Rating</description>
             <posx>50</posx>
             <posy>470</posy>
             <width>300</width>
@@ -69,7 +96,7 @@
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
-            <label></label>
+            <shadowcolor>00000000</shadowcolor>
         </control>
         
         <control type="list" id="110">
@@ -80,8 +107,6 @@
             <height>200</height>
             <onup>106</onup>
             <ondown>110</ondown>
-            <onleft>1</onleft>
-            <onright>1</onright>
             <visible>true</visible>
             <orientation>horizontal</orientation>
             <itemlayout width="110" height="150">

@@ -1,5 +1,6 @@
-Version :
-    - added menu for movie watchlist
+Version 0.4.0:
+    - movies can directly played from watchlist / trending window (othrayte)
+    - added menu for movies: watchlist / trending (manromen / othrayte)
     - catching some more possible errors / added some debug output
     - changed some get functions to push functions (for protected users) (othrayte))
     - accessing watchlists for protected accounts (othrayte)
@@ -53,8 +54,6 @@ Version 0.1:
     - Update / Clean TVShow Collection
 
 ToDo for future versions:
-    - option for silent sync at xbmc startup
     - option to ask for rating at movie finished
     - option to ask for rating at tvshow episode finished
-    - watchlist support
         
