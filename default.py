@@ -17,6 +17,9 @@ __language__ = __settings__.getLocalizedString
 
 Debug("default: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
 
+print "[~]"
+setXBMCMoviePlaycount("tt0086200",47)
+
 # Usermenu:
 def menu():
 

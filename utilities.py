@@ -8,6 +8,7 @@ import time, socket
 import simplejson as json
 import movieinfowindow
 import urllib, re
+import xml.etree.ElementTree as ET
 
 try:
     # Python 3.0 +
@@ -268,12 +269,20 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
     #    match = re.findall( "<field>(.*?)</field><field>(.*?)</field>", xml_data, re.DOTALL )
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    sql_data = "select movie.idFile from movie where movie.c09=%s" % str(imdb_id)
+    sql_data = "select movie.idFile from movie where movie.c09='%s'" % str(imdb_id)
     #xml_data = xbmc.executehttpapi("QueryVideoDatabase(" + sql_data + ")")
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
     
-    print ("XML DATA: " + xml_data)
+    root = ET.fromstring(xml_data)
+    if root is None:
+        print "element not found"
+    idFile = root.text
+    print "[1]"
+    sql_data = "UPDATE files SET playCount=%(playcount)d WHERE idFile=%(idFile)s" % {'playcount': playcount, "idFile": str(idFile)} 
+    print sql_data
+    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
     
+    print xml_data
     #cursor.execute('select idFile from movie where c09=?', (imdb_id,))
     #idfile = cursor.fetchall()[0][0]
     #cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))    
