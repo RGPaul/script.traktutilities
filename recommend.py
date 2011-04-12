@@ -22,7 +22,7 @@ def showRecommendedMovies():
 
     #show progress to user
     progress = xbmcgui.DialogProgress()
-    progress.create("Trakt Utilities", __language__(1162).encode( "utf-8", "ignore" )) # Retreiving information from Trakt servers
+    progress.create("Trakt Utilities", __language__(1163).encode( "utf-8", "ignore" )) # Retreiving information from Trakt servers
     
     options = []
     progress.update(1)
@@ -31,7 +31,7 @@ def showRecommendedMovies():
     if data == None: # data = None => there was an error
         return # error already displayed in utilities.py
         
-    progress.update(80,  __language__(1163).encode( "utf-8", "ignore" )) # Cross-referencing with local information
+    progress.update(80,  __language__(1164).encode( "utf-8", "ignore" )) # Cross-referencing with local information
     
     i = 0;
     for movie in data:
@@ -51,7 +51,7 @@ def showRecommendedMovies():
     progress.close()
     
     if len(options) == 0:
-        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1158).encode( "utf-8", "ignore" )) # Trakt Utilities, 
+        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1158).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no movies recommended for you
         return
     
     while True:
