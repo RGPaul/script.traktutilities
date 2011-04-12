@@ -277,7 +277,7 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
     
     print ("MATCH: " + str(match))
     
-    sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), match[0])
+    sql_data = "update files set files.playcount=%s where files.idFile=%s" % (str(playcount), match[0])
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
     
     print ("XML DATA: " + str(xml_data))
