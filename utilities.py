@@ -354,6 +354,44 @@ def getWatchlistTVShowsFromTrakt():
     
     return data
 
+# add an array of movies to the watch-list
+# @author Adrian Cowan (othrayte)
+def addMoviesToWatchlist(data):
+    # This function has not been tested, please test it before using it
+    movies = []
+    for item in data:
+        if "imdb_id" in item:
+            movie["imdb_id"] = item["imdb_id"]
+        if "tmdb_id" in item:
+            movie["tmdb_id"] = item["tmdb_id"]
+        if "title" in item:
+            movie["title"] = item["title"]
+        if "year" in item:
+            movie["year"] = item["year"]
+        movies.append(movie)
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd, "movies":movies})
+        conn.request('POST', '/movie/watchlist/'+apikey, jdata)
+    except socket.error:
+        Debug("addMoviesToWatchlist: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+    
+    # I dont know if we need the rest of this???
+    response = conn.getresponse()
+    data = json.loads(response.read())
+    print data
+    try:
+        if data['status'] == 'failure':
+            Debug("getFriendsFromTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
+
+
 # @author Adrian Cowan (othrayte)
 def getRecommendedMoviesFromTrakt():
     try:
