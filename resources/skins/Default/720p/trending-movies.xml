@@ -23,6 +23,7 @@
             <align>center</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
 
         <control type="label" id="109">
@@ -34,6 +35,7 @@
             <align>center</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
 
         <control type="textbox" id="104">
@@ -46,8 +48,21 @@
             <visible>true</visible>
             <autoscroll delay="3000" time="1000" repeat="10000">!Control.HasFocus(13)</autoscroll>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
 
+        <control type="label" id="112">
+            <description>Watchers</description>
+            <posx>50</posx>
+            <posy>410</posy>
+            <width>300</width>
+            <height>40</height>
+            <align>left</align>
+            <font>font20</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
+        </control>
+        
         <control type="label" id="107">
             <description>Movie Year</description>
             <posx>50</posx>
@@ -57,6 +72,7 @@
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
 
         <control type="label" id="108">
@@ -68,6 +84,7 @@
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
         
         <control type="label" id="111">
@@ -79,6 +96,7 @@
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <shadowcolor>00000000</shadowcolor>
         </control>
         
         <control type="list" id="110">
