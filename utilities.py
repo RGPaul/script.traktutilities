@@ -311,7 +311,7 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
 # @author Adrian Cowan (othrayte)
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
-    # Get file by movies IMDB id or by name
+    # Get id of movie by movies IMDB id or by name
     sql_data = "SELECT idMovie FROM movie WHERE c09='%(imdb_id)s' UNION SELECT idFile FROM movie WHERE upper(c00)='%(title)s' LIMIT 1" % {'imdb_id':imdb_id, 'title':title.upper()}
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
     match = re.findall( "<field>(.\d+)</field>", xml_data,)
@@ -537,39 +537,43 @@ def getWatchingFromTraktForUser(name):
 
 # @author Adrian Cowan (othrayte)
 def playMovieById(idMovie):
-
-    # sqlite till xbmc/jsonrpc supports selecting a single movie
-    dbpath = getDBPath()
-    if dbpath == None:
-        Debug ("dbpath = None")
-        if not daemon:
-            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-        return # dbpath not set
+    # httpapi till jsonrpc supports selecting a single movie
     
-    db = sqlite3.connect(dbpath)
-    cursor = db.cursor()
-    # Get file by movies IMDB id or by name
     if idMovie == -1:
         return # invalid movie id
     else:
-        cursor.execute('select idFile from movie where idMovie=?', (idMovie,))
-        result = cursor.fetchall()
-        if len(result) == 0:
+        # get file reference id from movie reference id
+        sql_data = "SELECT idFile FROM movie WHERE idMovie='%(idMovie)s'" % {'idMovie':idMovie}
+        xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+        match = re.findall( "<field>(.\d+)</field>", xml_data,)
+
+        if len(match) == 0:
             return # movie id not found
-        idfile = result[0][0]
+        idfile = match[0]
+        print ("idFile: "+idfile)
         # Get filename of file by fileid
-        cursor.execute('select strFilename from files  where idFile=?',(idfile,))
-        filename = cursor.fetchall()[0][0]
-       
+        sql_data = "SELECT strFilename FROM files WHERE idFile='%(idfile)s'" % {'idfile':idfile}
+        xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+        match = re.findall( "<field>(.*?)</field>", xml_data,)
+        
+        if len(match) == 0:
+            print "file reference not found"
+            return # file reference not found
+            
+        filename = match[0]
         if filename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
             xbmc.Player().play(filename)
         else :
             # Get the path of the file by fileid
-            cursor.execute('select idPath from files  where idFile=?',(idfile,))
-            idpath = cursor.fetchall()[0][0]
-            cursor.execute('select strPath from path  where idPath=?',(idpath,))
-            path = cursor.fetchall()[0][0]
+            sql_data = "SELECT strPath FROM files INNER JOIN path ON path.idPath=files.idPath WHERE idFile=%(idfile)s" % {'idfile':idfile}
+            xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+            match = re.findall( "<field>(.*?)</field>", xml_data,)
             
+            if len(match) == 0:
+                print "path refernece not found"
+                return # path reference not found
+            
+            path = match[0]
             xbmc.Player().play(path+filename)
 
 # displays information of a given movie
