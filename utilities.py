@@ -310,22 +310,18 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
 
 # @author Adrian Cowan (othrayte)
 def getMovieIdFromXBMC(imdb_id, title):
-    # sqlite till xbmc/jsonrpc supports selecting a single movie
-    dbpath = getDBPath()
-    if dbpath == None:
-        Debug ("dbpath = None")
-        if not daemon:
-            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-        return # dbpath not set
-    
-    db = sqlite3.connect(dbpath)
-    cursor = db.cursor()
+    # httpapi till jsonrpc supports selecting a single movie
     # Get file by movies IMDB id or by name
-    cursor.execute('select idMovie from movie where c09=? union select idFile from movie where upper(c00)=?', (imdb_id, title.upper()))
-    result = cursor.fetchall()
-    if len(result) == 0:
+    sql_data = "SELECT idMovie FROM movie WHERE c09='%(imdb_id)s' UNION SELECT idFile FROM movie WHERE upper(c00)='%(title)s' LIMIT 1" % {'imdb_id':imdb_id, 'title':title.upper()}
+    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+    match = re.findall( "<field>(.\d+)</field>", xml_data,)
+
+    print ("XML DATA: " + str(xml_data))
+    print ("MATCH: " + str(match))
+    
+    if len(match) == 0:
         return -1
-    return result[0][0]
+    return match[0]
    
 # returns list of movies from watchlist
 def getWatchlistMoviesFromTrakt():
