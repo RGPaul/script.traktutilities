@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
-# @author Ralph-Gordon Paul
 # 
 
 import xbmc,xbmcaddon,xbmcgui
 from utilities import *
 from sync_update import *
+
+__author__ = "Ralph-Gordon Paul, Adrian Cowan"
+__credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
+__license__ = "GPL"
+__maintainer__ = "Ralph-Gordon Paul"
+__email__ = "ralph-gordon.paul@uni-duesseldorf.de"
+__status__ = "Production"
 
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString

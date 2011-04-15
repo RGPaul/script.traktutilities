@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# @author Ralph-Gordon Paul
 # 
 
 import os
@@ -21,6 +20,13 @@ try:
 except ImportError:
   # Python 2.5 and earlier
   import sha
+  
+__author__ = "Ralph-Gordon Paul, Adrian Cowan"
+__credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
+__license__ = "GPL"
+__maintainer__ = "Ralph-Gordon Paul"
+__email__ = "ralph-gordon.paul@uni-duesseldorf.de"
+__status__ = "Production"
 
 # read settings
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
@@ -56,39 +62,6 @@ def checkSettings(daemon=False):
         return False
     
     return True
-
-# get database path
-def getDBPath():
-    datapath = xbmc.translatePath("special://database")
-    myVideosList = []
-    dirList=os.listdir(datapath)
-    for fname in dirList:
-        if fname.startswith('MyVideos'):
-            c1 = 8; c2 = 9
-            for i in range(9, len(fname)):
-                if fname[i] == '.':
-                    c2 = i
-                    break
-            try:
-                number = int(fname[c1:c2])
-                myVideosList.append((fname, number))
-            except ValueError:
-                pass
-    
-    # sort list by database number
-    myVideosList.sort(key=lambda file: file[1])
-
-    # return last in list (highest number should be current database)
-    path = os.path.join(datapath, myVideosList[len(myVideosList)-1][0])
-    if os.path.isfile(path):
-        return path
-    else:
-        # no file? try the second highest database
-        path = os.path.join(datapath, myVideosList[len(myVideosList)-2][0])
-        if os.path.isfile(path):
-            return path
-    return None
-    
 
 # get movies from trakt server
 def getMoviesFromTrakt(daemon=False):
@@ -295,7 +268,6 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     else:
         Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
 
-# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
     # Get id of movie by movies IMDB
@@ -358,7 +330,6 @@ def getWatchlistTVShowsFromTrakt():
     return data
 
 # add an array of movies to the watch-list
-# @author Adrian Cowan (othrayte)
 def addMoviesToWatchlist(data):
     # This function has not been tested, please test it before using it
     movies = []
@@ -394,8 +365,6 @@ def addMoviesToWatchlist(data):
     
     return data
 
-
-# @author Adrian Cowan (othrayte)
 def getRecommendedMoviesFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -418,7 +387,6 @@ def getRecommendedMoviesFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getRecommendedTVShowsFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -441,7 +409,6 @@ def getRecommendedTVShowsFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getTrendingMoviesFromTrakt():
     try:
         conn.request('GET', '/movies/trending.json/' + apikey)
@@ -463,7 +430,6 @@ def getTrendingMoviesFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getTrendingTVShowsFromTrakt():
     try:
         conn.request('GET', '/shows/trending.json/' + apikey)
@@ -485,7 +451,6 @@ def getTrendingTVShowsFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getFriendsFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -508,7 +473,6 @@ def getFriendsFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getWatchingFromTraktForUser(name):
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -523,7 +487,6 @@ def getWatchingFromTraktForUser(name):
     
     return data
 
-# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def playMovieById(idMovie):
     # httpapi till jsonrpc supports selecting a single movie
     print ("Movie id requested: "+str(idMovie))
