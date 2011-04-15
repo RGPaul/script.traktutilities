@@ -34,21 +34,6 @@ debug = __settings__.getSetting( "debug" )
 conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
-BACKGROUND = 102
-TITLE = 103
-OVERVIEW = 104
-POSTER = 105
-YEAR = 107
-RUNTIME = 108
-TAGLINE = 109
-MOVIE_LIST = 110
-RATING = 111
-WATCHERS = 112
-
-#get actioncodes from keymap.xml
-ACTION_PREVIOUS_MENU = 10
-ACTION_SELECT_ITEM = 7
-
 def showTrendingMovies():
     
     movies = getTrendingMoviesFromTrakt()
@@ -60,12 +45,13 @@ def showTrendingMovies():
         xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending movies")
         return
         
-    # display watchlist movie list
-    import movieswindow
-    ui = movieswindow.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
+    # display trending movie list
+    import windows
+    ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initWindow(movies)
     ui.doModal()
     del ui
+
 def showTrendingTVShows():
 
     tvshows = getTrendingTVShowsFromTrakt()
@@ -78,8 +64,8 @@ def showTrendingTVShows():
         return
     
     # display trending tv shows
-    import tvshowswindow
-    ui = tvshowswindow.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
+    import windows
+    ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initWindow(tvshows)
     ui.doModal()
     del ui

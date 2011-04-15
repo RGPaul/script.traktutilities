@@ -30,8 +30,8 @@ def showRecommendedMovies():
         return
         
     # display recommended movies list
-    import movieswindow
-    ui = movieswindow.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
+    import windows
+    ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initWindow(movies)
     ui.doModal()
     del ui
@@ -49,8 +49,8 @@ def showRecommendedTVShows():
         return
     
     # display recommended tv shows
-    import tvshowswindow
-    ui = tvshowswindow.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
+    import windows
+    ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initWindow(tvshows)
     ui.doModal()
     del ui
