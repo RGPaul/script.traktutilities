@@ -168,7 +168,7 @@ def showTrendingTVShows():
 
     tvshows = getTrendingTVShowsFromTrakt()
     
-    if tvshows == None: # data = None => there was an error
+    if tvshows == None: # tvshows = None => there was an error
         return # error already displayed in utilities.py
     
     if len(tvshows) == 0:
