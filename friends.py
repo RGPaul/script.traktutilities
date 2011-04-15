@@ -47,7 +47,7 @@ def showFriends():
             return
         showFriendSubmenu(data[select])
 
-# @author Adrian Cowan (othrayte)   
+# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def showFriendSubmenu(user):
     #check what (if anything) the user is watching
     watchdata = getWatchingFromTraktForUser(user['username'])
@@ -67,7 +67,21 @@ def showFriendSubmenu(user):
             return
         else:
             if select == 0: # Select (friends) currenty playing
-                xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+                if watchdata['type'] == "movie":
+                    # if movie - display movie information
+                    import windows
+                    ui = windows.MovieWindow("movie.xml", __settings__.getAddonInfo('path'), "Default")
+                    ui.initWindow(watchdata['movie'])
+                    ui.doModal()
+                    del ui
+                elif watchdata['type'] == "episode":
+                    # if episode - display tvshow information
+                    import windows
+                    ui = windows.TVShowWindow("tvshow.xml", __settings__.getAddonInfo('path'), "Default")
+                    ui.initWindow(watchdata['show'])
+                    ui.doModal()
+                    del ui
+                    
             elif select == 1: # Friends watchlist
                 showFriendsWatchlist(user)
             elif select == 2: # Friends watched
