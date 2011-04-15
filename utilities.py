@@ -523,10 +523,9 @@ def getWatchingFromTraktForUser(name):
     
     return data
 
-# @author Adrian Cowan (othrayte), Ralph-Gordon Paul
+# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def playMovieById(idMovie):
     # httpapi till jsonrpc supports selecting a single movie
-    import xml.etree.ElementTree as ET
     print ("Movie id requested: "+str(idMovie))
     if idMovie == -1:
         return # invalid movie id
