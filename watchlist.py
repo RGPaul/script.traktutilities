@@ -58,10 +58,9 @@ ACTION_SELECT_ITEM = 7
 # list watchlist movies
 def showWatchlistMovies():
     
-    options = []
     movies = getWatchlistMoviesFromTrakt()
     
-    if movies == None: # data = None => there was an error
+    if movies == None: # movies = None => there was an error
         return # error already displayed in utilities.py
     
     if len(movies) == 0:
@@ -69,118 +68,28 @@ def showWatchlistMovies():
         return
         
     # display watchlist movie list
-    ui = WatchlistMovieWindow("watchlist-movies.xml", __settings__.getAddonInfo('path'), "Default")
+    import movieswindow
+    ui = movieswindow.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initWindow(movies)
     ui.doModal()
     del ui
 
-# @author Ralph-Gordon Paul, Adrian Cowan (othrayte)
-class WatchlistMovieWindow(xbmcgui.WindowXML):
-
-    movies = None
-
-    def initWindow(self, movies):
-        self.movies = movies
-        
-    def onInit(self):
-        from utilities import Debug
-        if self.movies != None:
-            for movie in self.movies:
-                self.getControl(MOVIE_LIST).addItem(xbmcgui.ListItem(movie['title'], '', movie['images']['poster']))
-            self.setFocus(self.getControl(MOVIE_LIST))
-            self.listUpdate()
-
-    def listUpdate(self):
-        from utilities import Debug
-        try:
-            current = self.getControl(MOVIE_LIST).getSelectedPosition()
-        except TypeError:
-            return # ToDo: error output
-        
-        try:
-            self.getControl(BACKGROUND).setImage(self.movies[current]['images']['fanart'])
-        except KeyError:
-            Debug("KeyError for Backround")
-        except TypeError:
-            Debug("TypeError for Backround")
-        try:
-            self.getControl(TITLE).setLabel(self.movies[current]['title'])
-        except KeyError:
-            Debug("KeyError for Title")
-        except TypeError:
-            Debug("TypeError for Title")
-        try:
-            self.getControl(OVERVIEW).setText(self.movies[current]['overview'])
-        except KeyError:
-            Debug("KeyError for Overview")
-        except TypeError:
-            Debug("TypeError for Overview")
-        try:
-            self.getControl(YEAR).setLabel("Year: " + str(self.movies[current]['year']))
-        except KeyError:
-            Debug("KeyError for Year")
-        except TypeError:
-            Debug("TypeError for Year")
-        try:
-            self.getControl(RUNTIME).setLabel("Runtime: " + str(self.movies[current]['runtime']) + " Minutes")
-        except KeyError:
-            Debug("KeyError for Runtime")
-        except TypeError:
-            Debug("TypeError for Runtime")
-        try:
-            self.getControl(TAGLINE).setLabel(self.movies[current]['tagline'])
-        except KeyError:
-            Debug("KeyError for Tagline")
-        except TypeError:
-            Debug("TypeError for Tagline")
-        try:
-            self.getControl(RATING).setLabel("Rating: " + self.movies[current]['certification'])
-        except KeyError:
-            Debug("KeyError for Rating")
-        except TypeError:
-            Debug("TypeError for Rating")
-        
-    def onFocus( self, controlId ):
-    	self.controlId = controlId
-
-    def onAction(self, action):
-        from utilities import Debug
-        
-        if action == ACTION_PREVIOUS_MENU:
-            Debug("Closing WatchlistMovieWindow")
-            self.close()
-        elif action.getId() in (1,2,107):
-            self.listUpdate()
-        elif action.getId() == ACTION_SELECT_ITEM:
-            movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]
-            movie_id = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
-            if movie_id == -1: # Error
-                xbmcgui.Dialog().ok("Trakt Utilities", movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
-            else:
-                playMovieById(movie_id)
-
 # list watchlist tv shows
 def showWatchlistTVShows():
 
-    options = []
-    data = getWatchlistTVShowsFromTrakt()
-
-    for tvshow in data:
-        try:
-            options.append(tvshow['title'])
-        except KeyError:
-            pass # Error ? skip this movie
+    tvshows = getWatchlistTVShowsFromTrakt()
     
-    if len(options) == 0:
+    if tvshows == None: # tvshows = None => there was an error
+        return # error already displayed in utilities.py
+    
+    if len(tvshows) == 0:
         xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1161).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows in your watchlist
         return
     
-    while True:
-        select = xbmcgui.Dialog().select(__language__(1252).encode( "utf-8", "ignore" ), options) # Watchlist Movies
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
-        
-        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1157).encode( "utf-8", "ignore" )) # Trakt Utilities, comming soon
+    # display watchlist tv shows
+    import tvshowswindow
+    ui = tvshowswindow.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initWindow(tvshows)
+    ui.doModal()
+    del ui
     

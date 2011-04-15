@@ -12,6 +12,16 @@
             <width>1280</width>
             <height>800</height>
             <aspectratio>scale down</aspectratio>
+            <colordiffuse>FF3E3E3E</colordiffuse>
+        </control>
+
+        <control type="image" id="105">
+            <description>Movie Poster</description>
+            <posx>50</posx>
+            <posy>100</posy>
+            <width>250</width>
+            <height>350</height>
+            <aspectratio>scale down</aspectratio>
         </control>
 
         <control type="label" id="103">
@@ -38,79 +48,59 @@
 
         <control type="textbox" id="104">
             <description>Movie Overview</description>
-            <posx>30</posx>
+            <posx>450</posx>
             <posy>100</posy>
             <width>700</width>
-            <height>300</height>
+            <height>400</height>
             <font>font13</font>
             <visible>true</visible>
             <autoscroll delay="3000" time="1000" repeat="10000">!Control.HasFocus(13)</autoscroll>
             <textcolor>FFFFFFFF</textcolor>
         </control>
 
+        <control type="button" id="106">
+            <description>Play</description>
+            <posx>0</posx>
+            <posy>600</posy>
+            <width>1280</width>
+            <height>50</height>
+            <font>font13</font>
+            <colordiffuse>FF444444</colordiffuse>
+            <label>Play</label>
+            <textcolor>FFFFFFFF</textcolor>
+            <focusedcolor>FF009CFF</focusedcolor>
+            <disabledcolor>80FFFFFF</disabledcolor>
+            <align>center</align>
+            <aligny>center</aligny>
+            <onup>106</onup>
+            <ondown>106</ondown>
+            <onleft>106</onleft>
+            <onright>106</onright>
+        </control>
+
         <control type="label" id="107">
             <description>Movie Year</description>
             <posx>50</posx>
-            <posy>430</posy>
+            <posy>500</posy>
             <width>200</width>
             <height>40</height>
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <label></label>
         </control>
 
         <control type="label" id="108">
             <description>Movie Runtime</description>
             <posx>50</posx>
-            <posy>450</posy>
+            <posy>520</posy>
             <width>300</width>
             <height>40</height>
             <align>left</align>
             <font>font20</font>
             <textcolor>FFFFFFFF</textcolor>
+            <label></label>
         </control>
-        
-        <control type="label" id="111">
-            <description>Movie Rating</description>
-            <posx>50</posx>
-            <posy>470</posy>
-            <width>300</width>
-            <height>40</height>
-            <align>left</align>
-            <font>font20</font>
-            <textcolor>FFFFFFFF</textcolor>
-        </control>
-        
-        <control type="list" id="110">
-            <description>List of Movies</description>
-            <posx>20</posx>
-            <posy>500</posy>
-            <width>1240</width>
-            <height>200</height>
-            <onup>106</onup>
-            <ondown>110</ondown>
-            <visible>true</visible>
-            <orientation>horizontal</orientation>
-            <itemlayout width="110" height="150">
-                <control type="image">
-                    <posx>0</posx>
-                    <posy>45</posy>
-                    <width>100</width>
-                    <height>150</height>
-                    <info>ListItem.Icon</info>
-                </control>
-            </itemlayout>
-            <focusedlayout width="140" height="195">
-                <control type="image">
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <width>130</width>
-                    <height>195</height>
-                    <info>ListItem.Icon</info>
-                </control>
-            </focusedlayout>
-        </control>
-        
         
     </controls>
 </window>

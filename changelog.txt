@@ -1,3 +1,10 @@
+next Version:
+    - added menu for:
+          - watchlist tv shows
+          - trending tv shows
+          - recommended movies
+          - recommended tv shows
+
 Version 0.4.0:
     - movies can directly played from watchlist / trending window (othrayte)
     - added menu for movies: watchlist / trending (manromen / othrayte)

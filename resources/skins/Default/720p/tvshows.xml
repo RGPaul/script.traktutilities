@@ -12,10 +12,11 @@
             <width>1280</width>
             <height>800</height>
             <aspectratio>scale down</aspectratio>
+            <colordiffuse>FF3E3E3E</colordiffuse>
         </control>
 
         <control type="label" id="103">
-            <description>Movie Title</description>
+            <description>TV SHow Title</description>
             <posx>0</posx>
             <posy>30</posy>
             <width>1280</width>
@@ -27,7 +28,7 @@
         </control>
 
         <control type="label" id="109">
-            <description>Movie Tagline</description>
+            <description>TV Show Tagline</description>
             <posx>0</posx>
             <posy>50</posy>
             <width>1280</width>
@@ -39,7 +40,7 @@
         </control>
 
         <control type="textbox" id="104">
-            <description>Movie Overview</description>
+            <description>TV Show Overview</description>
             <posx>30</posx>
             <posy>100</posy>
             <width>700</width>
@@ -64,7 +65,7 @@
         </control>
         
         <control type="label" id="107">
-            <description>Movie Year</description>
+            <description>TV Show Year</description>
             <posx>50</posx>
             <posy>430</posy>
             <width>200</width>
@@ -76,7 +77,7 @@
         </control>
 
         <control type="label" id="108">
-            <description>Movie Runtime</description>
+            <description>TV Show Runtime</description>
             <posx>50</posx>
             <posy>450</posy>
             <width>300</width>
@@ -88,7 +89,7 @@
         </control>
         
         <control type="label" id="111">
-            <description>Movie Rating</description>
+            <description>TV Show Rating</description>
             <posx>50</posx>
             <posy>470</posy>
             <width>300</width>
@@ -100,7 +101,7 @@
         </control>
         
         <control type="list" id="110">
-            <description>List of Movies</description>
+            <description>List of TV Shows</description>
             <posx>20</posx>
             <posy>500</posy>
             <width>1240</width>

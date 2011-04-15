@@ -6,7 +6,6 @@ import os
 import xbmc,xbmcaddon,xbmcgui
 import time, socket
 import simplejson as json
-import movieinfowindow
 import urllib, re
 
 try:
