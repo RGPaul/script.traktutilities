@@ -12,6 +12,7 @@
             <width>1280</width>
             <height>800</height>
             <aspectratio>scale down</aspectratio>
+            <colordiffuse>FF3E3E3E</colordiffuse>
         </control>
 
         <control type="label" id="103">
