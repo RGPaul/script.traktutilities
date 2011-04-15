@@ -295,21 +295,21 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     else:
         Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
 
-# @author Adrian Cowan (othrayte)
+# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
-    # Get id of movie by movies IMDB id or by name
-    import xml.etree.ElementTree as ET
+    # Get id of movie by movies IMDB
 
     print ("Searching for movie: "+imdb_id+", "+title)
-    sql_data = "SELECT idMovie FROM movie WHERE c09='%(imdb_id)s' UNION SELECT idFile FROM movie WHERE upper(c00)='%(title)s' LIMIT 1" % {'imdb_id':imdb_id, 'title':title.upper()}
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    idMovie = ET.fromstring(xml_data)
+    sql_data = "SELECT movie.idMovie FROM movie WHERE movie.c09='%s'" % str(imdb_id)
+    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(sql_data), )
+    match = re.findall( "<field>(.\d+)</field>", xml_data,)
     
-    if idMovie is None:
+    if len(match) > 0:
+        return match[0]
+    else:
+        Debug("getMovieIdFromXBMC: cannot find movie in database")
         return -1
-    
-    return idMovie.text
    
 # returns list of movies from watchlist
 def getWatchlistMoviesFromTrakt(friend=None):
@@ -529,58 +529,50 @@ def getWatchingFromTraktForUser(name):
     
     return data
 
-# @author Adrian Cowan (othrayte)
+# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def playMovieById(idMovie):
     # httpapi till jsonrpc supports selecting a single movie
-    import xml.etree.ElementTree as ET
     print ("Movie id requested: "+str(idMovie))
     if idMovie == -1:
         return # invalid movie id
     else:
         # get file reference id from movie reference id
-        sql_data = "SELECT idFile FROM movie WHERE idMovie='%(idMovie)s'" % {'idMovie':idMovie}
+        sql_data = "SELECT movie.idFile FROM movie WHERE movie.idMovie=%s" % str(idMovie)
         xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-        print sql_data+" = "+xml_data
-        result = ET.fromstring(xml_data)
+        match = re.findall( "<field>(.\d+)</field>", xml_data,)
         
-        if result is None:
-            return # movie id not found
+        if len(match) <= 0:
+            Debug("playMovieById: Error getting idFile")
+            return
         
-        idFile = result.text
-        print ("idFile: "+idFile)
-        # Get filename of file by fileid
-        sql_data = "SELECT strFilename FROM files WHERE idFile='%(idFile)s'" % {'idFile':idFile}
+        idFile = match[0]
+        
+        # Get path and filename of file by fileid
+        sql_data = "SELECT files.idPath, files.strFilename FROM files WHERE files.idFile=%s" % str(idFile)
         xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-        result = ET.fromstring(xml_data)
+        match = re.findall( "<field>(.\d+)</field><field>(.*?)</field>", xml_data,)
         
-        if result is None:
-            print "file reference not found"
-            return # file reference not found
+        if len(match) <= 0:
+            Debug("playMovieById: Error getting filename")
+            return
         
-        strFilename = result.text
+        idPath = match[0][0]
+        strFilename = match[0][1]
         if strFilename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
             xbmc.Player().play(strFilename)
         else :
             # Get the path of the file by fileid
-            sql_data = "SELECT strPath FROM files INNER JOIN path ON path.idPath=files.idPath WHERE idFile=%(idFile)s" % {'idFile':idFile}
+            sql_data = "SELECT path.strPath FROM path WHERE path.idPath=%s" % idPath
             xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-            result = ET.fromstring(xml_data)
+            match = re.findall( "<field>(.*?)</field>", xml_data,)
             
-            if result is None:
-                print "path refernece not found"
-                return # path reference not found
+            if len(match) <= 0:
+                Debug("playMovieById: Error getting path")
+                return
             
-            strPath = result.text
+            strPath = match[0]
             xbmc.Player().play(strPath+strFilename)
 
-# displays information of a given movie
-def displayMovieInformation(movie):
-    
-    # display info window
-    ui = movieinfowindow.MovieInfoWindow("movie-info.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(movie)
-    ui.doModal()
-    del ui
 
 """
 ToDo:
