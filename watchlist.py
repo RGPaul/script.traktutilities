@@ -162,25 +162,19 @@ class WatchlistMovieWindow(xbmcgui.WindowXML):
 # list watchlist tv shows
 def showWatchlistTVShows():
 
-    options = []
-    data = getWatchlistTVShowsFromTrakt()
-
-    for tvshow in data:
-        try:
-            options.append(tvshow['title'])
-        except KeyError:
-            pass # Error ? skip this movie
+    tvshows = getWatchlistTVShowsFromTrakt()
     
-    if len(options) == 0:
+    if tvshows == None: # tvshows = None => there was an error
+        return # error already displayed in utilities.py
+    
+    if len(tvshows) == 0:
         xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1161).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows in your watchlist
         return
     
-    while True:
-        select = xbmcgui.Dialog().select(__language__(1252).encode( "utf-8", "ignore" ), options) # Watchlist Movies
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
-        
-        xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1157).encode( "utf-8", "ignore" )) # Trakt Utilities, comming soon
+    # display watchlist tv shows
+    import tvshowswindow
+    ui = tvshowswindow.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initWindow(tvshows)
+    ui.doModal()
+    del ui
     
