@@ -21,13 +21,6 @@ try:
 except ImportError:
   # Python 2.5 and earlier
   import sha
-  
-try:
-    # Python 2.4
-    import pysqlite2.dbapi2 as sqlite3
-except:
-    # Python 2.6 +
-    import sqlite3 
 
 # read settings
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
