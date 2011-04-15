@@ -272,6 +272,7 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
     
     sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), match[0])
     xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+    Debug("xml answer: " + str(xml_data))
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
@@ -285,7 +286,7 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     print ("MATCH: " + str(match))
     
     if len(match) >= 1:
-        Debug("Serie: " + match[0][1] + " idShow: " + str(match[0][0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
+        Debug("TV Show: " + match[0][1] + " idShow: " + str(match[0][0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
 
         # select episode table by idShow
         sql_data = "select tvshowlinkepisode.idEpisode from tvshowlinkepisode where tvshowlinkepisode.idShow=%s" % str(match[0][0])
@@ -295,18 +296,22 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
         print ("XML DATA: " + str(xml_data))
         print ("MATCH: " + str(match))
         
-        # i'm currently working on this
-"""        
-        cursor.execute('select idEpisode from tvshowlinkepisode where idShow=?', (idshow,))
-        for row in cursor.fetchall():
-            idepisode = row[0]
+        # cursor.execute('select idEpisode from tvshowlinkepisode where idShow=?', (idshow,))
+        
+        for idEpisode in match:
             # get idfile from episode table # c12 = season, c13 = episode
-            cursor.execute('select idFile from episode where idEpisode=? and c12=? and c13=?', (idepisode, seasonid, episodeid))
-            for row2 in cursor.fetchall():
-                idfile = row2[0]
-                Debug("idFile: " + str(idfile) + " setting playcount...")
-                cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))
-"""
+            #cursor.execute('select idFile from episode where idEpisode=? and c12=? and c13=?', (idepisode, seasonid, episodeid))
+            sql_data = "select episode.idFile from episode where episode.idEpisode=%s and episode.c12='%s' and episode.c13='%s'" % (str(idEpisode), str(seasonid), str(episodeid))
+            xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+            match2 = re.findall( "<field>(.\d+)</field>", xml_data,)
+            for idFile in match2:
+                Debug("idFile: " + str(idFile) + " setting playcount...")
+                #cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))
+                sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), str(idFile))
+                xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
+                Debug("xml answer: " + str(xml_data))
+    else:
+        Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
 
 # @author Adrian Cowan (othrayte)
 def getMovieIdFromXBMC(imdb_id, title):
