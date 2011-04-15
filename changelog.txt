@@ -1,4 +1,4 @@
-next Version:
+Version 0.4.1:
     - switched from sqlite to httpapi-sql queries (support for external mysql servers)
     - added menu for:
           - watchlist tv shows
