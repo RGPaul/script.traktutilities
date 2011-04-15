@@ -166,26 +166,18 @@ class TrendingMoviesWindow(xbmcgui.WindowXML):
 
 def showTrendingTVShows():
 
-    options = []
-    data = getTrendingTVShowsFromTrakt()
+    tvshows = getTrendingTVShowsFromTrakt()
     
-    if data == None: # data = None => there was an error
+    if tvshows == None: # data = None => there was an error
         return # error already displayed in utilities.py
-
-    for tvshow in data:
-        try:
-            options.append(tvshow['title'])
-        except KeyError:
-            pass # Error ? skip this movie
     
-    if len(options) == 0:
+    if len(tvshows) == 0:
         xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending tv shows")
         return
     
-    while True:
-        select = xbmcgui.Dialog().select(__language__(1251).encode( "utf-8", "ignore" ), options) # Trending Movies
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
-        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+    # display trending tv shows
+    import tvshowswindow
+    ui = tvshowswindow.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initWindow(tvshows)
+    ui.doModal()
+    del ui
