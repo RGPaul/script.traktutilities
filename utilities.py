@@ -88,7 +88,22 @@ def getDBPath():
         if os.path.isfile(path):
             return path
     return None
-    
+
+# make a httpapi based XBMC db query (get data)
+def xbmcHttpapiQuery(query):
+    print query
+    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(query), )
+    match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
+    print xml_data
+    print match
+    if len(match) <= 0:
+        return None
+    return match
+
+# execute a httpapi based XBMC db query (set data)
+def xbmcHttpapiExec(query):
+    xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus(query), )
+    return xml_data
 
 # get movies from trakt server
 def getMoviesFromTrakt(daemon=False):
@@ -258,40 +273,33 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    sql_data = "select movie.idFile from movie where movie.c09='%s'" % str(imdb_id)
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    match = re.findall( "<field>(.\d+)</field>", xml_data,)
+    match = xbmcHttpapiQuery("select movie.idFile from movie where movie.c09='%s'" % str(imdb_id))
+    if match == None:
+        #add error message here
+        return
     
-    sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), match[0])
-    xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    Debug("xml answer: " + str(xml_data))
+    result = xbmcHttpapiExec("update files set playcount=%s where idFile=%s" % (str(playcount), match[0]))
+    Debug("xml answer: " + str(result))
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     # httpapi till jsonrpc supports playcount update
     # select tvshow by tvdb_id # c12 => TVDB ID # c00 = title
-    sql_data = "select tvshow.idShow, tvshow.c00 from tvshow where tvshow.c12='%s'" % str(tvdb_id)
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    match = re.findall( "<field>(.\d+)</field><field>(.*?)</field>", xml_data,)
+    match = xbmcHttpapiQuery("select tvshow.idShow, tvshow.c00 from tvshow where tvshow.c12='%s'" % str(tvdb_id))
     
     if len(match) >= 1:
-        Debug("TV Show: " + match[0][1] + " idShow: " + str(match[0][0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
+        Debug("TV Show: " + match[1] + " idShow: " + str(match[0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
 
         # select episode table by idShow
-        sql_data = "select tvshowlinkepisode.idEpisode from tvshowlinkepisode where tvshowlinkepisode.idShow=%s" % str(match[0][0])
-        xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-        match = re.findall( "<field>(.\d+)</field>", xml_data,)
+        match = xbmcHttpapiQuery("select tvshowlinkepisode.idEpisode from tvshowlinkepisode where tvshowlinkepisode.idShow=%s" % str(match[0]))
         
         for idEpisode in match:
             # get idfile from episode table # c12 = season, c13 = episode
-            sql_data = "select episode.idFile from episode where episode.idEpisode=%s and episode.c12='%s' and episode.c13='%s'" % (str(idEpisode), str(seasonid), str(episodeid))
-            xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-            match2 = re.findall( "<field>(.\d+)</field>", xml_data,)
+            match2 = xbmcHttpapiQuery("select episode.idFile from episode where episode.idEpisode=%s and episode.c12='%s' and episode.c13='%s'" % (str(idEpisode), str(seasonid), str(episodeid)))
             for idFile in match2:
                 Debug("idFile: " + str(idFile) + " setting playcount...")
-                sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), str(idFile))
-                xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-                Debug("xml answer: " + str(xml_data))
+                responce = xbmcHttpapiExec("update files set playcount=%s where idFile=%s" % (str(playcount), str(idFile)))
+                Debug("xml answer: " + str(responce))
     else:
         Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
 
@@ -299,17 +307,13 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
     # Get id of movie by movies IMDB
-
     print ("Searching for movie: "+imdb_id+", "+title)
-    sql_data = "SELECT movie.idMovie FROM movie WHERE movie.c09='%s'" % str(imdb_id)
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(sql_data), )
-    match = re.findall( "<field>(.\d+)</field>", xml_data,)
-    
-    if len(match) > 0:
-        return match[0]
-    else:
+    match = xbmcHttpapiQuery("SELECT movie.idMovie FROM movie WHERE movie.c09='%s'" % str(imdb_id))
+    if match == None:
         Debug("getMovieIdFromXBMC: cannot find movie in database")
         return -1
+        
+    return match[0]
    
 # returns list of movies from watchlist
 def getWatchlistMoviesFromTrakt():
@@ -531,36 +535,29 @@ def playMovieById(idMovie):
         return # invalid movie id
     else:
         # get file reference id from movie reference id
-        sql_data = "SELECT movie.idFile FROM movie WHERE movie.idMovie=%s" % str(idMovie)
-        xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-        match = re.findall( "<field>(.\d+)</field>", xml_data,)
-        
-        if len(match) <= 0:
+        match = xbmcHttpapiQuery("SELECT movie.idFile FROM movie WHERE movie.idMovie=%s" % str(idMovie))
+        if match == None:
             Debug("playMovieById: Error getting idFile")
             return
         
         idFile = match[0]
         
         # Get path and filename of file by fileid
-        sql_data = "SELECT files.idPath, files.strFilename FROM files WHERE files.idFile=%s" % str(idFile)
-        xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-        match = re.findall( "<field>(.\d+)</field><field>(.*?)</field>", xml_data,)
+        match = xbmcHttpapiQuery("SELECT files.idPath, files.strFilename FROM files WHERE files.idFile=%s" % str(idFile))
         
-        if len(match) <= 0:
+        if match == None:
             Debug("playMovieById: Error getting filename")
             return
         
-        idPath = match[0][0]
-        strFilename = match[0][1]
+        idPath = match[0]
+        strFilename = match[1]
         if strFilename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
             xbmc.Player().play(strFilename)
         else :
             # Get the path of the file by fileid
-            sql_data = "SELECT path.strPath FROM path WHERE path.idPath=%s" % idPath
-            xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-            match = re.findall( "<field>(.*?)</field>", xml_data,)
+            match = xbmcHttpapiQuery("SELECT path.strPath FROM path WHERE path.idPath=%s" % idPath)
             
-            if len(match) <= 0:
+            if match == None:
                 Debug("playMovieById: Error getting path")
                 return
             
