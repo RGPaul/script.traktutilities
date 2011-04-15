@@ -1,4 +1,5 @@
 next Version:
+    - switched from sqlite to httpapi-sql queries (support for external mysql servers)
     - added menu for:
           - watchlist tv shows
           - trending tv shows
