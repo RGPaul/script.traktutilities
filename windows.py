@@ -35,7 +35,6 @@ class MoviesWindow(xbmcgui.WindowXML):
         self.movies = movies
         
     def onInit(self):
-        from utilities import Debug
         if self.movies != None:
             for movie in self.movies:
                 self.getControl(MOVIE_LIST).addItem(xbmcgui.ListItem(movie['title'], '', movie['images']['poster']))
@@ -46,7 +45,6 @@ class MoviesWindow(xbmcgui.WindowXML):
             self.close()
 
     def listUpdate(self):
-        from utilities import Debug
         try:
             current = self.getControl(MOVIE_LIST).getSelectedPosition()
         except TypeError:
@@ -112,7 +110,6 @@ class MoviesWindow(xbmcgui.WindowXML):
     	self.controlId = controlId
 
     def onAction(self, action):
-        from utilities import Debug
         
         if action == ACTION_PREVIOUS_MENU:
             Debug("Closing MoviesWindow")
@@ -135,7 +132,6 @@ class MovieWindow(xbmcgui.WindowXML):
         self.movie = movie
         
     def onInit(self):
-        from utilities import Debug
         if self.movie != None:
             try:
                 self.getControl(BACKGROUND).setImage(self.movie['images']['fanart'])
@@ -193,7 +189,6 @@ class MovieWindow(xbmcgui.WindowXML):
             pass
 
     def onAction(self, action):
-        from utilities import Debug
         buttonCode =  action.getButtonCode()
         actionID   =  action.getId()
         
@@ -222,7 +217,6 @@ class TVShowsWindow(xbmcgui.WindowXML):
     	self.controlId = controlId
         
     def listUpdate(self):
-        from utilities import Debug
         
         try:
             current = self.getControl(TVSHOW_LIST).getSelectedPosition()
@@ -287,7 +281,6 @@ class TVShowsWindow(xbmcgui.WindowXML):
 
 
     def onAction(self, action):
-        from utilities import Debug
 
         if action == ACTION_PREVIOUS_MENU:
             Debug("Closing TV Shows Window")
