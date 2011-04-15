@@ -281,9 +281,6 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
     match = re.findall( "<field>(.\d+)</field><field>(.*?)</field>", xml_data,)
     
-    print ("XML DATA: " + str(xml_data))
-    print ("MATCH: " + str(match))
-    
     if len(match) >= 1:
         Debug("TV Show: " + match[0][1] + " idShow: " + str(match[0][0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
 
@@ -292,20 +289,13 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
         xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
         match = re.findall( "<field>(.\d+)</field>", xml_data,)
         
-        print ("XML DATA: " + str(xml_data))
-        print ("MATCH: " + str(match))
-        
-        # cursor.execute('select idEpisode from tvshowlinkepisode where idShow=?', (idshow,))
-        
         for idEpisode in match:
             # get idfile from episode table # c12 = season, c13 = episode
-            #cursor.execute('select idFile from episode where idEpisode=? and c12=? and c13=?', (idepisode, seasonid, episodeid))
             sql_data = "select episode.idFile from episode where episode.idEpisode=%s and episode.c12='%s' and episode.c13='%s'" % (str(idEpisode), str(seasonid), str(episodeid))
             xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
             match2 = re.findall( "<field>(.\d+)</field>", xml_data,)
             for idFile in match2:
                 Debug("idFile: " + str(idFile) + " setting playcount...")
-                #cursor.execute('update files set playCount=? where idFile=?',(playcount, idfile))
                 sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), str(idFile))
                 xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
                 Debug("xml answer: " + str(xml_data))
