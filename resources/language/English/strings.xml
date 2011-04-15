@@ -61,6 +61,8 @@
     <string id="1162">not found in your XBMC Library</string>
     <string id="1163">Retreiving information from Trakt servers</string>
     <string id="1164">Cross-referencing with local information</string>
+    <string id="1165">there are no movies in the watchlist</string>
+    <string id="1166">there are no tv shows in the watchlist</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>

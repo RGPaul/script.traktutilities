@@ -17,10 +17,11 @@ debug = __settings__.getSetting( "debug" )
 conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
-# @author Adrian Cowan (othrayte)
+# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def showFriends():
 
     options = []
+    friends = []
     data = getFriendsFromTrakt()
     
     if data == None: # data = None => there was an error
@@ -30,10 +31,12 @@ def showFriends():
         try:
             if friend['full_name'] != None:
                 options.append(friend['full_name']+" ("+friend['username']+")")
+                friends.append(friend)
             else:
                 options.append(friend['username'])
+                friends.append(friend)
         except KeyError:
-            pass # Error ? skip this movie
+            pass # Error ? skip this friend
     
     if len(options) == 0:
         xbmcgui.Dialog().ok("Trakt Utilities", "you have not added any friends on Trakt")
@@ -45,7 +48,7 @@ def showFriends():
         if select == -1:
             Debug ("menu quit by user")
             return
-        showFriendSubmenu(data[select])
+        showFriendSubmenu(friends[select])
 
 # @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def showFriendSubmenu(user):
@@ -91,9 +94,49 @@ def showFriendSubmenu(user):
             elif select == 4: # Friends profile
                 showFriendsProfile(user)
 
-# @author Adrian Cowan (othrayte)
+# displays the friends watchlist
 def showFriendsWatchlist(user):
-    xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+    options = [__language__(1252).encode( "utf-8", "ignore" ), __language__(1253).encode( "utf-8", "ignore" )]
+    
+    while True:
+        select = xbmcgui.Dialog().select(__language__(1210).encode( "utf-8", "ignore" ), options)
+        Debug("Select: " + str(select))
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+        if select == 0: # Watchlist Movies
+            movies = getWatchlistMoviesFromTrakt(user['username'])
+            
+            if movies == None: # movies = None => there was an error
+                return # error already displayed in utilities.py
+    
+            if len(movies) == 0:
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1165).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no movies in the watchlist
+                return
+                
+            # display watchlist movie list
+            import windows
+            ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
+            ui.initWindow(movies)
+            ui.doModal()
+            del ui
+            
+        elif select == 1: # Watchlist TV Shows
+            tvshows = getWatchlistTVShowsFromTrakt(user['username'])
+    
+            if tvshows == None: # tvshows = None => there was an error
+                return # error already displayed in utilities.py
+            
+            if len(tvshows) == 0:
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1166).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows in the watchlist
+                return
+            
+            # display watchlist tv shows
+            import windows
+            ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
+            ui.initWindow(tvshows)
+            ui.doModal()
+            del ui
 
 # @author Adrian Cowan (othrayte)
 def showFriendsWatched(user):

@@ -312,10 +312,13 @@ def getMovieIdFromXBMC(imdb_id, title):
     return idMovie.text
    
 # returns list of movies from watchlist
-def getWatchlistMoviesFromTrakt():
+def getWatchlistMoviesFromTrakt(friend=None):
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/watchlist/movies.json/' + apikey + "/" + username, jdata)
+        if friend == None:
+            conn.request('POST', '/user/watchlist/movies.json/' + apikey + "/" + username, jdata)
+        else:
+            conn.request('POST', '/user/watchlist/movies.json/' + apikey + "/" + friend, jdata)
     except socket.error:
         Debug("getWatchlistMoviesFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
@@ -335,10 +338,13 @@ def getWatchlistMoviesFromTrakt():
     return data
 
 # returns list of tv shows from watchlist
-def getWatchlistTVShowsFromTrakt():
+def getWatchlistTVShowsFromTrakt(friend=None):
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/watchlist/shows.json/' + apikey + "/" + username, jdata)
+        if friend == None:
+            conn.request('POST', '/user/watchlist/shows.json/' + apikey + "/" + username, jdata)
+        else:
+            conn.request('POST', '/user/watchlist/shows.json/' + apikey + "/" + friend, jdata)
     except socket.error:
         Debug("getWatchlistTVShowsFromTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
