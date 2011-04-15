@@ -1,3 +1,6 @@
+Version 0.4.2:
+    - Bugfix release: movies can now be played again
+
 Version 0.4.1:
     - switched from sqlite to httpapi-sql queries (support for external mysql servers)
     - added menu for:
