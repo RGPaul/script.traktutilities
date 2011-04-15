@@ -289,3 +289,75 @@ class TVShowsWindow(xbmcgui.WindowXML):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             pass # do something here ?
+
+class TVShowWindow(xbmcgui.WindowXML):
+
+    tvshow = None
+
+    def initWindow(self, tvshow):
+        self.tvshow = tvshow
+        
+    def onInit(self):
+        if self.movie != None:
+            try:
+                self.getControl(BACKGROUND).setImage(self.tvshow['images']['fanart'])
+            except KeyError:
+                Debug("KeyError for Backround")
+            except TypeError:
+                Debug("TypeError for Backround")
+            try:
+                self.getControl(POSTER).setImage(self.tvshow['images']['poster'])
+            except KeyError:
+                Debug("KeyError for Poster")
+            except TypeError:
+                Debug("TypeError for Poster")
+            try:
+                self.getControl(TITLE).setLabel(self.tvshow['title'])
+            except KeyError:
+                Debug("KeyError for Title")
+            except TypeError:
+                Debug("TypeError for Title")
+            try:
+                self.getControl(OVERVIEW).setText(self.tvshow['overview'])
+            except KeyError:
+                Debug("KeyError for Overview")
+            except TypeError:
+                Debug("TypeError for Overview")
+            try:
+                self.getControl(YEAR).setLabel("Year: " + str(self.tvshow['year']))
+            except KeyError:
+                Debug("KeyError for Year")
+            except TypeError:
+                Debug("TypeError for Year")
+            try:
+                self.getControl(RUNTIME).setLabel("Runtime: " + str(self.tvshow['runtime']) + " Minutes")
+            except KeyError:
+                Debug("KeyError for Runtime")
+            except TypeError:
+                Debug("TypeError for Runtime")
+            try:
+                self.getControl(TAGLINE).setLabel(self.tvshow['tagline'])
+            except KeyError:
+                Debug("KeyError for Runtime")
+            except TypeError:
+                Debug("TypeError for Runtime")
+            try:
+                self.playbutton = self.getControl(PLAY_BUTTON)
+                self.setFocus(self.playbutton)
+            except (KeyError,TypeError):
+                pass
+        
+    def onFocus( self, controlId ):
+    	self.controlId = controlId
+        
+    def onClick(self, controlId):
+        if controlId == PLAY_BUTTON:
+            pass
+
+    def onAction(self, action):
+        buttonCode =  action.getButtonCode()
+        actionID   =  action.getId()
+        
+        if action == ACTION_PREVIOUS_MENU:
+            Debug("Closing MovieInfoWindow")
+            self.close()
