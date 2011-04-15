@@ -573,6 +573,30 @@ def playMovieById(idMovie):
             strPath = match[0]
             xbmc.Player().play(strPath+strFilename)
 
+def getWatchedFromTrakt(friend=None):
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd})
+        if friend == None:
+            conn.request('POST', '/user/watched.json/' + apikey + "/" + username, jdata)
+        else:
+            conn.request('POST', '/user/watched.json/' + apikey + "/" + friend, jdata)
+    except socket.error:
+        Debug("getWatchedFromTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("getWatchedFromTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
 
 """
 ToDo:

@@ -63,6 +63,8 @@
     <string id="1164">Cross-referencing with local information</string>
     <string id="1165">there are no movies in the watchlist</string>
     <string id="1166">there are no tv shows in the watchlist</string>
+    <string id="1167">hasn't watched any Movie yet</string>
+    <string id="1168">hasn't watched any TV Show yet</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>
@@ -101,6 +103,9 @@
     <string id="1255">Recommened Movies</string>
     <string id="1256">Recommened TV Shows</string>
     <string id="1257">Recommened Episodes</string>
+
+    <string id="1278">Watched Movies</string>
+    <string id="1279">Watched TV Shows</string>
     
     <!-- Friends Submenu -->
     <string id="1280">Currently Watching</string>

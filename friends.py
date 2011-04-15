@@ -138,9 +138,61 @@ def showFriendsWatchlist(user):
             ui.doModal()
             del ui
 
-# @author Adrian Cowan (othrayte)
 def showFriendsWatched(user):
-    xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+
+    options = [__language__(1278).encode( "utf-8", "ignore" ), __language__(1279).encode( "utf-8", "ignore" )]
+    
+    while True:
+        select = xbmcgui.Dialog().select(__language__(1210).encode( "utf-8", "ignore" ), options)
+        Debug("Select: " + str(select))
+        
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+            
+        elif select == 0: # Watched Movies
+            watched = getWatchedFromTrakt(user['username'])
+            
+            if watched == None: # watched = None => there was an error
+                return # error already displayed in utilities.py
+            
+            movies = []
+            for obj in watched:
+                if obj['type'] == 'movie':
+                    obj['movie']['watched'] = obj['watched']
+                    movies.append(obj['movie'])
+    
+            if len(movies) == 0:
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), user['username'] + " " + __language__(1167).encode( "utf-8", "ignore" )) # Trakt Utilities, "friendname" hasn't watched any Movie yet
+                return
+                
+            # display watchlist movie list
+            import windows
+            ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
+            ui.initWindow(movies)
+            ui.doModal()
+            del ui
+            
+        elif select == 1: # Watched TV Shows
+            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+            """
+            watched = getWatchedFromTrakt(user['username'])
+    
+            if tvshows == None: # tvshows = None => there was an error
+                return # error already displayed in utilities.py
+            
+            if len(tvshows) == 0:
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), user['username'] + " " + __language__(1168).encode( "utf-8", "ignore" )) # Trakt Utilities, "friendname" hasn't watched any TV Show yet
+                return
+            
+            # display watchlist tv shows
+            import windows
+            ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
+            ui.initWindow(tvshows)
+            ui.doModal()
+            del ui
+            """
+    
 
 # @author Adrian Cowan (othrayte)
 def showFriendsLibrary(user):
