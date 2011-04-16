@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
-# @author Ralph-Gordon Paul, Adrian Cowan (othrayte)
 # 
 
 import xbmc,xbmcaddon,xbmcgui
 from utilities import *
+
+__author__ = "Ralph-Gordon Paul, Adrian Cowan"
+__credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
+__license__ = "GPL"
+__maintainer__ = "Ralph-Gordon Paul"
+__email__ = "ralph-gordon.paul@uni-duesseldorf.de"
+__status__ = "Production"
 
 # read settings
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
@@ -17,7 +23,6 @@ debug = __settings__.getSetting( "debug" )
 conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
-# @author Adrian Cowan (othrayte)
 def showFriends():
 
     options = []
@@ -46,8 +51,7 @@ def showFriends():
             Debug ("menu quit by user")
             return
         showFriendSubmenu(data[select])
-
-# @author Adrian Cowan (othrayte)   
+ 
 def showFriendSubmenu(user):
     #check what (if anything) the user is watching
     watchdata = getWatchingFromTraktForUser(user['username'])
@@ -77,18 +81,14 @@ def showFriendSubmenu(user):
             elif select == 4: # Friends profile
                 showFriendsProfile(user)
 
-# @author Adrian Cowan (othrayte)
 def showFriendsWatchlist(user):
     xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
 
-# @author Adrian Cowan (othrayte)
 def showFriendsWatched(user):
     xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
 
-# @author Adrian Cowan (othrayte)
 def showFriendsLibrary(user):
     xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
 
-# @author Adrian Cowan (othrayte)
 def showFriendsProfile(user):
     xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")

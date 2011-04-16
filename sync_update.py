@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# @author Ralph-Gordon Paul
 # 
 
 import os
@@ -21,6 +20,13 @@ try:
 except ImportError:
   # Python 2.5 and earlier
   import sha
+  
+__author__ = "Ralph-Gordon Paul, Adrian Cowan"
+__credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
+__license__ = "GPL"
+__maintainer__ = "Ralph-Gordon Paul"
+__email__ = "ralph-gordon.paul@uni-duesseldorf.de"
+__status__ = "Production"
 
 # read settings
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
@@ -631,13 +637,6 @@ def syncSeenMovies(daemon=False):
             except KeyError: # movie not in xbmc database
                 continue
     
-    dbpath = getDBPath()
-    if dbpath == None:
-        Debug ("dbpath = None")
-        if not daemon:
-            xbmcgui.Dialog().ok("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-        return # dbpath not set
-    
     movies_string = ""
     for i in range(0, len(movies_seen)):
         if i == 0:
@@ -904,15 +903,6 @@ def syncSeenTVShows(daemon=False):
             choice = xbmcgui.Dialog().yesno("Trakt Utilities", str(count) + " " + __language__(1149).encode( "utf-8", "ignore" ), set_as_seen_titles) # TVShow Episodes will be set as seen on XBMC
         
         if choice == True:
-            
-            dbpath = getDBPath()
-            if dbpath == None:
-                Debug ("dbpath = None")
-                if daemon:
-                    notification("Trakt Utilities", __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-                else:
-                    xbmcgui.Dialog().ok("Trakt Utilities", __language__(1152).encode( "utf-8", "ignore" )) # Error: can't open XBMC Movie Database
-                return # dbpath not set
             
             if not daemon:
                 progress = xbmcgui.DialogProgress()
