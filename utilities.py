@@ -69,7 +69,7 @@ def xbmcHttpapiQuery(query):
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(query), )
     match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
     Debug("[httpapi-sql] responce: "+xml_data)
-    Debug("[httpapi-sql] matches: "+match)
+    Debug("[httpapi-sql] matches: "+str(match))
     if len(match) <= 0:
         return None
     return match
