@@ -65,11 +65,11 @@ def checkSettings(daemon=False):
 
 # make a httpapi based XBMC db query (get data)
 def xbmcHttpapiQuery(query):
-    print query
+    Debug("[httpapi-sql] query: "+query)
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(query), )
     match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
-    print xml_data
-    print match
+    Debug("[httpapi-sql] responce: "+xml_data)
+    Debug("[httpapi-sql] matches: "+match)
     if len(match) <= 0:
         return None
     return match
@@ -280,7 +280,7 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
     # Get id of movie by movies IMDB
-    print ("Searching for movie: "+imdb_id+", "+title)
+    Debug("Searching for movie: "+imdb_id+", "+title)
     match = xbmcHttpapiQuery("SELECT idMovie FROM movie WHERE c09='%(imdb_id)s' UNION SELECT idMovie FROM movie WHERE upper(c00)='%(title)s' LIMIT 1" % {'imdb_id':imdb_id, 'title':title.upper()})
     if match == None:
         Debug("getMovieIdFromXBMC: cannot find movie in database")
@@ -359,7 +359,7 @@ def addMoviesToWatchlist(data):
     # I dont know if we need the rest of this???
     response = conn.getresponse()
     data = json.loads(response.read())
-    print data
+    Debug("addMoviesToWatchlist responce:" + data)
     try:
         if data['status'] == 'failure':
             Debug("getFriendsFromTrakt: Error: " + str(data['error']))
@@ -494,7 +494,7 @@ def getWatchingFromTraktForUser(name):
 
 def playMovieById(idMovie):
     # httpapi till jsonrpc supports selecting a single movie
-    print ("Movie id requested: "+str(idMovie))
+    Debug("Play Movie requested for id: "+str(idMovie))
     if idMovie == -1:
         return # invalid movie id
     else:
