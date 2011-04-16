@@ -281,7 +281,7 @@ def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
     # Get id of movie by movies IMDB
     print ("Searching for movie: "+imdb_id+", "+title)
-    match = xbmcHttpapiQuery("SELECT idMovie FROM movie WHERE c09='%(imdb_id)s' UNION SELECT idFile FROM movie WHERE upper(c00)='%(title)s' LIMIT 1" % {'imdb_id':imdb_id, 'title':title.upper()})
+    match = xbmcHttpapiQuery("SELECT idMovie FROM movie WHERE c09='%(imdb_id)s' UNION SELECT idMovie FROM movie WHERE upper(c00)='%(title)s' LIMIT 1" % {'imdb_id':imdb_id, 'title':title.upper()})
     if match == None:
         Debug("getMovieIdFromXBMC: cannot find movie in database")
         return -1
