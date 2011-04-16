@@ -247,32 +247,52 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    match = xbmcHttpapiQuery("select movie.idFile from movie where movie.c09='%s'" % str(imdb_id))
+    match = xbmcHttpapiQuery(
+    "SELECT movie.idFile FROM movie"+
+    " WHERE movie.c09='%(imdb_id)s'" % {'imdb_id':str(imdb_id)})
+    
     if match == None:
         #add error message here
         return
     
-    result = xbmcHttpapiExec("update files set playcount=%s where idFile=%s" % (str(playcount), match[0]))
+    result = xbmcHttpapiExec(
+    "UPDATE files"+
+    " SET playcount=%(playcount)d" % {'playcount':playcount}+
+    " WHERE idFile=%(idFile)s" % {'idFile':match[0]})
+    
     Debug("xml answer: " + str(result))
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     # httpapi till jsonrpc supports playcount update
     # select tvshow by tvdb_id # c12 => TVDB ID # c00 = title
-    match = xbmcHttpapiQuery("select tvshow.idShow, tvshow.c00 from tvshow where tvshow.c12='%s'" % str(tvdb_id))
+    match = xbmcHttpapiQuery(
+    "SELECT tvshow.idShow, tvshow.c00 FROM tvshow"+
+    " WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':str(tvdb_id)})
     
     if len(match) >= 1:
         Debug("TV Show: " + match[1] + " idShow: " + str(match[0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
 
         # select episode table by idShow
-        match = xbmcHttpapiQuery("select tvshowlinkepisode.idEpisode from tvshowlinkepisode where tvshowlinkepisode.idShow=%s" % str(match[0]))
+        match = xbmcHttpapiQuery(
+        "SELECT tvshowlinkepisode.idEpisode FROM tvshowlinkepisode"+
+        " WHERE tvshowlinkepisode.idShow=%(idShow)s" % {'idShow':str(match[0])})
         
         for idEpisode in match:
             # get idfile from episode table # c12 = season, c13 = episode
-            match2 = xbmcHttpapiQuery("select episode.idFile from episode where episode.idEpisode=%s and episode.c12='%s' and episode.c13='%s'" % (str(idEpisode), str(seasonid), str(episodeid)))
+            match2 = xbmcHttpapiQuery(
+            "SELECT episode.idFile FROM episode"+
+            " WHERE episode.idEpisode=%(idEpisode)" % {'idEpisode':str(idEpisode)}+
+            " AND episode.c12='%(seasonid)s'" % {'seasonid':str(seasonid)}+
+            " AND episode.c13='%(episodeid)s'" % {'episodeid':str(episodeid)})
+            
             for idFile in match2:
                 Debug("idFile: " + str(idFile) + " setting playcount...")
-                responce = xbmcHttpapiExec("update files set playcount=%s where idFile=%s" % (str(playcount), str(idFile)))
+                responce = xbmcHttpapiExec(
+                "UPDATE files"+
+                " SET playcount=%(playcount)s" % {'playcount':str(playcount)}+
+                " WHERE idFile=%(idFile)s" % {'idFile':str(idFile)})
+                
                 Debug("xml answer: " + str(responce))
     else:
         Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
@@ -281,7 +301,15 @@ def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
     # Get id of movie by movies IMDB
     Debug("Searching for movie: "+imdb_id+", "+title)
-    match = xbmcHttpapiQuery("SELECT idMovie FROM movie WHERE c09='%(imdb_id)s' UNION SELECT idMovie FROM movie WHERE upper(c00)='%(title)s' LIMIT 1" % {'imdb_id':imdb_id, 'title':title.upper()})
+    
+    match = xbmcHttpapiQuery(
+    " SELECT idMovie FROM movie"+
+    "  WHERE c09='%(imdb_id)s'" % {'imdb_id':imdb_id}+
+    " UNION"+
+    " SELECT idMovie FROM movie"+
+    "  WHERE upper(c00)='%(title)s'" % {'title':title.upper()}+
+    " LIMIT 1")
+    
     if match == None:
         Debug("getMovieIdFromXBMC: cannot find movie in database")
         return -1
@@ -499,7 +527,10 @@ def playMovieById(idMovie):
         return # invalid movie id
     else:
         # get file reference id from movie reference id
-        match = xbmcHttpapiQuery("SELECT movie.idFile FROM movie WHERE movie.idMovie=%s" % str(idMovie))
+        match = xbmcHttpapiQuery(
+        "SELECT movie.idFile FROM movie"+
+        " WHERE movie.idMovie=%(idMovie)s" % {'idMovie':str(idMovie)})
+        
         if match == None:
             Debug("playMovieById: Error getting idFile")
             return
@@ -507,7 +538,9 @@ def playMovieById(idMovie):
         idFile = match[0]
         
         # Get path and filename of file by fileid
-        match = xbmcHttpapiQuery("SELECT files.idPath, files.strFilename FROM files WHERE files.idFile=%s" % str(idFile))
+        match = xbmcHttpapiQuery(
+        "SELECT files.idPath, files.strFilename FROM files"+
+        " WHERE files.idFile=%(idFile)s" % {'idFile':str(idFile)})
         
         if match == None:
             Debug("playMovieById: Error getting filename")
@@ -519,7 +552,9 @@ def playMovieById(idMovie):
             xbmc.Player().play(strFilename)
         else :
             # Get the path of the file by fileid
-            match = xbmcHttpapiQuery("SELECT path.strPath FROM path WHERE path.idPath=%s" % idPath)
+            match = xbmcHttpapiQuery(
+            "SELECT path.strPath FROM path"+
+            " WHERE path.idPath=%(idPath)s" % {'idPath':idPath})
             
             if match == None:
                 Debug("playMovieById: Error getting path")
