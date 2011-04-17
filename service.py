@@ -2,7 +2,9 @@
 # 
 
 import xbmc,xbmcaddon,xbmcgui
+import telnetlib, time, simplejson
 from utilities import *
+from rating import *
 from sync_update import *
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
@@ -43,5 +45,23 @@ def autostart():
             
         if autosync_moviecollection == "true" or autosync_tvshowcollection == "true" or autosync_seenmovies == "true" or autosync_seentvshows == "true":
             notification("Trakt Utilities", __language__(1184).encode( "utf-8", "ignore" )) # update / sync done
+    
+    tn = telnetlib.Telnet('localhost', 9090, 10)
+    
+    while (not xbmc.abortRequested):
+        try:
+            raw = tn.read_until("\n")
+            data = json.loads(raw)
+            if 'params' in data:
+                if 'message' in data['params']:
+                    if data['params']['message'] == 'NewPlayCount':
+                        if 'sender' in data['params']:
+                            if data['params']['sender'] == 'xbmc':
+                                if 'data' in data['params']:
+                                    if 'movieid' in data['params']['data']:
+                                        doRate(data['params']['data']['movieid'])
+        except EOFError:
+            tn.open('localhost', 9090, 10)
+            time.sleep(1)
         
 autostart()

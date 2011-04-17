@@ -398,6 +398,33 @@ def addMoviesToWatchlist(data):
     
     return data
 
+#Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
+def rateMovieOnTrakt(imdbid, rating):
+    if not (rating in ("love", "hate")):
+        #add error message
+        return
+    
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd, 'imdb_id': imdbid, 'rating': rating})
+        conn.request('POST', '/rate/movie/' + apikey, jdata)
+    except socket.error:
+        Debug("getRecommendedMoviesFromTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("getRecommendedMoviesFromTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass
+    
+    return data
+
 def getRecommendedMoviesFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
