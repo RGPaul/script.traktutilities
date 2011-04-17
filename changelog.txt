@@ -1,6 +1,7 @@
 next Version:
     - Bugfix: no duplicates in movie lists after watching
     - local tag on movies added, that indicate local presence
+    - watchlist tag on movies added
     - trakt utilities icon added
 
 Version 0.4.2:
