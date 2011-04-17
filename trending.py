@@ -43,6 +43,7 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 def showTrendingMovies():
     
     movies = getTrendingMoviesFromTrakt()
+    watchlist = traktMovieListByImdbID(getWatchlistMoviesFromTrakt())
     
     if movies == None: # movies = None => there was an error
         return # error already displayed in utilities.py
@@ -50,7 +51,11 @@ def showTrendingMovies():
     if len(movies) == 0:
         xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending movies")
         return
-        
+    
+    for movie in movies:
+        if movie['imdb_id'] in watchlist:
+            movie['watchlist'] = True
+    
     # display trending movie list
     import windows
     ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
