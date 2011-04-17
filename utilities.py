@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# @author Ralph-Gordon Paul
 # 
 
 import os
@@ -21,6 +20,13 @@ try:
 except ImportError:
   # Python 2.5 and earlier
   import sha
+  
+__author__ = "Ralph-Gordon Paul, Adrian Cowan"
+__credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
+__license__ = "GPL"
+__maintainer__ = "Ralph-Gordon Paul"
+__email__ = "ralph-gordon.paul@uni-duesseldorf.de"
+__status__ = "Production"
 
 # read settings
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
@@ -57,38 +63,21 @@ def checkSettings(daemon=False):
     
     return True
 
-# get database path
-def getDBPath():
-    datapath = xbmc.translatePath("special://database")
-    myVideosList = []
-    dirList=os.listdir(datapath)
-    for fname in dirList:
-        if fname.startswith('MyVideos'):
-            c1 = 8; c2 = 9
-            for i in range(9, len(fname)):
-                if fname[i] == '.':
-                    c2 = i
-                    break
-            try:
-                number = int(fname[c1:c2])
-                myVideosList.append((fname, number))
-            except ValueError:
-                pass
-    
-    # sort list by database number
-    myVideosList.sort(key=lambda file: file[1])
+# make a httpapi based XBMC db query (get data)
+def xbmcHttpapiQuery(query):
+    Debug("[httpapi-sql] query: "+query)
+    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(query), )
+    match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
+    Debug("[httpapi-sql] responce: "+xml_data)
+    Debug("[httpapi-sql] matches: "+str(match))
+    if len(match) <= 0:
+        return None
+    return match
 
-    # return last in list (highest number should be current database)
-    path = os.path.join(datapath, myVideosList[len(myVideosList)-1][0])
-    if os.path.isfile(path):
-        return path
-    else:
-        # no file? try the second highest database
-        path = os.path.join(datapath, myVideosList[len(myVideosList)-2][0])
-        if os.path.isfile(path):
-            return path
-    return None
-    
+# execute a httpapi based XBMC db query (set data)
+def xbmcHttpapiExec(query):
+    xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus(query), )
+    return xml_data
 
 # get movies from trakt server
 def getMoviesFromTrakt(daemon=False):
@@ -258,58 +247,74 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    sql_data = "select movie.idFile from movie where movie.c09='%s'" % str(imdb_id)
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    match = re.findall( "<field>(.\d+)</field>", xml_data,)
+    match = xbmcHttpapiQuery(
+    "SELECT movie.idFile FROM movie"+
+    " WHERE movie.c09='%(imdb_id)s'" % {'imdb_id':str(imdb_id)})
     
-    sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), match[0])
-    xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    Debug("xml answer: " + str(xml_data))
+    if match == None:
+        #add error message here
+        return
+    
+    result = xbmcHttpapiExec(
+    "UPDATE files"+
+    " SET playcount=%(playcount)d" % {'playcount':playcount}+
+    " WHERE idFile=%(idFile)s" % {'idFile':match[0]})
+    
+    Debug("xml answer: " + str(result))
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     # httpapi till jsonrpc supports playcount update
     # select tvshow by tvdb_id # c12 => TVDB ID # c00 = title
-    sql_data = "select tvshow.idShow, tvshow.c00 from tvshow where tvshow.c12='%s'" % str(tvdb_id)
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-    match = re.findall( "<field>(.\d+)</field><field>(.*?)</field>", xml_data,)
+    match = xbmcHttpapiQuery(
+    "SELECT tvshow.idShow, tvshow.c00 FROM tvshow"+
+    " WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':str(tvdb_id)})
     
     if len(match) >= 1:
-        Debug("TV Show: " + match[0][1] + " idShow: " + str(match[0][0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
+        Debug("TV Show: " + match[1] + " idShow: " + str(match[0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
 
         # select episode table by idShow
-        sql_data = "select tvshowlinkepisode.idEpisode from tvshowlinkepisode where tvshowlinkepisode.idShow=%s" % str(match[0][0])
-        xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-        match = re.findall( "<field>(.\d+)</field>", xml_data,)
+        match = xbmcHttpapiQuery(
+        "SELECT tvshowlinkepisode.idEpisode FROM tvshowlinkepisode"+
+        " WHERE tvshowlinkepisode.idShow=%(idShow)s" % {'idShow':str(match[0])})
         
         for idEpisode in match:
             # get idfile from episode table # c12 = season, c13 = episode
-            sql_data = "select episode.idFile from episode where episode.idEpisode=%s and episode.c12='%s' and episode.c13='%s'" % (str(idEpisode), str(seasonid), str(episodeid))
-            xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-            match2 = re.findall( "<field>(.\d+)</field>", xml_data,)
+            match2 = xbmcHttpapiQuery(
+            "SELECT episode.idFile FROM episode"+
+            " WHERE episode.idEpisode=%(idEpisode)" % {'idEpisode':str(idEpisode)}+
+            " AND episode.c12='%(seasonid)s'" % {'seasonid':str(seasonid)}+
+            " AND episode.c13='%(episodeid)s'" % {'episodeid':str(episodeid)})
+            
             for idFile in match2:
                 Debug("idFile: " + str(idFile) + " setting playcount...")
-                sql_data = "update files set playcount=%s where idFile=%s" % (str(playcount), str(idFile))
-                xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-                Debug("xml answer: " + str(xml_data))
+                responce = xbmcHttpapiExec(
+                "UPDATE files"+
+                " SET playcount=%(playcount)s" % {'playcount':str(playcount)}+
+                " WHERE idFile=%(idFile)s" % {'idFile':str(idFile)})
+                
+                Debug("xml answer: " + str(responce))
     else:
         Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
 
-# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
     # Get id of movie by movies IMDB
-
-    print ("Searching for movie: "+imdb_id+", "+title)
-    sql_data = "SELECT movie.idMovie FROM movie WHERE movie.c09='%s'" % str(imdb_id)
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(sql_data), )
-    match = re.findall( "<field>(.\d+)</field>", xml_data,)
+    Debug("Searching for movie: "+imdb_id+", "+title)
     
-    if len(match) > 0:
-        return match[0]
-    else:
+    match = xbmcHttpapiQuery(
+    " SELECT idMovie FROM movie"+
+    "  WHERE c09='%(imdb_id)s'" % {'imdb_id':imdb_id}+
+    " UNION"+
+    " SELECT idMovie FROM movie"+
+    "  WHERE upper(c00)='%(title)s'" % {'title':title.upper()}+
+    " LIMIT 1")
+    
+    if match == None:
         Debug("getMovieIdFromXBMC: cannot find movie in database")
         return -1
+        
+    return match[0]
    
 # returns list of movies from watchlist
 def getWatchlistMoviesFromTrakt(friend=None):
@@ -364,7 +369,6 @@ def getWatchlistTVShowsFromTrakt(friend=None):
     return data
 
 # add an array of movies to the watch-list
-# @author Adrian Cowan (othrayte)
 def addMoviesToWatchlist(data):
     # This function has not been tested, please test it before using it
     movies = []
@@ -389,7 +393,7 @@ def addMoviesToWatchlist(data):
     # I dont know if we need the rest of this???
     response = conn.getresponse()
     data = json.loads(response.read())
-    print data
+    Debug("addMoviesToWatchlist responce:" + data)
     try:
         if data['status'] == 'failure':
             Debug("getFriendsFromTrakt: Error: " + str(data['error']))
@@ -400,8 +404,6 @@ def addMoviesToWatchlist(data):
     
     return data
 
-
-# @author Adrian Cowan (othrayte)
 def getRecommendedMoviesFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -424,7 +426,6 @@ def getRecommendedMoviesFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getRecommendedTVShowsFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -447,7 +448,6 @@ def getRecommendedTVShowsFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getTrendingMoviesFromTrakt():
     try:
         conn.request('GET', '/movies/trending.json/' + apikey)
@@ -469,7 +469,6 @@ def getTrendingMoviesFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getTrendingTVShowsFromTrakt():
     try:
         conn.request('GET', '/shows/trending.json/' + apikey)
@@ -491,7 +490,6 @@ def getTrendingTVShowsFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getFriendsFromTrakt():
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -514,7 +512,6 @@ def getFriendsFromTrakt():
     
     return data
 
-# @author Adrian Cowan (othrayte)
 def getWatchingFromTraktForUser(name):
     try:
         jdata = json.dumps({'username': username, 'password': pwd})
@@ -529,44 +526,43 @@ def getWatchingFromTraktForUser(name):
     
     return data
 
-# @author Adrian Cowan (othrayte), Ralph-Gordon Paul (Manromen)
 def playMovieById(idMovie):
     # httpapi till jsonrpc supports selecting a single movie
-    print ("Movie id requested: "+str(idMovie))
+    Debug("Play Movie requested for id: "+str(idMovie))
     if idMovie == -1:
         return # invalid movie id
     else:
         # get file reference id from movie reference id
-        sql_data = "SELECT movie.idFile FROM movie WHERE movie.idMovie=%s" % str(idMovie)
-        xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-        match = re.findall( "<field>(.\d+)</field>", xml_data,)
+        match = xbmcHttpapiQuery(
+        "SELECT movie.idFile FROM movie"+
+        " WHERE movie.idMovie=%(idMovie)s" % {'idMovie':str(idMovie)})
         
-        if len(match) <= 0:
+        if match == None:
             Debug("playMovieById: Error getting idFile")
             return
         
         idFile = match[0]
         
         # Get path and filename of file by fileid
-        sql_data = "SELECT files.idPath, files.strFilename FROM files WHERE files.idFile=%s" % str(idFile)
-        xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-        match = re.findall( "<field>(.\d+)</field><field>(.*?)</field>", xml_data,)
+        match = xbmcHttpapiQuery(
+        "SELECT files.idPath, files.strFilename FROM files"+
+        " WHERE files.idFile=%(idFile)s" % {'idFile':str(idFile)})
         
-        if len(match) <= 0:
+        if match == None:
             Debug("playMovieById: Error getting filename")
             return
         
-        idPath = match[0][0]
-        strFilename = match[0][1]
+        idPath = match[0]
+        strFilename = match[1]
         if strFilename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
             xbmc.Player().play(strFilename)
         else :
             # Get the path of the file by fileid
-            sql_data = "SELECT path.strPath FROM path WHERE path.idPath=%s" % idPath
-            xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus( sql_data ), )
-            match = re.findall( "<field>(.*?)</field>", xml_data,)
+            match = xbmcHttpapiQuery(
+            "SELECT path.strPath FROM path"+
+            " WHERE path.idPath=%(idPath)s" % {'idPath':idPath})
             
-            if len(match) <= 0:
+            if match == None:
                 Debug("playMovieById: Error getting path")
                 return
             

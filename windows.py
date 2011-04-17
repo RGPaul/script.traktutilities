@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
-# @author Ralph-Gordon Paul
 # 
 
 import xbmc,xbmcaddon,xbmcgui
 from utilities import *
+
+__author__ = "Ralph-Gordon Paul, Adrian Cowan"
+__credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
+__license__ = "GPL"
+__maintainer__ = "Ralph-Gordon Paul"
+__email__ = "ralph-gordon.paul@uni-duesseldorf.de"
+__status__ = "Production"
 
 # read settings
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
@@ -27,7 +33,6 @@ WATCHERS = 112
 ACTION_PREVIOUS_MENU = 10
 ACTION_SELECT_ITEM = 7
 
-# @author Ralph-Gordon Paul, Adrian Cowan (othrayte)
 class MoviesWindow(xbmcgui.WindowXML):
 
     movies = None
@@ -36,9 +41,18 @@ class MoviesWindow(xbmcgui.WindowXML):
         self.movies = movies
         
     def onInit(self):
+        self.getControl(MOVIE_LIST).reset()
         if self.movies != None:
             for movie in self.movies:
-                self.getControl(MOVIE_LIST).addItem(xbmcgui.ListItem(movie['title'], '', movie['images']['poster']))
+                li = xbmcgui.ListItem(movie['title'], '', movie['images']['poster'])
+                if not ('idMovie' in movie):
+                    movie['idMovie'] = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
+                if movie['idMovie'] != -1:
+                    li.setProperty('Available','true')
+                if 'watchlist' in movie:
+                    if movie['watchlist']:
+                        li.setProperty('Watchlist','true')
+                self.getControl(MOVIE_LIST).addItem(li)
             self.setFocus(self.getControl(MOVIE_LIST))
             self.listUpdate()
         else:
@@ -119,11 +133,10 @@ class MoviesWindow(xbmcgui.WindowXML):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]
-            movie_id = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
-            if movie_id == -1: # Error
+            if movie['idMovie'] == -1: # Error
                 xbmcgui.Dialog().ok("Trakt Utilities", movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
             else:
-                playMovieById(movie_id)
+                playMovieById(movie['idMovie'])
 
 class MovieWindow(xbmcgui.WindowXML):
 
