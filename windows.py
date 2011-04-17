@@ -48,6 +48,9 @@ class MoviesWindow(xbmcgui.WindowXML):
                     movie['idMovie'] = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
                 if movie['idMovie'] != -1:
                     li.setProperty('Available','true')
+                if 'watchlist' in movie:
+                    if movie['watchlist']:
+                        li.setProperty('Watchlist','true')
                 self.getControl(MOVIE_LIST).addItem(li)
             self.setFocus(self.getControl(MOVIE_LIST))
             self.listUpdate()
