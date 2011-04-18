@@ -99,7 +99,10 @@ class MoviesWindow(xbmcgui.WindowXML):
         except TypeError:
             Debug("TypeError for Runtime")
         try:
-            self.getControl(TAGLINE).setLabel(self.movies[current]['tagline'])
+            if self.movies[current]['tagline'] <> "":
+                self.getControl(TAGLINE).setLabel("\""+self.movies[current]['tagline']+"\"")
+            else:
+                self.getControl(TAGLINE).setLabel("")
         except KeyError:
             Debug("KeyError for Tagline")
             self.getControl(TAGLINE).setLabel("")
