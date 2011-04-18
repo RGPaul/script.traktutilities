@@ -116,13 +116,14 @@ class MoviesWindow(xbmcgui.WindowXML):
             self.getControl(RATING).setLabel("")
         except TypeError:
             Debug("TypeError for Rating")
-        try:
-            self.getControl(WATCHERS).setLabel(str(self.movies[current]['watchers']) + " people watching")
-        except KeyError:
-            Debug("KeyError for Watchers")
-            self.getControl(WATCHERS).setLabel("")
-        except TypeError:
-            Debug("TypeError for Watchers")
+        if 'watchers' in self.movies[current]:
+            try:
+                self.getControl(WATCHERS).setLabel(str(self.movies[current]['watchers']) + " people watching")
+            except KeyError:
+                Debug("KeyError for Watchers")
+                self.getControl(WATCHERS).setLabel("")
+            except TypeError:
+                Debug("TypeError for Watchers")
         
     def onFocus( self, controlId ):
     	self.controlId = controlId
