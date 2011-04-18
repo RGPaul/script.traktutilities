@@ -29,6 +29,7 @@ RATING = 111
 WATCHERS = 112
 
 #get actioncodes from keymap.xml
+ACTION_PARENT_DIRECTORY = 9
 ACTION_PREVIOUS_MENU = 10
 ACTION_SELECT_ITEM = 7
 
@@ -127,8 +128,9 @@ class MoviesWindow(xbmcgui.WindowXML):
     	self.controlId = controlId
 
     def onAction(self, action):
-        
-        if action == ACTION_PREVIOUS_MENU:
+        if action.getId() == 0:
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
             Debug("Closing MoviesWindow")
             self.close()
         elif action.getId() in (1,2,107):
@@ -139,6 +141,8 @@ class MoviesWindow(xbmcgui.WindowXML):
                 xbmcgui.Dialog().ok("Trakt Utilities", movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
             else:
                 playMovieById(movie['idMovie'])
+        else:
+            Debug("Uncaught action (movies): "+str(action.getId()))
 
 class MovieWindow(xbmcgui.WindowXML):
 
@@ -208,9 +212,13 @@ class MovieWindow(xbmcgui.WindowXML):
         buttonCode =  action.getButtonCode()
         actionID   =  action.getId()
         
-        if action == ACTION_PREVIOUS_MENU:
+        if action.getId() == 0:
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
             Debug("Closing MovieInfoWindow")
             self.close()
+        else:
+            Debug("Uncaught action (movie info): "+str(action.getId()))
 
 class TVShowsWindow(xbmcgui.WindowXML):
 
@@ -298,10 +306,14 @@ class TVShowsWindow(xbmcgui.WindowXML):
 
     def onAction(self, action):
 
-        if action == ACTION_PREVIOUS_MENU:
+        if action.getId() == 0:
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
             Debug("Closing TV Shows Window")
             self.close()
         elif action.getId() in (1,2,107):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             pass # do something here ?
+        else:
+            Debug("Uncaught action (tv shows): "+str(action.getId()))
