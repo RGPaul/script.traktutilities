@@ -29,6 +29,7 @@ RATING = 111
 WATCHERS = 112
 
 #get actioncodes from keymap.xml
+ACTION_PARENT_DIRECTORY = 9
 ACTION_PREVIOUS_MENU = 10
 ACTION_SELECT_ITEM = 7
 
@@ -99,7 +100,10 @@ class MoviesWindow(xbmcgui.WindowXML):
         except TypeError:
             Debug("TypeError for Runtime")
         try:
-            self.getControl(TAGLINE).setLabel(self.movies[current]['tagline'])
+            if self.movies[current]['tagline'] <> "":
+                self.getControl(TAGLINE).setLabel("\""+self.movies[current]['tagline']+"\"")
+            else:
+                self.getControl(TAGLINE).setLabel("")
         except KeyError:
             Debug("KeyError for Tagline")
             self.getControl(TAGLINE).setLabel("")
@@ -112,20 +116,22 @@ class MoviesWindow(xbmcgui.WindowXML):
             self.getControl(RATING).setLabel("")
         except TypeError:
             Debug("TypeError for Rating")
-        try:
-            self.getControl(WATCHERS).setLabel(str(self.movies[current]['watchers']) + " people watching")
-        except KeyError:
-            Debug("KeyError for Watchers")
-            self.getControl(WATCHERS).setLabel("")
-        except TypeError:
-            Debug("TypeError for Watchers")
+        if 'watchers' in self.movies[current]:
+            try:
+                self.getControl(WATCHERS).setLabel(str(self.movies[current]['watchers']) + " people watching")
+            except KeyError:
+                Debug("KeyError for Watchers")
+                self.getControl(WATCHERS).setLabel("")
+            except TypeError:
+                Debug("TypeError for Watchers")
         
     def onFocus( self, controlId ):
     	self.controlId = controlId
 
     def onAction(self, action):
-        
-        if action == ACTION_PREVIOUS_MENU:
+        if action.getId() == 0:
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
             Debug("Closing MoviesWindow")
             self.close()
         elif action.getId() in (1,2,107):
@@ -136,6 +142,8 @@ class MoviesWindow(xbmcgui.WindowXML):
                 xbmcgui.Dialog().ok("Trakt Utilities", movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
             else:
                 playMovieById(movie['idMovie'])
+        else:
+            Debug("Uncaught action (movies): "+str(action.getId()))
 
 class MovieWindow(xbmcgui.WindowXML):
 
@@ -205,9 +213,13 @@ class MovieWindow(xbmcgui.WindowXML):
         buttonCode =  action.getButtonCode()
         actionID   =  action.getId()
         
-        if action == ACTION_PREVIOUS_MENU:
+        if action.getId() == 0:
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
             Debug("Closing MovieInfoWindow")
             self.close()
+        else:
+            Debug("Uncaught action (movie info): "+str(action.getId()))
 
 class TVShowsWindow(xbmcgui.WindowXML):
 
@@ -295,10 +307,14 @@ class TVShowsWindow(xbmcgui.WindowXML):
 
     def onAction(self, action):
 
-        if action == ACTION_PREVIOUS_MENU:
+        if action.getId() == 0:
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
             Debug("Closing TV Shows Window")
             self.close()
         elif action.getId() in (1,2,107):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             pass # do something here ?
+        else:
+            Debug("Uncaught action (tv shows): "+str(action.getId()))
