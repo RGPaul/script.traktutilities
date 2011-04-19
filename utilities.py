@@ -404,6 +404,7 @@ def rateMovieOnTrakt(imdbid, rating):
         #add error message
         return
     
+    Debug("Rating movie:" + rating)
     try:
         jdata = json.dumps({'username': username, 'password': pwd, 'imdb_id': imdbid, 'rating': rating})
         conn.request('POST', '/rate/movie/' + apikey, jdata)

@@ -318,3 +318,40 @@ class TVShowsWindow(xbmcgui.WindowXML):
             pass # do something here ?
         else:
             Debug("Uncaught action (tv shows): "+str(action.getId()))
+
+class RateDialog(xbmcgui.WindowXMLDialog):
+    def initDialog(self, imdbid):
+        self.imdbid = imdbid
+        
+    def onInit(self):
+        return
+        
+    def onFocus( self, controlId ):
+    	self.controlId = controlId
+        
+    def onClick(self, controlId):
+        if controlId == 101:
+            self.close()
+            rateMovieOnTrakt(self.imdbid, "love")
+            return
+        elif controlId == 103:
+            self.close()
+            rateMovieOnTrakt(self.imdbid, "hate")
+            return
+        elif controlId == 102:
+            self.close()
+            return
+        else:
+            Debug("Uncaught click (rate dialog): "+str(controlId))
+    
+    def onAction(self, action):
+        buttonCode =  action.getButtonCode()
+        actionID   =  action.getId()
+        
+        if action.getId() in (0, 107):
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+            Debug("Closing RateDialog")
+            self.close()
+        else:
+            Debug("Uncaught action (rate dialog): "+str(action.getId()))

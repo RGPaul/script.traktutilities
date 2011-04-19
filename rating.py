@@ -37,12 +37,10 @@ def doRate(movieid):
     imdbid = match[0]
     title = match[1]
     
-    ret = xbmcgui.Dialog().select("Movie rating '"+str(title)+"'", ["Totally ninja!", "Weak sauce :(", "I don't know..."])
-    if ret in (-1, 2):
-        return
-    rating = "hate"
-    if ret == 0:
-        rating = "love"
-        
-    Debug("Rate reponse: "+str(rateMovieOnTrakt(imdbid, rating))) 
+    # display rate dialog
+    import windows
+    ui = windows.RateDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initDialog(imdbid)
+    ui.doModal()
+    del ui
     
