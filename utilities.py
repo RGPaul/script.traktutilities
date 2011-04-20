@@ -399,7 +399,7 @@ def addMoviesToWatchlist(data):
     return data
 
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
-def rateMovieOnTrakt(imdbid, rating):
+def rateMovieOnTrakt(imdbid, title, year, rating):
     if not (rating in ("love", "hate")):
         #add error message
         return
@@ -409,7 +409,7 @@ def rateMovieOnTrakt(imdbid, rating):
         jdata = json.dumps({'username': username, 'password': pwd, 'imdb_id': imdbid, 'rating': rating})
         conn.request('POST', '/rate/movie/' + apikey, jdata)
     except socket.error:
-        Debug("getRecommendedMoviesFromTrakt: can't connect to trakt")
+        Debug("rateMovieOnTrakt: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
@@ -418,11 +418,13 @@ def rateMovieOnTrakt(imdbid, rating):
 
     try:
         if data['status'] == 'failure':
-            Debug("getRecommendedMoviesFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            Debug("rateMovieOnTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
             return None
     except TypeError:
         pass
+    
+    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
     
     return data
 

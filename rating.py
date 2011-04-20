@@ -27,7 +27,7 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 # ask user if they liked the movie
 def doRate(movieid):
     match = xbmcHttpapiQuery(
-    "SELECT c09, c00 FROM movie"+
+    "SELECT c09, c00, c07 FROM movie"+
     " WHERE idMovie=%(movieid)d" % {'movieid':movieid})
     
     if match == None:
@@ -36,11 +36,12 @@ def doRate(movieid):
     
     imdbid = match[0]
     title = match[1]
+    year = match[2]
     
     # display rate dialog
     import windows
     ui = windows.RateDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initDialog(imdbid)
+    ui.initDialog(imdbid, title, year)
     ui.doModal()
     del ui
     

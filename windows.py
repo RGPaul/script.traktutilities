@@ -326,8 +326,10 @@ class TVShowsWindow(xbmcgui.WindowXML):
 
 class RateDialog(xbmcgui.WindowXMLDialog):
 
-    def initDialog(self, imdbid):
+    def initDialog(self, imdbid, title, year):
         self.imdbid = imdbid
+        self.title = title
+        self.year = year
         
     def onInit(self):
         self.getControl(RATE_TITLE).setLabel(__language__(1165).encode( "utf-8", "ignore" )) # How would you rate that?
@@ -340,11 +342,11 @@ class RateDialog(xbmcgui.WindowXMLDialog):
     def onClick(self, controlId):
         if controlId == RATE_LOVE_BTN:
             self.close()
-            rateMovieOnTrakt(self.imdbid, "love")
+            rateMovieOnTrakt(self.imdbid, self.title, self.year, "love")
             return
         elif controlId == RATE_HATE_BTN:
             self.close()
-            rateMovieOnTrakt(self.imdbid, "hate")
+            rateMovieOnTrakt(self.imdbid, self.title, self.year, "hate")
             return
         elif controlId == RATE_DONT_KNOW:
             self.close()

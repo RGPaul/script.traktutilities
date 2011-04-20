@@ -63,6 +63,8 @@
     <string id="1164">Cross-referencing with local information</string>
     <string id="1165">How would you rate that?</string> <!-- In the context of a video -->
     <string id="1166">I don't know</string>
+    <string id="1167">Rating submitted successfully</string>
+    <string id="1168">Error submitting rating</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>

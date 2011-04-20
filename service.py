@@ -60,6 +60,7 @@ def autostart():
                                 if 'data' in data['params']:
                                     if 'movieid' in data['params']['data']:
                                         doRate(data['params']['data']['movieid'])
+
         except EOFError:
             tn.open('localhost', 9090, 10)
             time.sleep(1)
