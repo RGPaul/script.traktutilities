@@ -47,22 +47,36 @@ def autostart():
             notification("Trakt Utilities", __language__(1184).encode( "utf-8", "ignore" )) # update / sync done
     
     tn = telnetlib.Telnet('localhost', 9090, 10)
-    
+    totalTime = 0
+    watchedTime = 0
+    startTime = 0
     while (not xbmc.abortRequested):
         try:
             raw = tn.read_until("\n")
             data = json.loads(raw)
             if 'params' in data:
                 if 'message' in data['params']:
-                    if data['params']['message'] == 'NewPlayCount':
-                        if 'sender' in data['params']:
-                            if data['params']['sender'] == 'xbmc':
+                    if 'sender' in data['params']:
+                        if data['params']['sender'] == 'xbmc':
+                            if data['params']['message'] == 'NewPlayCount':
                                 if 'data' in data['params']:
                                     if 'movieid' in data['params']['data']:
-                                        doRate(data['params']['data']['movieid'])
+                                        if watchedTime <> 0:
+                                            Debug("Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))                                            
+                                            if totalTime/2 < watchedTime:
+                                                doRate(data['params']['data']['movieid'])
+                                            watchedTime = 0
+                            elif data['params']['message'] in ('PlaybackStarted', 'PlaybackResumed'):
+                                if xbmc.Player().isPlayingVideo():
+                                    totalTime = xbmc.Player().getTotalTime()
+                                    startTime = time.time()
+                            elif data['params']['message'] in ('PlaybackPaused', 'PlaybackStopped'):
+                                if startTime <> 0:
+                                    watchedTime += time.time() - startTime
+                                    startTime = 0
 
         except EOFError:
             tn.open('localhost', 9090, 10)
             time.sleep(1)
-        
+
 autostart()
