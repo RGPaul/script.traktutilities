@@ -28,6 +28,11 @@ TVSHOW_LIST = 110
 RATING = 111
 WATCHERS = 112
 
+RATE_TITLE = 100
+RATE_LOVE_BTN = 101
+RATE_DONT_KNOW = 102
+RATE_HATE_BTN = 103
+
 #get actioncodes from keymap.xml
 ACTION_PARENT_DIRECTORY = 9
 ACTION_PREVIOUS_MENU = 10
@@ -320,32 +325,28 @@ class TVShowsWindow(xbmcgui.WindowXML):
             Debug("Uncaught action (tv shows): "+str(action.getId()))
 
 class RateDialog(xbmcgui.WindowXMLDialog):
-    TITLE = 100
-    LOVE_BTN = 101
-    DONT_KNOW = 102
-    HATE_BTN = 103
 
     def initDialog(self, imdbid):
         self.imdbid = imdbid
         
     def onInit(self):
-        self.getControl(TITLE).setLabel(__language__(1165).encode( "utf-8", "ignore" )) # How would you rate that?
-        self.getControl(DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
+        self.getControl(RATE_TITLE).setLabel(__language__(1165).encode( "utf-8", "ignore" )) # How would you rate that?
+        self.getControl(RATE_DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
         return
         
     def onFocus( self, controlId ):
     	self.controlId = controlId
         
     def onClick(self, controlId):
-        if controlId == LOVE_BTN:
+        if controlId == RATE_LOVE_BTN:
             self.close()
             rateMovieOnTrakt(self.imdbid, "love")
             return
-        elif controlId == HATE_BTN:
+        elif controlId == RATE_HATE_BTN:
             self.close()
             rateMovieOnTrakt(self.imdbid, "hate")
             return
-        elif controlId == DONT_KNOW:
+        elif controlId == RATE_DONT_KNOW:
             self.close()
             return
         else:

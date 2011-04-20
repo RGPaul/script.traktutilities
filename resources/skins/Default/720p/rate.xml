@@ -8,40 +8,40 @@
 		<posy>250</posy>
 	</coordinates>
     <controls>
-        <control type="image" id="100">
+        <control type="image" id="110">
             <description>Background</description>
             <posx>0</posx>
             <posy>50</posy>
-            <width>260</width>
+            <width>300</width>
             <height>150</height>
             <visible>true</visible>
-            <colordiffuse>AA222222</colordiffuse>
+            <colordiffuse>CC222222</colordiffuse>
             <texture>w1x1.png</texture>
         </control>
         <control type="image">
             <description>Header</description>
             <posx>0</posx>
             <posy>0</posy>
-            <width>260</width>
+            <width>300</width>
             <height>50</height>
             <visible>true</visible>
-            <colordiffuse>EE111111</colordiffuse>
+            <colordiffuse>F6111111</colordiffuse>
             <texture>w1x1.png</texture>
         </control>
         <control type="label" id="100">
             <description>Header</description>
             <posx>0</posx>
             <posy>0</posy>
-            <width>260</width>
+            <width>300</width>
             <height>50</height>
             <visible>true</visible>
             <align>center</align>
             <aligny>center</aligny>
-			<font>font13</font>
+			<font>font12</font>
         </control>
         <control type="button" id="101">
             <description>Love</description>
-            <posx>20</posx>
+            <posx>35</posx>
             <posy>60</posy>
             <width>100</width>
             <height>75</height>
@@ -61,7 +61,7 @@
             <description>I dont know</description>
             <posx>20</posx>
             <posy>145</posy>
-            <width>220</width>
+            <width>260</width>
             <height>40</height>
             <visible>true</visible>
             <align>center</align>
@@ -70,14 +70,17 @@
             <colordiffuse>FFFFFFFF</colordiffuse>
             <textcolor>FF666666</textcolor>
             <focusedcolor>FFAAAAAA</focusedcolor>
+            <texturefocus></texturefocus>
+            <texturenofocus></texturenofocus>
             <onup>101</onup>
             <ondown>103</ondown>
             <onleft>103</onleft>
             <onright>101</onright>
+			<font>font12</font>
         </control>
         <control type="button" id="103">
             <description>Hate</description>
-            <posx>140</posx>
+            <posx>175</posx>
             <posy>60</posy>
             <width>100</width>
             <height>75</height>
