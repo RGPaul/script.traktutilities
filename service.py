@@ -70,7 +70,7 @@ def autostart():
                                 if xbmc.Player().isPlayingVideo():
                                     totalTime = xbmc.Player().getTotalTime()
                                     startTime = time.time()
-                            elif data['params']['message'] in ('PlaybackPaused', 'PlaybackStopped'):
+                            elif data['params']['message'] in ('PlaybackPaused', 'PlaybackStopped', 'PlaybackEnded'):
                                 if startTime <> 0:
                                     watchedTime += time.time() - startTime
                                     startTime = 0
