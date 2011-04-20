@@ -28,7 +28,7 @@
             <colordiffuse>EE111111</colordiffuse>
             <texture>w1x1.png</texture>
         </control>
-        <control type="label">
+        <control type="label" id="100">
             <description>Header</description>
             <posx>0</posx>
             <posy>0</posy>
@@ -38,7 +38,6 @@
             <align>center</align>
             <aligny>center</aligny>
 			<font>font13</font>
-            <label>How would you rate that?</label>
         </control>
         <control type="button" id="101">
             <description>Love</description>
@@ -68,7 +67,6 @@
             <align>center</align>
             <aligny>center</aligny>
 			<font>font13</font>
-            <label>I don't know</label>
             <colordiffuse>FFFFFFFF</colordiffuse>
             <textcolor>FF666666</textcolor>
             <focusedcolor>FFAAAAAA</focusedcolor>

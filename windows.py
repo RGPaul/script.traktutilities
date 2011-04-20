@@ -320,25 +320,32 @@ class TVShowsWindow(xbmcgui.WindowXML):
             Debug("Uncaught action (tv shows): "+str(action.getId()))
 
 class RateDialog(xbmcgui.WindowXMLDialog):
+    TITLE = 100
+    LOVE_BTN = 101
+    DONT_KNOW = 102
+    HATE_BTN = 103
+
     def initDialog(self, imdbid):
         self.imdbid = imdbid
         
     def onInit(self):
+        self.getControl(TITLE).setLabel(__language__(1165).encode( "utf-8", "ignore" )) # How would you rate that?
+        self.getControl(DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
         return
         
     def onFocus( self, controlId ):
     	self.controlId = controlId
         
     def onClick(self, controlId):
-        if controlId == 101:
+        if controlId == LOVE_BTN:
             self.close()
             rateMovieOnTrakt(self.imdbid, "love")
             return
-        elif controlId == 103:
+        elif controlId == HATE_BTN:
             self.close()
             rateMovieOnTrakt(self.imdbid, "hate")
             return
-        elif controlId == 102:
+        elif controlId == DONT_KNOW:
             self.close()
             return
         else:
