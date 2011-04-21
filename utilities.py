@@ -406,7 +406,7 @@ def rateMovieOnTrakt(imdbid, title, year, rating):
     
     Debug("Rating movie:" + rating)
     try:
-        jdata = json.dumps({'username': username, 'password': pwd, 'imdb_id': imdbid, 'rating': rating})
+        jdata = json.dumps({'username': username, 'password': pwd, 'imdb_id': imdbid, 'title': title, 'year': year, 'rating': rating})
         conn.request('POST', '/rate/movie/' + apikey, jdata)
     except socket.error:
         Debug("rateMovieOnTrakt: can't connect to trakt")
@@ -419,6 +419,36 @@ def rateMovieOnTrakt(imdbid, title, year, rating):
     try:
         if data['status'] == 'failure':
             Debug("rateMovieOnTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
+            return None
+    except TypeError:
+        pass
+    
+    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    
+    return data
+
+#Set the rating for a tv episode on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
+def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
+    if not (rating in ("love", "hate")):
+        #add error message
+        return
+    
+    Debug("Rating episode:" + rating)
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': tvdbid, 'title': title, 'year': year, 'season': season, 'episode': episode, 'rating': rating})
+        conn.request('POST', '/rate/episode/' + apikey, jdata)
+    except socket.error:
+        Debug("rateEpisodeOnTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("rateEpisodeOnTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
             return None
     except TypeError:

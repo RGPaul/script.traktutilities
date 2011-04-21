@@ -324,7 +324,7 @@ class TVShowsWindow(xbmcgui.WindowXML):
         else:
             Debug("Uncaught action (tv shows): "+str(action.getId()))
 
-class RateDialog(xbmcgui.WindowXMLDialog):
+class RateMovieDialog(xbmcgui.WindowXMLDialog):
 
     def initDialog(self, imdbid, title, year):
         self.imdbid = imdbid
@@ -352,7 +352,7 @@ class RateDialog(xbmcgui.WindowXMLDialog):
             self.close()
             return
         else:
-            Debug("Uncaught click (rate dialog): "+str(controlId))
+            Debug("Uncaught click (rate movie dialog): "+str(controlId))
     
     def onAction(self, action):
         buttonCode =  action.getButtonCode()
@@ -361,7 +361,51 @@ class RateDialog(xbmcgui.WindowXMLDialog):
         if action.getId() in (0, 107):
             return
         if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
-            Debug("Closing RateDialog")
+            Debug("Closing RateMovieDialog")
             self.close()
         else:
-            Debug("Uncaught action (rate dialog): "+str(action.getId()))
+            Debug("Uncaught action (rate movie dialog): "+str(action.getId()))
+
+class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
+
+    def initDialog(self, tvdbid, title, year, season, episode):
+        self.tvdbid = tvdbid
+        self.title = title
+        self.year = year
+        self.season = season
+        self.episode = episode
+        
+    def onInit(self):
+        self.getControl(RATE_TITLE).setLabel(__language__(1165).encode( "utf-8", "ignore" )) # How would you rate that?
+        self.getControl(RATE_DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
+        return
+        
+    def onFocus( self, controlId ):
+    	self.controlId = controlId
+        
+    def onClick(self, controlId):
+        if controlId == RATE_LOVE_BTN:
+            self.close()
+            rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "love")
+            return
+        elif controlId == RATE_HATE_BTN:
+            self.close()
+            rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "hate")
+            return
+        elif controlId == RATE_DONT_KNOW:
+            self.close()
+            return
+        else:
+            Debug("Uncaught click (rate episode dialog): "+str(controlId))
+    
+    def onAction(self, action):
+        buttonCode =  action.getButtonCode()
+        actionID   =  action.getId()
+        
+        if action.getId() in (0, 107):
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+            Debug("Closing RateEpisodeDialog")
+            self.close()
+        else:
+            Debug("Uncaught action (rate episode dialog): "+str(action.getId()))

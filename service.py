@@ -54,18 +54,21 @@ def autostart():
         try:
             raw = tn.read_until("\n")
             data = json.loads(raw)
+            print data
             if 'params' in data:
                 if 'message' in data['params']:
                     if 'sender' in data['params']:
                         if data['params']['sender'] == 'xbmc':
                             if data['params']['message'] == 'NewPlayCount':
-                                if 'data' in data['params']:
-                                    if 'movieid' in data['params']['data']:
-                                        if watchedTime <> 0:
-                                            Debug("Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))                                            
-                                            if totalTime/2 < watchedTime:
-                                                doRate(data['params']['data']['movieid'])
-                                            watchedTime = 0
+                                if watchedTime <> 0:
+                                    Debug("Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
+                                    if 'data' in data['params']:                                   
+                                        if totalTime/2 < watchedTime:
+                                            if 'movieid' in data['params']['data']:    
+                                                doRateMovie(data['params']['data']['movieid'])
+                                            if 'episodeid' in data['params']['data']:
+                                                doRateEpisode(data['params']['data']['episodeid'])
+                                    watchedTime = 0
                             elif data['params']['message'] in ('PlaybackStarted', 'PlaybackResumed'):
                                 if xbmc.Player().isPlayingVideo():
                                     totalTime = xbmc.Player().getTotalTime()

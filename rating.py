@@ -25,7 +25,7 @@ conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 # ask user if they liked the movie
-def doRate(movieid):
+def doRateMovie(movieid):
     match = xbmcHttpapiQuery(
     "SELECT c09, c00, c07 FROM movie"+
     " WHERE idMovie=%(movieid)d" % {'movieid':movieid})
@@ -40,8 +40,34 @@ def doRate(movieid):
     
     # display rate dialog
     import windows
-    ui = windows.RateDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+    ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initDialog(imdbid, title, year)
     ui.doModal()
     del ui
+
+# ask user if they liked the movie
+def doRateEpisode(episodeid):
+    match = xbmcHttpapiQuery(
+    "SELECT tvshow.c12, tvshow.c00, tvshow.c05, episode.c12, episode.c13 FROM tvshow"+
+    " INNER JOIN tvshowlinkepisode"+
+    " ON tvshow.idShow = tvshowlinkepisode.idShow"+
+    " INNER JOIN episode"+
+    " ON tvshowlinkepisode.idEpisode = episode.idEpisode"+
+    " WHERE idEpisode=%(episodeid)d" % {'episodeid':episodeid})
     
+    if match == None:
+        #add error message here
+        return
+    
+    tvdbid = match[0]
+    title = match[1]
+    year = match[2]
+    season = match[3]
+    episode = match[4]
+    
+    # display rate dialog
+    import windows
+    ui = windows.RateEpisodeDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initDialog(tvdbid, title, year, season, episode)
+    ui.doModal()
+    del ui
