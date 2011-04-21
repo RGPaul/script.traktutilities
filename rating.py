@@ -53,7 +53,7 @@ def doRateEpisode(episodeid):
     " ON tvshow.idShow = tvshowlinkepisode.idShow"+
     " INNER JOIN episode"+
     " ON tvshowlinkepisode.idEpisode = episode.idEpisode"+
-    " WHERE idEpisode=%(episodeid)d" % {'episodeid':episodeid})
+    " WHERE episode.idEpisode=%(episodeid)d" % {'episodeid':episodeid})
     
     if match == None:
         #add error message here
