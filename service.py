@@ -50,33 +50,32 @@ def autostart():
     totalTime = 0
     watchedTime = 0
     startTime = 0
+    curVideo = None
     while (not xbmc.abortRequested):
         try:
             raw = tn.read_until("\n")
             data = json.loads(raw)
             print data
-            if 'params' in data:
-                if 'message' in data['params']:
-                    if 'sender' in data['params']:
-                        if data['params']['sender'] == 'xbmc':
-                            if data['params']['message'] == 'NewPlayCount':
-                                if watchedTime <> 0:
-                                    Debug("Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
-                                    if 'data' in data['params']:                                   
-                                        if totalTime/2 < watchedTime:
-                                            if 'movieid' in data['params']['data']:    
-                                                doRateMovie(data['params']['data']['movieid'])
-                                            if 'episodeid' in data['params']['data']:
-                                                doRateEpisode(data['params']['data']['episodeid'])
-                                    watchedTime = 0
-                            elif data['params']['message'] in ('PlaybackStarted', 'PlaybackResumed'):
-                                if xbmc.Player().isPlayingVideo():
-                                    totalTime = xbmc.Player().getTotalTime()
-                                    startTime = time.time()
-                            elif data['params']['message'] in ('PlaybackPaused', 'PlaybackStopped', 'PlaybackEnded'):
-                                if startTime <> 0:
-                                    watchedTime += time.time() - startTime
-                                    startTime = 0
+            if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
+                if data['method'] in ('Player.PlaybackStopped', 'Player.PlaybackEnded'):
+                    if watchedTime <> 0:
+                        Debug("Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
+                        if 'type' in curVideo and 'id' in curVideo:                                   
+                            if totalTime/2 < watchedTime:
+                                if curVideo['type'] == 'movie':
+                                    doRateMovie(curVideo['id'])
+                                if curVideo['type'] == 'episode':
+                                    doRateEpisode(curVideo['id'])
+                        watchedTime = 0
+                elif data['method'] in ('Player.PlaybackStarted', 'Player.PlaybackResumed'):
+                    if xbmc.Player().isPlayingVideo():
+                        curVideo = getCurrentPlayingVideoFromXBMC()
+                        totalTime = xbmc.Player().getTotalTime()
+                        startTime = time.time()
+                elif data['method'] == 'Player.PlaybackPaused':
+                    if startTime <> 0:
+                        watchedTime += time.time() - startTime
+                        startTime = 0
 
         except EOFError:
             tn.open('localhost', 9090, 10)

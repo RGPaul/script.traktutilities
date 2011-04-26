@@ -296,6 +296,31 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
                 Debug("xml answer: " + str(responce))
     else:
         Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
+    
+# get current video being played from XBMC
+def getCurrentPlayingVideoFromXBMC():
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.GetItems','params':{}, 'id': 1})
+    
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
+    
+    # check for error
+    try:
+        error = result['error']
+        Debug("getCurrentPlayingVideoFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+    
+    try:
+        current = result['result']['state']['current']
+        typ = result['result']['items'][current]['type']
+        if typ in ("movie","episode"):
+            return result['result']['items'][current]
+        return None
+    except KeyError:
+        Debug("getCurrentPlayingVideoFromXBMC: KeyError")
+        return None
 
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
