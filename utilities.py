@@ -282,7 +282,7 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
             # get idfile from episode table # c12 = season, c13 = episode
             match2 = xbmcHttpapiQuery(
             "SELECT episode.idFile FROM episode"+
-            " WHERE episode.idEpisode=%(idEpisode)" % {'idEpisode':str(idEpisode)}+
+            " WHERE episode.idEpisode=%(idEpisode)d" % {'idEpisode':idEpisode}+
             " AND episode.c12='%(seasonid)s'" % {'seasonid':str(seasonid)}+
             " AND episode.c13='%(episodeid)s'" % {'episodeid':str(episodeid)})
             
