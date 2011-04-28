@@ -15,7 +15,7 @@ __status__ = "Production"
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
-apikey = '0a698a20b222d0b8637298f6920bf03a'
+apikey = '48dfcb4813134da82152984e8c4f329bc8b8b46a'
 username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
@@ -114,7 +114,7 @@ def showFriendsWatchlist(user):
                 return # error already displayed in utilities.py
     
             if len(movies) == 0:
-                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1165).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no movies in the watchlist
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1170).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no movies in the watchlist
                 return
                 
             # display watchlist movie list
@@ -131,7 +131,7 @@ def showFriendsWatchlist(user):
                 return # error already displayed in utilities.py
             
             if len(tvshows) == 0:
-                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1166).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows in the watchlist
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1171).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows in the watchlist
                 return
             
             # display watchlist tv shows
@@ -166,7 +166,7 @@ def showFriendsWatched(user):
                     movies.append(obj['movie'])
     
             if len(movies) == 0:
-                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), user['username'] + " " + __language__(1167).encode( "utf-8", "ignore" )) # Trakt Utilities, "friendname" hasn't watched any Movie yet
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), user['username'] + " " + __language__(1172).encode( "utf-8", "ignore" )) # Trakt Utilities, "friendname" hasn't watched any Movie yet
                 return
                 
             # display watchlist movie list
@@ -185,7 +185,7 @@ def showFriendsWatched(user):
                 return # error already displayed in utilities.py
             
             if len(tvshows) == 0:
-                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), user['username'] + " " + __language__(1168).encode( "utf-8", "ignore" )) # Trakt Utilities, "friendname" hasn't watched any TV Show yet
+                xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), user['username'] + " " + __language__(1173).encode( "utf-8", "ignore" )) # Trakt Utilities, "friendname" hasn't watched any TV Show yet
                 return
             
             # display watchlist tv shows
