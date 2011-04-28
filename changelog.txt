@@ -1,4 +1,5 @@
 next Version:
+    - rating dialog after wathcing movie or tv episode
     - Bugfix: no duplicates in movie lists after watching
     - local tag on movies added, that indicate local presence
     - watchlist tag on movies added
