@@ -32,7 +32,7 @@ __status__ = "Production"
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
-apikey = '0a698a20b222d0b8637298f6920bf03a'
+apikey = '48dfcb4813134da82152984e8c4f329bc8b8b46a'
 username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
@@ -42,7 +42,7 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 
 def Debug(msg, force=False):
     if (debug == 'true' or force):
-        print "Trakt Utilities: " + msg.encode( "utf-8", "ignore" )
+        print "Trakt Utilities: " + msg
 
 def notification( header, message, time=5000, icon=__settings__.getAddonInfo( "icon" ) ):
     xbmc.executebuiltin( "XBMC.Notification(%s,%s,%i,%s)" % ( header, message, time, icon ) )
@@ -282,18 +282,19 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
             # get idfile from episode table # c12 = season, c13 = episode
             match2 = xbmcHttpapiQuery(
             "SELECT episode.idFile FROM episode"+
-            " WHERE episode.idEpisode=%(idEpisode)" % {'idEpisode':str(idEpisode)}+
+            " WHERE episode.idEpisode=%(idEpisode)d" % {'idEpisode':int(idEpisode)}+
             " AND episode.c12='%(seasonid)s'" % {'seasonid':str(seasonid)}+
             " AND episode.c13='%(episodeid)s'" % {'episodeid':str(episodeid)})
             
-            for idFile in match2:
-                Debug("idFile: " + str(idFile) + " setting playcount...")
-                responce = xbmcHttpapiExec(
-                "UPDATE files"+
-                " SET playcount=%(playcount)s" % {'playcount':str(playcount)}+
-                " WHERE idFile=%(idFile)s" % {'idFile':str(idFile)})
-                
-                Debug("xml answer: " + str(responce))
+            if match2 != None:
+                for idFile in match2:
+                    Debug("idFile: " + str(idFile) + " setting playcount...")
+                    responce = xbmcHttpapiExec(
+                    "UPDATE files"+
+                    " SET playcount=%(playcount)s" % {'playcount':str(playcount)}+
+                    " WHERE idFile=%(idFile)s" % {'idFile':str(idFile)})
+                    
+                    Debug("xml answer: " + str(responce))
     else:
         Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
     
