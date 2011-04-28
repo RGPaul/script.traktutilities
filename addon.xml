@@ -10,10 +10,10 @@
         <provides>video</provides>
     </extension>
     <extension point="xbmc.service" name="TraktUtilities.service" library="service.py"/>
-    <extension point="xbmc.addon.repository" name="Manromen XBMC Addons">
-        <info compressed="true">http://xbmc.rgpaul.com/XBMC-Repository/addons.xml</info>
-        <checksum>http://xbmc.rgpaul.com/XBMC-Repository/addons.xml.md5</checksum>
-        <datadir zip="true">http://xbmc.rgpaul.com/XBMC-Repository</datadir>
+    <extension point="xbmc.addon.repository" name="Manromen XBMC Addons testing">
+        <info compressed="true">http://xbmc.rgpaul.com/XBMC-Repository-devel/addons.xml</info>
+        <checksum>http://xbmc.rgpaul.com/XBMC-Repository-devel/addons.xml.md5</checksum>
+        <datadir zip="true">http://xbmc.rgpaul.com/XBMC-Repository-devel</datadir>
     </extension>
     <extension point="xbmc.addon.metadata" name="TraktUtilities.metadata">
         <summary lang="en">some trakt utilities</summary>
