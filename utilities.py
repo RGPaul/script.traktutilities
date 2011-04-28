@@ -297,6 +297,31 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
                     Debug("xml answer: " + str(responce))
     else:
         Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
+    
+# get current video being played from XBMC
+def getCurrentPlayingVideoFromXBMC():
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.GetItems','params':{}, 'id': 1})
+    
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
+    
+    # check for error
+    try:
+        error = result['error']
+        Debug("getCurrentPlayingVideoFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+    
+    try:
+        current = result['result']['state']['current']
+        typ = result['result']['items'][current]['type']
+        if typ in ("movie","episode"):
+            return result['result']['items'][current]
+        return None
+    except KeyError:
+        Debug("getCurrentPlayingVideoFromXBMC: KeyError")
+        return None
 
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
@@ -396,6 +421,66 @@ def addMoviesToWatchlist(data):
             return None
     except TypeError:
         pass
+    
+    return data
+
+#Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
+def rateMovieOnTrakt(imdbid, title, year, rating):
+    if not (rating in ("love", "hate")):
+        #add error message
+        return
+    
+    Debug("Rating movie:" + rating)
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd, 'imdb_id': imdbid, 'title': title, 'year': year, 'rating': rating})
+        conn.request('POST', '/rate/movie/' + apikey, jdata)
+    except socket.error:
+        Debug("rateMovieOnTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("rateMovieOnTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
+            return None
+    except TypeError:
+        pass
+    
+    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    
+    return data
+
+#Set the rating for a tv episode on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
+def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
+    if not (rating in ("love", "hate")):
+        #add error message
+        return
+    
+    Debug("Rating episode:" + rating)
+    try:
+        jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': tvdbid, 'title': title, 'year': year, 'season': season, 'episode': episode, 'rating': rating})
+        conn.request('POST', '/rate/episode/' + apikey, jdata)
+    except socket.error:
+        Debug("rateEpisodeOnTrakt: can't connect to trakt")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            Debug("rateEpisodeOnTrakt: Error: " + str(data['error']))
+            notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
+            return None
+    except TypeError:
+        pass
+    
+    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
     
     return data
 
