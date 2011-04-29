@@ -42,7 +42,10 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 
 def Debug(msg, force=False):
     if (debug == 'true' or force):
-        print "Trakt Utilities: " + msg
+        try:
+            print "Trakt Utilities: " + msg
+        except UnicodeEncodeError:
+            print "Trakt Utilities: " + msg.encode( "utf-8", "ignore" )
 
 def notification( header, message, time=5000, icon=__settings__.getAddonInfo( "icon" ) ):
     xbmc.executebuiltin( "XBMC.Notification(%s,%s,%i,%s)" % ( header, message, time, icon ) )
