@@ -3,7 +3,6 @@
 - friends submenu redesign
 - browse friends library
 - display friends profile
-- rating movies (othrayte) [branch: rating]
-- rating tv shows (othrayte) [branch: rating]
-- display loading screen for downloading stuff from trakt.tv - sometimes i don't know if the addon is still running
+- rating whole tv shows - Issue #25
+- Rate buttons on movie and tv show list windows - Issue #26
 

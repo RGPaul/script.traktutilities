@@ -1,5 +1,7 @@
-next Version:
+Version 0.5.0:
+    - rating dialog after watching a movie or tv episode
     - Bugfix: no duplicates in movie lists after watching
+    - Bugfix: fixed an issue with setting tv show episodes as seen on xbmc
     - local tag on movies added, that indicate local presence
     - watchlist tag on movies added
     - trakt utilities icon added

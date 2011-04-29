@@ -69,6 +69,8 @@
     <string id="1171">there are no tv shows in the watchlist</string>
     <string id="1172">hasn't watched any Movie yet</string>
     <string id="1173">hasn't watched any TV Show yet</string>
+    <string id="1300">Checking XBMC Database for new seen Movies</string>
+    <string id="1301">Checking Trakt Database for new seen Movies</string>
     
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>
