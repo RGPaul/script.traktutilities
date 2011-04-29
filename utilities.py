@@ -260,7 +260,7 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
     
     result = xbmcHttpapiExec(
     "UPDATE files"+
-    " SET playcount=%(playcount)d" % {'playcount':playcount}+
+    " SET playcount=%(playcount)d" % {'playcount':int(playcount)}+
     " WHERE idFile=%(idFile)s" % {'idFile':match[0]})
     
     Debug("xml answer: " + str(result))
