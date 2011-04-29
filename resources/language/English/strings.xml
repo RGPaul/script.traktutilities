@@ -9,6 +9,8 @@
     <string id="1006">Auto update TV Show Collection at startup</string>
     <string id="1007">Auto sync seen Movies at startup</string>
     <string id="1008">Auto sync seen TV Shows at startup</string>
+    <string id="1009">Rate Movie after watching</string>
+    <string id="1010">Rate TV Show Episode ater watching</string>
     
     <!-- Info -->
     <string id="1105"></string>
