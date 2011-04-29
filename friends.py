@@ -25,34 +25,18 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 
 def showFriends():
 
-    options = []
-    friends = []
-    data = getFriendsFromTrakt()
+    friends = getFriendsFromTrakt()
     
-    if data == None: # data = None => there was an error
-        return # error already displayed in utilities.py
-    
-    for friend in data:
-        try:
-            if friend['full_name'] != None:
-                options.append(friend['full_name']+" ("+friend['username']+")")
-                friends.append(friend)
-            else:
-                options.append(friend['username'])
-                friends.append(friend)
-        except KeyError:
-            pass # Error ? skip this friend
-    
-    if len(options) == 0:
+    if len(friends) == 0:
         xbmcgui.Dialog().ok("Trakt Utilities", "you have not added any friends on Trakt")
         return
     
-    while True:
-        select = xbmcgui.Dialog().select(__language__(1211).encode( "utf-8", "ignore" ), options) # Friends
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
+    # display friends list
+    import windows
+    ui = windows.FriendsWindow("friends.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initWindow(friends)
+    ui.doModal()
+    del ui
 
 def showFriendSubmenu(user):
     #check what (if anything) the user is watching

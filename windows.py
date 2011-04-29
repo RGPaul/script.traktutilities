@@ -29,10 +29,16 @@ MIXED_LIST = 110
 RATING = 111
 WATCHERS = 112
 
+
+FRIENDS_LIST = 113
+FRIEND_NAME = 114
+
 RATE_TITLE = 100
 RATE_LOVE_BTN = 101
 RATE_DONT_KNOW = 102
 RATE_HATE_BTN = 103
+
+
 
 #get actioncodes from keymap.xml
 ACTION_PARENT_DIRECTORY = 9
@@ -482,3 +488,52 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
             self.close()
         else:
             Debug("Uncaught action (rate episode dialog): "+str(action.getId()))
+            
+class FriendsWindow(xbmcgui.WindowXML):
+
+    friends = None
+
+    def initWindow(self, friends):
+        self.friends = friends
+        
+    def onInit(self):
+        self.getControl(FRIENDS_LIST).reset()
+        if self.friends != None:
+            for friend in self.friends:
+                li = xbmcgui.ListItem(friend['username'], '', friend['avatar'])
+                self.getControl(FRIENDS_LIST).addItem(li)
+            self.setFocus(self.getControl(FRIENDS_LIST))
+            self.listUpdate()
+        else:
+            Debug("FriendsWindow: Error: friends array is empty")
+            self.close()
+
+    def listUpdate(self):
+        try:
+            current = self.getControl(FRIENDS_LIST).getSelectedPosition()
+        except TypeError:
+            return # ToDo: error output
+        try:
+            if self.friends[current]['full_name'] != None:
+                self.getControl(FRIEND_NAME).setLabel(self.friends[current]['username'] + " (" + self.friends[current]['full_name'] + ")")
+            else:
+                self.getControl(FRIEND_NAME).setLabel(self.friends[current]['username'])
+        except KeyError,TypeError:
+            self.getControl(FRIEND_NAME).setLabel("")
+        
+        
+    def onFocus( self, controlId ):
+    	self.controlId = controlId
+
+    def onAction(self, action):
+        if action.getId() == 0:
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+            Debug("Closing FriendsWindow")
+            self.close()
+        elif action.getId() in (3,4,107):
+            self.listUpdate()
+        elif action.getId() == ACTION_SELECT_ITEM:
+            pass # nothing yet
+        else:
+            Debug("Uncaught action (FriendsWindow): "+str(action.getId()))
