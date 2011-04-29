@@ -7,4 +7,6 @@
 <setting id="autosync_tvshowcollection" type="bool" label="1006" default="false"/>
 <setting id="autosync_seenmovies" type="bool" label="1007" default="false"/>
 <setting id="autosync_seentvshows" type="bool" label="1008" default="false"/>
+<setting id="rate_movie" type="bool" label="1009" default="true"/>
+<setting id="rate_episode" type="bool" label="1010" default="true"/>
 </settings>

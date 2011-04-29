@@ -46,6 +46,11 @@ def autostart():
         if autosync_moviecollection == "true" or autosync_tvshowcollection == "true" or autosync_seenmovies == "true" or autosync_seentvshows == "true":
             notification("Trakt Utilities", __language__(1184).encode( "utf-8", "ignore" )) # update / sync done
     
+    
+    # you can disable rating in options
+    rateMovieOption = __settings__.getSetting("rate_movie")
+    rateEpisodeOption = __settings__.getSetting("rate_episode")
+    
     tn = telnetlib.Telnet('localhost', 9090, 10)
     totalTime = 0
     watchedTime = 0
@@ -63,9 +68,9 @@ def autostart():
                             Debug("[Rating] Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
                             if 'type' in curVideo and 'id' in curVideo:                                   
                                 if totalTime/2 < watchedTime:
-                                    if curVideo['type'] == 'movie':
+                                    if curVideo['type'] == 'movie' and rateMovieOption == 'true':
                                         doRateMovie(curVideo['id'])
-                                    if curVideo['type'] == 'episode':
+                                    if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
                                         doRateEpisode(curVideo['id'])
                             watchedTime = 0
                         startTime = 0
