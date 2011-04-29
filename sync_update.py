@@ -43,6 +43,10 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 # updates movie collection entries on trakt (don't unlibrary)
 def updateMovieCollection(daemon=False):
 
+    if not daemon:
+        progress = xbmcgui.DialogProgress()
+        progress.create("Trakt Utilities", __language__(1132).encode( "utf-8", "ignore" )) # Checking Database for new Episodes
+    
     # get the required informations
     trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
@@ -51,10 +55,6 @@ def updateMovieCollection(daemon=False):
         return
 
     movie_collection = []
-    
-    if not daemon:
-        progress = xbmcgui.DialogProgress()
-        progress.create("Trakt Utilities", __language__(1132).encode( "utf-8", "ignore" )) # Checking Database for new Episodes
     
     for i in range(0, len(xbmc_movies)):
         if not daemon:
@@ -295,16 +295,24 @@ def updateTVShowCollection(daemon=False):
 # removes deleted movies from trakt collection
 def cleanMovieCollection(daemon=False):
 
+    # display warning
     if not daemon:
         choice = xbmcgui.Dialog().yesno("Trakt Utilities", __language__(1153).encode( "utf-8", "ignore" ), __language__(1154).encode( "utf-8", "ignore" ), __language__(1155).encode( "utf-8", "ignore" )) # 
         if choice == False:
             return
+    
+    # display progress
+    if not daemon:
+        progress = xbmcgui.DialogProgress()
+        progress.create("Trakt Utilities", __language__(1139).encode( "utf-8", "ignore" )) # Checking Database for deleted Movies
 
     # get the required informations
     trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
     
     if xbmc_movies == None or trakt_movies == None: # error
+        if not daemon:
+            progress.close()
         return
 
     to_unlibrary = []
@@ -317,7 +325,14 @@ def cleanMovieCollection(daemon=False):
         except KeyError:
             continue
     
+    progresscount = 0
     for movie in trakt_movies.items():
+        if not daemon:
+            progresscount += 1
+            progress.update(100 / len(trakt_movies.items()) * progresscount)
+            if progress.iscanceled():
+                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1134).encode( "utf-8", "ignore" )) # Progress Aborted
+                return
         if movie[1]['in_collection']:
             try:
                 xbmc_movies_imdbid[movie[1]['imdb_id']]
@@ -331,11 +346,9 @@ def cleanMovieCollection(daemon=False):
         # refresh connection (don't want to get tcp timeout)
         conn = httplib.HTTPConnection('api.trakt.tv')
         conn.request('POST', '/movie/unlibrary/' + apikey, jdata, headers)
-        response = conn.getresponse()
+        response = conn.getresponse().read()
         
-        data = json.loads(response.read())
-        
-        Debug(str(data))
+        data = json.loads(response)
         
         if data['status'] == 'success':
             Debug ("successfully cleared collection: " + str(data['message']))
@@ -349,10 +362,13 @@ def cleanMovieCollection(daemon=False):
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
     else:
         xbmcgui.Dialog().ok("Trakt Utilities", __language__(1130).encode( "utf-8", "ignore" )) # No new movies in library to update
+    if not daemon:
+        progress.close()
 
 # removes deleted tvshow episodes from trakt collection (unlibrary)
 def cleanTVShowCollection(daemon=False):
 
+    # display warning
     if not daemon:
         choice = xbmcgui.Dialog().yesno("Trakt Utilities", __language__(1156).encode( "utf-8", "ignore" ), __language__(1154).encode( "utf-8", "ignore" ), __language__(1155).encode( "utf-8", "ignore" )) # 
         if choice == False:
@@ -519,17 +535,28 @@ def cleanTVShowCollection(daemon=False):
 
 # updates seen movies on trakt
 def syncSeenMovies(daemon=False):
+
+    if not daemon:
+        progress = xbmcgui.DialogProgress()
+        progress.create("Trakt Utilities", __language__(1300).encode( "utf-8", "ignore" )) # Checking XBMC Database for new seen Movies
     
     # get the required informations
     trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
     
     if xbmc_movies == None or trakt_movies == None: # error
+        if not daemon:
+            progress.close()
         return
         
     movies_seen = []
 
     for i in range(0, len(xbmc_movies)):
+        if not daemon:
+            progress.update(100 / len(xbmc_movies) * i)
+            if progress.iscanceled():
+                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1134).encode( "utf-8", "ignore" )) # Progress Aborted
+                break
         try:
             imdbid = xbmc_movies[i]['imdbnumber']
         except KeyError:
@@ -594,6 +621,8 @@ def syncSeenMovies(daemon=False):
         if not daemon:
             choice = xbmcgui.Dialog().yesno("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1127).encode( "utf-8", "ignore" ), movies_string) # Movies will be added as seen on Trakt
             if choice == False:
+                if not daemon:
+                    progress.close()
                 return
     
         jdata = json.dumps({'username': username, 'password': pwd, 'movies': movies_seen})
@@ -625,11 +654,24 @@ def syncSeenMovies(daemon=False):
             xbmc_movies_imdbid[xbmc_movies[i]['imdbnumber']] = xbmc_movies[i]
         except KeyError:
             continue
+
+    if not daemon:
+        progress.close()
+        progress = xbmcgui.DialogProgress()
+        progress.create("Trakt Utilities", __language__(1301).encode( "utf-8", "ignore" )) # Checking Trakt Database for new seen Movies
+
     
     # set movies seen from trakt, that are unseen on xbmc:
     movies_seen = []
+    progresscount = 0
     Debug("searching local...")
     for movie in trakt_movies.items():
+        if not daemon:
+            progresscount += 1
+            progress.update(100 / len(trakt_movies.items()) * progresscount)
+            if progress.iscanceled():
+                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1134).encode( "utf-8", "ignore" )) # Progress Aborted
+                break
         if movie[1]['plays'] > 0:
             try:
                 if xbmc_movies_imdbid[movie[1]['imdb_id']]['playcount'] == 0:
@@ -650,6 +692,8 @@ def syncSeenMovies(daemon=False):
         if not daemon:
             choice = xbmcgui.Dialog().yesno("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1147).encode( "utf-8", "ignore" ), movies_string) # Movies will be added as seen on Trakt
             if choice == False:
+                if not daemon:
+                    progress.close()
                 return
         
         for i in range(0, len(movies_seen)):
@@ -661,6 +705,8 @@ def syncSeenMovies(daemon=False):
     else:
         if not daemon:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1128).encode( "utf-8", "ignore" )) # no new seen movies to update for xbmc
+    if not daemon:
+        progress.close()
 
 # syncs seen tvshows between trakt and xbmc (no unlibrary)
 def syncSeenTVShows(daemon=False):
