@@ -61,11 +61,11 @@ def autostart():
     while (not xbmc.abortRequested):
         try:
             tn = telnetlib.Telnet('localhost', 9090, 10)
-        except IOError:
+        except IOError as (errno, strerror):
             #connection failed, try again soon
-            print "[~] Telnet too soon"
-            continue
+            print "[~] Telnet too soon? ("+str(errno)+") "+strerror
             time.sleep(1)
+            continue
         while (not xbmc.abortRequested):
             try:
                 raw = tn.read_until("\n")
