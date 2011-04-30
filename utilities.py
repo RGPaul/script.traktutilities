@@ -317,6 +317,7 @@ def getCurrentPlayingVideoFromXBMC():
         pass # no error
     
     try:
+        Debug("Current playlist: "+str(result['result']))
         current = result['result']['state']['current']
         typ = result['result']['items'][current]['type']
         if typ in ("movie","episode"):
@@ -615,42 +616,49 @@ def playMovieById(idMovie):
     if idMovie == -1:
         return # invalid movie id
     else:
-        # get file reference id from movie reference id
-        match = xbmcHttpapiQuery(
-        "SELECT movie.idFile FROM movie"+
-        " WHERE movie.idMovie=%(idMovie)s" % {'idMovie':str(idMovie)})
+        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.Clear', 'params':{}, 'id': 1})
+        result = xbmc.executeJSONRPC(rpccmd)
+        result = json.loads(result)
         
-        if match == None:
-            Debug("playMovieById: Error getting idFile")
-            return
+        # check for error
+        try:
+            error = result['error']
+            Debug("playMovieById, VideoPlaylist.Clear: " + str(error))
+            return None
+        except KeyError:
+            pass # no error
         
-        idFile = match[0]
-        
-        # Get path and filename of file by fileid
-        match = xbmcHttpapiQuery(
-        "SELECT files.idPath, files.strFilename FROM files"+
-        " WHERE files.idFile=%(idFile)s" % {'idFile':str(idFile)})
-        
-        if match == None:
-            Debug("playMovieById: Error getting filename")
-            return
-        
-        idPath = match[0]
-        strFilename = match[1]
-        if strFilename.startswith("stack://"): # if the file is a stack, dont bother getting the path, stack include the path
-            xbmc.Player().play(strFilename)
-        else :
-            # Get the path of the file by fileid
-            match = xbmcHttpapiQuery(
-            "SELECT path.strPath FROM path"+
-            " WHERE path.idPath=%(idPath)s" % {'idPath':idPath})
+        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.Add', 'params': {'item': {'movieid': int(idMovie)}}, 'id': 1})
+        result = xbmc.executeJSONRPC(rpccmd)
+        result = json.loads(result)
             
-            if match == None:
-                Debug("playMovieById: Error getting path")
-                return
+        # check for error
+        try:
+            error = result['error']
+            Debug("playMovieById, VideoPlaylist.Add: " + str(error))
+            return None
+        except KeyError:
+            pass # no error
+        
+        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.Play', 'params': {}, 'id': 1})
+        result = xbmc.executeJSONRPC(rpccmd)
+        result = json.loads(result)
             
-            strPath = match[0]
-            xbmc.Player().play(strPath+strFilename)
+        # check for error
+        try:
+            error = result['error']
+            Debug("playMovieById, VideoPlaylist.Play: " + str(error))
+            return None
+        except KeyError:
+            pass # no error    
+        try:
+            if result['result']['success']:
+                if xbmc.Player().isPlayingVideo():
+                    return True
+            notification("Trakt Utilities", __language__(1302).encode( "utf-8", "ignore" )) # Unable to play movie
+        except KeyError:
+            Debug("playMovieById, VideoPlaylist.Play: KeyError")
+            return None
 
 
 """

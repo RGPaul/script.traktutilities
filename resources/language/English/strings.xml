@@ -69,6 +69,7 @@
     <string id="1168">Error submitting rating</string>
     <string id="1300">Checking XBMC Database for new seen Movies</string>
     <string id="1301">Checking Trakt Database for new seen Movies</string>
+    <string id="1302">Unable to play movie</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>
