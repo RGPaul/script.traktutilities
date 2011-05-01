@@ -104,6 +104,26 @@ def getMoviesFromTrakt(daemon=False):
 
     return data
 
+# get movies info from trakt server
+def getMovieInfoFromTrakt(imdb_id, daemon=False):
+    try:
+        conn.request('POST', '/movie/summary.json/' + apikey + "/" + imdb_id)
+    except socket.error:
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        return None
+
+    response = conn.getresponse()
+    data = json.loads(response.read())
+
+    try:
+        if data['status'] == 'failure':
+            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            return None
+    except TypeError:
+        pass # no error
+
+    return data
+
 # get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
     trakt_movies = {}
