@@ -32,6 +32,8 @@ RATE_TITLE = 100
 RATE_LOVE_BTN = 101
 RATE_DONT_KNOW = 102
 RATE_HATE_BTN = 103
+RATE_RATE_SHOW_BG = 104
+RATE_RATE_SHOW_BTN = 105
 
 #get actioncodes from keymap.xml
 ACTION_PARENT_DIRECTORY = 9
@@ -332,8 +334,10 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         self.year = year
         
     def onInit(self):
-        self.getControl(RATE_TITLE).setLabel(__language__(1165).encode( "utf-8", "ignore" )) # How would you rate that?
+        self.getControl(RATE_TITLE).setLabel(__language__(1303).encode( "utf-8", "ignore" )) # How would you rate that movie?
         self.getControl(RATE_DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
+        self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
+        self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
         return
         
     def onFocus( self, controlId ):
@@ -376,8 +380,9 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         self.episode = episode
         
     def onInit(self):
-        self.getControl(RATE_TITLE).setLabel(__language__(1165).encode( "utf-8", "ignore" )) # How would you rate that?
+        self.getControl(RATE_TITLE).setLabel(__language__(1304).encode( "utf-8", "ignore" )) # How would you rate that episode?
         self.getControl(RATE_DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
+        self.getControl(RATE_RATE_SHOW_BTN).setLabel(__language__(1305).encode( "utf-8", "ignore" )) # Rate whole show
         return
         
     def onFocus( self, controlId ):
@@ -395,6 +400,13 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         elif controlId == RATE_DONT_KNOW:
             self.close()
             return
+        elif controlId == RATE_RATE_SHOW_BTN:
+            self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
+            self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
+            rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+            rateShow.initDialog(self.tvdbid, self.title, self.year)
+            rateShow.doModal()
+            del rateShow
         else:
             Debug("Uncaught click (rate episode dialog): "+str(controlId))
     
@@ -409,3 +421,49 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
             self.close()
         else:
             Debug("Uncaught action (rate episode dialog): "+str(action.getId()))
+
+class RateShowDialog(xbmcgui.WindowXMLDialog):
+
+    def initDialog(self, tvdbid, title, year):
+        self.tvdbid = tvdbid
+        self.title = title
+        self.year = year
+        
+    def onInit(self):
+        self.getControl(RATE_TITLE).setLabel(__language__(1306).encode( "utf-8", "ignore" )) # How would you rate that show?
+        self.getControl(RATE_DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
+        self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
+        self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
+        return
+        
+    def onFocus( self, controlId ):
+    	self.controlId = controlId
+        
+    def onClick(self, controlId):
+        if controlId == RATE_LOVE_BTN:
+            self.close()
+            rateShowOnTrakt(self.tvdbid, self.title, self.year, "love")
+            return
+        elif controlId == RATE_HATE_BTN:
+            self.close()
+            rateShowOnTrakt(self.tvdbid, self.title, self.year, "hate")
+            return
+        elif controlId == RATE_DONT_KNOW:
+            self.close()
+            return
+        elif controlId == RATE_RATE_SHOW_BTN:
+            return
+        else:
+            Debug("Uncaught click (rate show dialog): "+str(controlId))
+    
+    def onAction(self, action):
+        buttonCode =  action.getButtonCode()
+        actionID   =  action.getId()
+        
+        if action.getId() in (0, 107):
+            return
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+            Debug("Closing RateShowDialog")
+            self.close()
+        else:
+            Debug("Uncaught action (rate show dialog): "+str(action.getId()))

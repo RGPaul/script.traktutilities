@@ -52,7 +52,7 @@
             <disabledcolor>80FFFFFF</disabledcolor>
             <texturefocus>love.png</texturefocus>
             <texturenofocus diffuse="44000000">love_f.png</texturenofocus>
-            <onup>102</onup>
+            <onup>105</onup>
             <ondown>102</ondown>
             <onleft>103</onleft>
             <onright>103</onright>
@@ -73,7 +73,7 @@
             <texturefocus></texturefocus>
             <texturenofocus></texturenofocus>
             <onup>101</onup>
-            <ondown>103</ondown>
+            <ondown>105</ondown>
             <onleft>103</onleft>
             <onright>101</onright>
 			<font>font12</font>
@@ -91,10 +91,41 @@
             <disabledcolor>80FFFFFF</disabledcolor>
             <texturefocus>hate.png</texturefocus>
             <texturenofocus>hate_f.png</texturenofocus>
-            <onup>102</onup>
+            <onup>105</onup>
             <ondown>102</ondown>
             <onleft>101</onleft>
             <onright>101</onright>
+        </control>
+        <control type="image" id="104">
+            <description>extention for rate show button</description>
+            <posx>0</posx>
+            <posy>225</posy>
+            <width>300</width>
+            <height>50</height>
+            <colordiffuse>F6111111</colordiffuse>
+            <texture>w1x1.png</texture>
+        </control>
+        <control type="button" id="105">
+            <description>Rate show</description>
+            <posx>0</posx>
+            <posy>225</posy>
+            <width>300</width>
+            <height>50</height>
+            <angle>0</angle>
+            <align>center</align>
+            <aligny>center</aligny>
+            <textoffsetx></textoffsetx>
+            <textoffsety></textoffsety>
+			<font>font13</font>
+            <colordiffuse>FFFFFFFF</colordiffuse>
+            <textcolor>FF666666</textcolor>
+            <focusedcolor>FFAAAAAA</focusedcolor>
+            <texturefocus></texturefocus>
+            <texturenofocus></texturenofocus>
+            <onup>102</onup>
+            <ondown>101</ondown>
+            <onleft>105</onleft>
+            <onright>105</onright>
         </control>
     </controls>
 </window>
