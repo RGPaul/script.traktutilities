@@ -73,7 +73,8 @@
     <string id="1173">hasn't watched any TV Show yet</string>
     <string id="1300">Checking XBMC Database for new seen Movies</string>
     <string id="1301">Checking Trakt Database for new seen Movies</string>
-    
+    <string id="1302">Unable to play movie</string>
+
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>
     <string id="1181">start tvshow collection update</string>
