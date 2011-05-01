@@ -99,7 +99,7 @@ def getMoviesFromTrakt(daemon=False):
         if data['status'] == 'failure':
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
 
     return data
@@ -156,7 +156,7 @@ def getWatchedTVShowsFromTrakt(daemon=False):
             Debug("getWatchedTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -180,7 +180,7 @@ def getTVShowCollectionFromTrakt(daemon=False):
             Debug("getTVShowCollectionFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -390,7 +390,7 @@ def getWatchlistMoviesFromTrakt(friend=None):
             Debug("getWatchlistMoviesFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -416,7 +416,7 @@ def getWatchlistTVShowsFromTrakt(friend=None):
             Debug("getWatchlistTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -534,7 +534,7 @@ def getRecommendedMoviesFromTrakt():
             Debug("getRecommendedMoviesFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -556,7 +556,7 @@ def getRecommendedTVShowsFromTrakt():
             Debug("getRecommendedTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -577,7 +577,7 @@ def getTrendingMoviesFromTrakt():
             Debug("getTrendingMoviesFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -598,7 +598,7 @@ def getTrendingTVShowsFromTrakt():
             Debug("getTrendingTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -620,7 +620,7 @@ def getFriendsFromTrakt():
             Debug("getFriendsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
@@ -702,7 +702,7 @@ def getWatchedFromTrakt(friend=None):
             Debug("getWatchedFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     
     return data
