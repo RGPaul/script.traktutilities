@@ -106,14 +106,18 @@ def getMoviesFromTrakt(daemon=False):
 
 # get movies info from trakt server
 def getMovieInfoFromTrakt(imdb_id, daemon=False):
+
+    # refresh connection - maybe timedout
+    conn = httplib.HTTPConnection('api.trakt.tv')
+    
     try:
-        conn.request('POST', '/movie/summary.json/' + apikey + "/" + imdb_id)
+        conn.request('GET', '/movie/summary.json/' + apikey + "/" + imdb_id)
     except socket.error:
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
-    response = conn.getresponse()
-    data = json.loads(response.read())
+    response = conn.getresponse().read()
+    data = json.loads(response)
 
     try:
         if data['status'] == 'failure':
