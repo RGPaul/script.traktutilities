@@ -25,7 +25,12 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 
 def showFriends():
 
+    progress = xbmcgui.DialogProgress()
+    progress.create("Trakt Utilities", __language__(1163).encode( "utf-8", "ignore" )) # Retreiving information from Trakt servers
+
     friends = getFriendsFromTrakt()
+    
+    progress.close()
     
     if len(friends) == 0:
         xbmcgui.Dialog().ok("Trakt Utilities", "you have not added any friends on Trakt")
