@@ -29,9 +29,14 @@ MIXED_LIST = 110
 RATING = 111
 WATCHERS = 112
 
-
+# friends.xml
 FRIENDS_LIST = 113
 FRIEND_NAME = 114
+FRIEND_AVATAR = 115
+FRIEND_WATCHING = 116
+FRIEND_WATCHING_SEASON_AND_EPISODE = 117
+FRIEND_WATCHING_EPISODE_TITLE = 118
+FRIEND_WATCHING_POSTER = 119
 
 RATE_TITLE = 100
 RATE_LOVE_BTN = 101
@@ -505,22 +510,48 @@ class FriendsWindow(xbmcgui.WindowXML):
             self.setFocus(self.getControl(FRIENDS_LIST))
             self.listUpdate()
         else:
-            Debug("FriendsWindow: Error: friends array is empty")
+            Debug("FriendsWindow: Error: friends array == None")
             self.close()
 
     def listUpdate(self):
         try:
             current = self.getControl(FRIENDS_LIST).getSelectedPosition()
         except TypeError:
-            return # ToDo: error output
+            Debug("FriendsWindow: Error: no Type FRIENDS_LIST")
+            self.close()
+        
+        # User
         try:
             if self.friends[current]['full_name'] != None:
                 self.getControl(FRIEND_NAME).setLabel(self.friends[current]['username'] + " (" + self.friends[current]['full_name'] + ")")
             else:
                 self.getControl(FRIEND_NAME).setLabel(self.friends[current]['username'])
-        except KeyError,TypeError:
+        except KeyError:
             self.getControl(FRIEND_NAME).setLabel("")
+        except TypeError:
+            Debug("FriendsWindow: no Type FRIEND_NAME")
         
+        # Currently watching
+        try:
+            if len(self.friends[current]['watching']) == 0:
+                self.getControl(FRIEND_WATCHING).setLabel("Currently watching: Nothing")
+                self.getControl(FRIEND_WATCHING_SEASON_AND_EPISODE).setLabel("")
+                self.getControl(FRIEND_WATCHING_POSTER).setImage('')
+            elif self.friends[current]['watching']['type'] == 'movie':
+                self.getControl(FRIEND_WATCHING).setLabel("Currently watching: " + self.friends[current]['watching']['movie']['title'])
+                self.getControl(FRIEND_WATCHING_SEASON_AND_EPISODE).setLabel("")
+                # get poster (within movie info)
+                movie_info = getMovieInfoFromTrakt(self.friends[current]['watching']['movie']['imdb_id'])
+                self.getControl(FRIEND_WATCHING_POSTER).setImage(movie_info['poster'])
+            elif self.friends[current]['watching']['type'] == 'episode':
+                self.getControl(FRIEND_WATCHING).setLabel("Currently watching: " + self.friends[current]['watching']['show']['title'])
+                self.getControl(FRIEND_WATCHING_SEASON_AND_EPISODE).setLabel("Season: " + str(self.friends[current]['watching']['episode']['season']) + " Episode: " + str(self.friends[current]['watching']['episode']['number']))
+                self.getControl(FRIEND_WATCHING_EPISODE_TITLE).setLabel(self.friends[current]['watching']['episode']['title'])
+                self.getControl(FRIEND_WATCHING_POSTER).setImage('') # todo: get and set poster
+        except KeyError:
+            Debug("FriendsWindow: KeyError in currently watching")
+        except TypeError:
+            Debug("FriendsWindow: TypeError in currently watching")
         
     def onFocus( self, controlId ):
     	self.controlId = controlId
