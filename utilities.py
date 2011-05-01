@@ -99,7 +99,7 @@ def getMoviesFromTrakt(daemon=False):
         if data['status'] == 'failure':
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
 
     return data
@@ -123,7 +123,7 @@ def getMovieInfoFromTrakt(imdb_id, daemon=False):
         if data['status'] == 'failure':
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass # no error
 
     return data
@@ -156,7 +156,7 @@ def getWatchedTVShowsFromTrakt(daemon=False):
             Debug("getWatchedTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -180,7 +180,7 @@ def getTVShowCollectionFromTrakt(daemon=False):
             Debug("getTVShowCollectionFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -390,7 +390,7 @@ def getWatchlistMoviesFromTrakt(friend=None):
             Debug("getWatchlistMoviesFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -416,7 +416,7 @@ def getWatchlistTVShowsFromTrakt(friend=None):
             Debug("getWatchlistTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -452,7 +452,7 @@ def addMoviesToWatchlist(data):
             Debug("getFriendsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -480,7 +480,7 @@ def rateMovieOnTrakt(imdbid, title, year, rating):
             Debug("rateMovieOnTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
@@ -510,7 +510,7 @@ def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
             Debug("rateEpisodeOnTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
@@ -534,7 +534,7 @@ def getRecommendedMoviesFromTrakt():
             Debug("getRecommendedMoviesFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -556,7 +556,7 @@ def getRecommendedTVShowsFromTrakt():
             Debug("getRecommendedTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -577,7 +577,7 @@ def getTrendingMoviesFromTrakt():
             Debug("getTrendingMoviesFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -598,7 +598,7 @@ def getTrendingTVShowsFromTrakt():
             Debug("getTrendingTVShowsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -620,7 +620,7 @@ def getFriendsFromTrakt():
             Debug("getFriendsFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
@@ -702,7 +702,7 @@ def getWatchedFromTrakt(friend=None):
             Debug("getWatchedFromTrakt: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
+    except KeyError:
         pass
     
     return data
