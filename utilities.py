@@ -82,26 +82,49 @@ def xbmcHttpapiExec(query):
     xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus(query), )
     return xml_data
 
-# get movies from trakt server
-def getMoviesFromTrakt(daemon=False):
-
+# make a JSON api request to trakt
+# method: http method (GET or POST)
+# req: REST request (ie '/user/library/movies/all.json/%%API_KEY%%/%%USERNAME%%')
+# args: arguments to be passed by POST JSON (only applicable to POST requests), default:{}
+# anon: anonymous (dont send username/password), default:False
+def traktJsonRequest(method, req, args={}, anon=False):
     try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/library/movies/all.json/' + apikey + "/" + username, jdata)
+        req = req.replace("%%API_KEY%%",apikey)
+        req = req.replace("%%USERNAME%%",username)
+        if method == 'POST':
+            if not anon:
+                args['username'] = username
+                args['password'] = pwd
+            jdata = json.dumps(args)
+            conn.request('POST', req, jdata)
+        elif method == 'GET':
+            conn.request('GET', req)
+        else:
+            return None
     except socket.error:
+        Debug("traktQuery: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
     response = conn.getresponse()
-    data = json.loads(response.read())
-
     try:
+        data = json.loads(response.read())
+    except JSONDecodeError:
+        Debug("traktQuery: Bad JSON responce")
+        return None
+    
+    if 'status' in data:
         if data['status'] == 'failure':
+            Debug("traktQuery: Error: " + str(data['error']))
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
-    except TypeError:
-        pass
-
+    
+    return data
+# get movies from trakt server
+def getMoviesFromTrakt(daemon=False):
+    data = traktJsonRequest('POST', '/user/library/movies/all.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getMoviesFromTrakt()'")
     return data
 
 # get easy access to movie by imdb_id
@@ -115,50 +138,16 @@ def traktMovieListByImdbID(data):
 
 # get seen tvshows from trakt server
 def getWatchedTVShowsFromTrakt(daemon=False):
-    
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/library/shows/watched.json/' + apikey + "/" + username, jdata)
-    except socket.error:
-        Debug("getWatchedTVShowsFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getWatchedTVShowsFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('POST', '/user/library/shows/watched.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getWatchedTVShowsFromTrakt()'")
     return data
     
 # get tvshow collection from trakt server
 def getTVShowCollectionFromTrakt(daemon=False):
-    
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/library/shows/collection.json/' + apikey + "/" + username, jdata)
-    except socket.error:
-        Debug("getTVShowCollectionFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getTVShowCollectionFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('POST', '/user/library/shows/collection.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getTVShowCollectionFromTrakt()'")
     return data
     
 # get tvshows from XBMC
@@ -348,48 +337,16 @@ def getMovieIdFromXBMC(imdb_id, title):
    
 # returns list of movies from watchlist
 def getWatchlistMoviesFromTrakt():
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/watchlist/movies.json/' + apikey + "/" + username, jdata)
-    except socket.error:
-        Debug("getWatchlistMoviesFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getWatchlistMoviesFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('POST', '/user/watchlist/movies.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getWatchlistMoviesFromTrakt()'")
     return data
 
 # returns list of tv shows from watchlist
 def getWatchlistTVShowsFromTrakt():
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/watchlist/shows.json/' + apikey + "/" + username, jdata)
-    except socket.error:
-        Debug("getWatchlistTVShowsFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getWatchlistTVShowsFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('POST', '/user/watchlist/shows.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getWatchlistTVShowsFromTrakt()'")
     return data
 
 # add an array of movies to the watch-list
@@ -406,26 +363,10 @@ def addMoviesToWatchlist(data):
         if "year" in item:
             movie["year"] = item["year"]
         movies.append(movie)
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd, "movies":movies})
-        conn.request('POST', '/movie/watchlist/'+apikey, jdata)
-    except socket.error:
-        Debug("addMoviesToWatchlist: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
     
-    # I dont know if we need the rest of this???
-    response = conn.getresponse()
-    data = json.loads(response.read())
-    Debug("addMoviesToWatchlist responce:" + data)
-    try:
-        if data['status'] == 'failure':
-            Debug("getFriendsFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('POST', '/movie/watchlist/%%API_KEY%%', {"movies":movies})
+    if data == None:
+        Debug("Error in request from 'addMoviesToWatchlist()'")
     return data
 
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
@@ -435,27 +376,10 @@ def rateMovieOnTrakt(imdbid, title, year, rating):
         return
     
     Debug("Rating movie:" + rating)
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd, 'imdb_id': imdbid, 'title': title, 'year': year, 'rating': rating})
-        conn.request('POST', '/rate/movie/' + apikey, jdata)
-    except socket.error:
-        Debug("rateMovieOnTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("rateMovieOnTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
-            return None
-    except TypeError:
-        pass
     
-    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
-    
+    data = traktJsonRequest('POST', '/rate/movie/%%API_KEY%%', {'imdb_id': imdbid, 'title': title, 'year': year, 'rating': rating})
+    if data == None:
+        Debug("Error in request from 'rateMovieOnTrakt()'")
     return data
 
 #Set the rating for a tv episode on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
@@ -465,149 +389,46 @@ def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
         return
     
     Debug("Rating episode:" + rating)
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': tvdbid, 'title': title, 'year': year, 'season': season, 'episode': episode, 'rating': rating})
-        conn.request('POST', '/rate/episode/' + apikey, jdata)
-    except socket.error:
-        Debug("rateEpisodeOnTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("rateEpisodeOnTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
-            return None
-    except TypeError:
-        pass
     
-    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
-    
+    data = traktJsonRequest('POST', '/rate/episode/%%API_KEY%%', {'tvdb_id': tvdbid, 'title': title, 'year': year, 'season': season, 'episode': episode, 'rating': rating})
+    if data == None:
+        Debug("Error in request from 'rateEpisodeOnTrakt()'")
     return data
 
 def getRecommendedMoviesFromTrakt():
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/recommendations/movies/' + apikey, jdata)
-    except socket.error:
-        Debug("getRecommendedMoviesFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getRecommendedMoviesFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('POST', '/recommendations/movies/%%API_KEY%%')
+    if data == None:
+        Debug("Error in request from 'getRecommendedMoviesFromTrakt()'")
     return data
 
 def getRecommendedTVShowsFromTrakt():
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/recommendations/shows/' + apikey, jdata)
-    except socket.error:
-        Debug("getRecommendedTVShowsFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getRecommendedTVShowsFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('POST', '/recommendations/shows/%%API_KEY%%')
+    if data == None:
+        Debug("Error in request from 'getRecommendedTVShowsFromTrakt()'")
     return data
 
 def getTrendingMoviesFromTrakt():
-    try:
-        conn.request('GET', '/movies/trending.json/' + apikey)
-    except socket.error:
-        Debug("getTrendingMoviesFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getTrendingMoviesFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('GET', '/movies/trending.json/%%API_KEY%%')
+    if data == None:
+        Debug("Error in request from 'getTrendingMoviesFromTrakt()'")
     return data
 
 def getTrendingTVShowsFromTrakt():
-    try:
-        conn.request('GET', '/shows/trending.json/' + apikey)
-    except socket.error:
-        Debug("getTrendingTVShowsFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getTrendingTVShowsFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('GET', '/shows/trending.json/%%API_KEY%%')
+    if data == None:
+        Debug("Error in request from 'getTrendingTVShowsFromTrakt()'")
     return data
 
 def getFriendsFromTrakt():
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/friends.json/'+apikey+'/'+username, jdata)
-    except socket.error:
-        Debug("getFriendsFromTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("getFriendsFromTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    except TypeError:
-        pass
-    
+    data = traktJsonRequest('POST', '/user/friends.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getFriendsFromTrakt()'")
     return data
 
 def getWatchingFromTraktForUser(name):
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd})
-        conn.request('POST', '/user/watching.json/'+apikey+'/'+name, jdata)
-    except socket.error:
-        Debug("getWatchingFromTraktForUser: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-    
+    data = traktJsonRequest('POST', '/user/watching.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getWatchingFromTraktForUser()'")
     return data
 
 def playMovieById(idMovie):
