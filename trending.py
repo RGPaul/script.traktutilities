@@ -59,7 +59,7 @@ def showTrendingMovies():
     # display trending movie list
     import windows
     ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.passReference(movies)
+    ui.initWindow(movies)
     ui.doModal()
     del ui
 
