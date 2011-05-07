@@ -8,15 +8,29 @@
 		<posy>250</posy>
 	</coordinates>
     <controls>
-        <control type="image" id="110">
+        <control type="image" id="98">
+            <description>Scene</description>
+            <posx>-510</posx>
+            <posy>-250</posy>
+            <width>1280</width>
+            <height>720</height>
+            <visible>true</visible>
+            <colordiffuse>66ffffff</colordiffuse>
+            <texture>w1x1.png</texture>
+            <fadetime>20</fadetime>
+            <aspectratio>scale</aspectratio>
+        </control>
+        <control type="image" id="99">
             <description>Background</description>
             <posx>0</posx>
             <posy>50</posy>
             <width>300</width>
             <height>150</height>
             <visible>true</visible>
-            <colordiffuse>CC222222</colordiffuse>
+            <colordiffuse>cc222222</colordiffuse>
             <texture>w1x1.png</texture>
+            <fadetime>20</fadetime>
+            <aspectratio>scale</aspectratio>
         </control>
         <control type="image">
             <description>Header</description>
@@ -25,11 +39,13 @@
             <width>300</width>
             <height>50</height>
             <visible>true</visible>
-            <colordiffuse>F6111111</colordiffuse>
+            <colordiffuse>f6111111</colordiffuse>
             <texture>w1x1.png</texture>
+            <fadetime>20</fadetime>
+            <aspectratio>scale</aspectratio>
         </control>
         <control type="label" id="100">
-            <description>Header</description>
+            <description>Heading</description>
             <posx>0</posx>
             <posy>0</posy>
             <width>300</width>
@@ -37,7 +53,13 @@
             <visible>true</visible>
             <align>center</align>
             <aligny>center</aligny>
+            <angle>0</angle>
 			<font>font12</font>
+            <scroll>false</scroll>
+            <haspath>false</haspath>
+            <textcolor>ffffffff</textcolor>
+            <shadowcolor>ff222222</shadowcolor>
+            <wrapmultiline>false</wrapmultiline>
         </control>
         <control type="button" id="101">
             <description>Love</description>
@@ -46,13 +68,21 @@
             <width>100</width>
             <height>75</height>
             <visible>true</visible>
-            <colordiffuse>FFFFFFFF</colordiffuse>
-            <label></label>
-            <textcolor>FFFFFFFF</textcolor>
-            <disabledcolor>80FFFFFF</disabledcolor>
             <texturefocus>love.png</texturefocus>
-            <texturenofocus diffuse="44000000">love_f.png</texturenofocus>
-            <onup>102</onup>
+            <texturenofocus diffuse="44000000">love_f.png</texturenofocus> 
+            <colordiffuse>ffffffff</colordiffuse>
+            <label></label>
+            <textcolor>ffffffff</textcolor>
+            <focusedcolor>ffaaaaaa</focusedcolor>
+            <disabledcolor>80ffffff</disabledcolor>
+            <align></align>
+            <aligny></aligny>
+            <textoffsetx></textoffsetx>
+            <textoffsety></textoffsety>
+            <pulseonselect>true</pulseonselect>
+            <onclick>-</onclick>
+            <onfocus>-</onfocus>
+            <onup>105</onup>
             <ondown>102</ondown>
             <onleft>103</onleft>
             <onright>103</onright>
@@ -64,16 +94,22 @@
             <width>260</width>
             <height>40</height>
             <visible>true</visible>
-            <align>center</align>
-            <aligny>center</aligny>
 			<font>font13</font>
-            <colordiffuse>FFFFFFFF</colordiffuse>
-            <textcolor>FF666666</textcolor>
-            <focusedcolor>FFAAAAAA</focusedcolor>
             <texturefocus></texturefocus>
             <texturenofocus></texturenofocus>
+            <colordiffuse>ffffffff</colordiffuse>
+            <textcolor>ff666666</textcolor>
+            <focusedcolor>ffffffff</focusedcolor>
+            <disabledcolor>80ffffff</disabledcolor>
+            <align>center</align>
+            <aligny>center</aligny>
+            <textoffsetx></textoffsetx>
+            <textoffsety></textoffsety>
+            <pulseonselect>true</pulseonselect>
+            <onclick>-</onclick>
+            <onfocus>-</onfocus>
             <onup>101</onup>
-            <ondown>103</ondown>
+            <ondown>105</ondown>
             <onleft>103</onleft>
             <onright>101</onright>
 			<font>font12</font>
@@ -85,16 +121,55 @@
             <width>100</width>
             <height>75</height>
             <visible>true</visible>
-            <colordiffuse>FFFFFFFF</colordiffuse>
-            <label></label>
-            <textcolor>FFFFFFFF</textcolor>
-            <disabledcolor>80FFFFFF</disabledcolor>
             <texturefocus>hate.png</texturefocus>
-            <texturenofocus>hate_f.png</texturenofocus>
-            <onup>102</onup>
+            <texturenofocus diffuse="44000000">hate_f.png</texturenofocus>
+            <colordiffuse>ffffffff</colordiffuse>
+            <label></label>
+            <textcolor>ffffffff</textcolor>
+            <disabledcolor>80ffffff</disabledcolor>
+            <focusedcolor>ffffffff</focusedcolor>
+            <align></align>
+            <aligny></aligny>
+            <textoffsetx></textoffsetx>
+            <textoffsety></textoffsety>
+            <pulseonselect>true</pulseonselect>
+            <onclick>-</onclick>
+            <onfocus>-</onfocus>
+            <onup>105</onup>
             <ondown>102</ondown>
             <onleft>101</onleft>
             <onright>101</onright>
+        </control>
+        <control type="image" id="104">
+            <description>extention for rate show button</description>
+            <posx>0</posx>
+            <posy>225</posy>
+            <width>300</width>
+            <height>50</height>
+            <colordiffuse>F6111111</colordiffuse>
+            <texture>w1x1.png</texture>
+        </control>
+        <control type="button" id="105">
+            <description>Rate show</description>
+            <posx>0</posx>
+            <posy>225</posy>
+            <width>300</width>
+            <height>50</height>
+            <angle>0</angle>
+            <align>center</align>
+            <aligny>center</aligny>
+            <textoffsetx></textoffsetx>
+            <textoffsety></textoffsety>
+			<font>font13</font>
+            <colordiffuse>FFFFFFFF</colordiffuse>
+            <textcolor>FF666666</textcolor>
+            <focusedcolor>FFAAAAAA</focusedcolor>
+            <texturefocus></texturefocus>
+            <texturenofocus></texturenofocus>
+            <onup>102</onup>
+            <ondown>101</ondown>
+            <onleft>105</onleft>
+            <onright>105</onright>
         </control>
     </controls>
 </window>
