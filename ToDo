@@ -1,8 +1,7 @@
 # insert todos and append yourself like (Manromen) if you are currently working on something
 
-- friends submenu redesign
+- friends submenu redesign (Manromen) [branch: friends]]
 - browse friends library
 - display friends profile
-- rating whole tv shows
-- display loading screen for downloading stuff from trakt.tv - sometimes i don't know if the addon is still running
+- Rate buttons on movie and tv show list windows - Issue #26
 

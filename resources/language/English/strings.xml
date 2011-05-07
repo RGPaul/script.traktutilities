@@ -9,6 +9,8 @@
     <string id="1006">Auto update TV Show Collection at startup</string>
     <string id="1007">Auto sync seen Movies at startup</string>
     <string id="1008">Auto sync seen TV Shows at startup</string>
+    <string id="1009">Rate Movie after watching</string>
+    <string id="1010">Rate TV Show Episode ater watching</string>
     
     <!-- Info -->
     <string id="1105"></string>
@@ -61,10 +63,16 @@
     <string id="1162">not found in your XBMC Library</string>
     <string id="1163">Retreiving information from Trakt servers</string>
     <string id="1164">Cross-referencing with local information</string>
-    <string id="1165">How would you rate that?</string> <!-- In the context of a video -->
     <string id="1166">I don't know</string>
     <string id="1167">Rating submitted successfully</string>
     <string id="1168">Error submitting rating</string>
+    <string id="1300">Checking XBMC Database for new seen Movies</string>
+    <string id="1301">Checking Trakt Database for new seen Movies</string>
+    <string id="1302">Unable to play movie</string>
+    <string id="1303">How would you rate that movie?</string>
+    <string id="1304">How would you rate that episode?</string>
+    <string id="1305">Rate whole show</string>
+    <string id="1306">How would you rate that show?</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>

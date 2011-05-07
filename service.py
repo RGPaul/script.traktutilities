@@ -46,43 +46,58 @@ def autostart():
         if autosync_moviecollection == "true" or autosync_tvshowcollection == "true" or autosync_seenmovies == "true" or autosync_seentvshows == "true":
             notification("Trakt Utilities", __language__(1184).encode( "utf-8", "ignore" )) # update / sync done
     
-    tn = telnetlib.Telnet('localhost', 9090, 10)
+    
+    # you can disable rating in options
+    rateMovieOption = __settings__.getSetting("rate_movie")
+    rateEpisodeOption = __settings__.getSetting("rate_episode")
+    
+    #initial state
     totalTime = 0
     watchedTime = 0
     startTime = 0
     curVideo = None
+    
+    #while xbmc is running
     while (not xbmc.abortRequested):
         try:
-            raw = tn.read_until("\n")
-            data = json.loads(raw)
-            if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
-                if data['method'] in ('Player.PlaybackStopped', 'Player.PlaybackEnded'):
-                    if startTime <> 0:
-                        watchedTime += time.time() - startTime
-                        if watchedTime <> 0:
-                            Debug("[Rating] Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
-                            if 'type' in curVideo and 'id' in curVideo:                                   
-                                if totalTime/2 < watchedTime:
-                                    if curVideo['type'] == 'movie':
-                                        doRateMovie(curVideo['id'])
-                                    if curVideo['type'] == 'episode':
-                                        doRateEpisode(curVideo['id'])
-                            watchedTime = 0
-                        startTime = 0
-                elif data['method'] in ('Player.PlaybackStarted', 'Player.PlaybackResumed'):
-                    if xbmc.Player().isPlayingVideo():
-                        curVideo = getCurrentPlayingVideoFromXBMC()
-                        if curVideo <> None:
-                            if 'type' in curVideo and 'id' in curVideo: Debug("[Rating] Watching: "+curVideo['type']+" - "+str(curVideo['id']))
-                            totalTime = xbmc.Player().getTotalTime()
-                            startTime = time.time()
-                elif data['method'] == 'Player.PlaybackPaused':
-                    if startTime <> 0:
-                        watchedTime += time.time() - startTime
-                        Debug("[Rating] Paused after: "+str(watchedTime))
-                        startTime = 0
-        except EOFError:
-            tn.open('localhost', 9090, 10)
+            tn = telnetlib.Telnet('localhost', 9090, 10)
+        except IOError as (errno, strerror):
+            #connection failed, try again soon
+            print "[~] Telnet too soon? ("+str(errno)+") "+strerror
             time.sleep(1)
+            continue
+        while (not xbmc.abortRequested):
+            try:
+                raw = tn.read_until("\n")
+                data = json.loads(raw)
+                if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
+                    if data['method'] in ('Player.PlaybackStopped', 'Player.PlaybackEnded'):
+                        if startTime <> 0:
+                            watchedTime += time.time() - startTime
+                            if watchedTime <> 0:
+                                Debug("[Rating] Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
+                                if 'type' in curVideo and 'id' in curVideo:                                   
+                                    if totalTime/2 < watchedTime:
+                                        if curVideo['type'] == 'movie' and rateMovieOption == 'true':
+                                            doRateMovie(curVideo['id'])
+                                        if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
+                                            doRateEpisode(curVideo['id'])
+                                watchedTime = 0
+                            startTime = 0
+                    elif data['method'] in ('Player.PlaybackStarted', 'Player.PlaybackResumed'):
+                        if xbmc.Player().isPlayingVideo():
+                            curVideo = getCurrentPlayingVideoFromXBMC()
+                            if curVideo <> None:
+                                if 'type' in curVideo and 'id' in curVideo: Debug("[Rating] Watching: "+curVideo['type']+" - "+str(curVideo['id']))
+                                totalTime = xbmc.Player().getTotalTime()
+                                startTime = time.time()
+                    elif data['method'] == 'Player.PlaybackPaused':
+                        if startTime <> 0:
+                            watchedTime += time.time() - startTime
+                            Debug("[Rating] Paused after: "+str(watchedTime))
+                            startTime = 0
+            except EOFError:
+                break #go out to the other loop to restart the connection
+        time.sleep(1)
 
 autostart()
