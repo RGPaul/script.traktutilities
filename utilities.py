@@ -110,9 +110,9 @@ def traktJsonRequest(method, req, args={}, anon=False):
     try:
         raw = response.read()
         data = json.loads(raw)
-    except JSONDecodeError:
+    except json.decode.JSONDecodeError:
         Debug("traktQuery: Bad JSON responce: "+raw)
-        notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+        notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": Bad responce from trakt") # Error
         return None
     
     if 'status' in data:
