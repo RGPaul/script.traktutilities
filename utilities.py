@@ -96,9 +96,9 @@ def traktJsonRequest(method, req, args={}, anon=False):
                 args['username'] = username
                 args['password'] = pwd
             jdata = json.dumps(args)
-            conn.request('POST', urllib.quote_plus(req), jdata)
+            conn.request('POST', req, jdata)
         elif method == 'GET':
-            conn.request('GET', urllib.quote_plus(req))
+            conn.request('GET', req)
         else:
             return None
     except socket.error:
