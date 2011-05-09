@@ -41,7 +41,7 @@ def doRateMovie(movieid):
     # display rate dialog
     import windows
     ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initDialog(imdbid, title, year)
+    ui.initDialog(imdbid, title, year, getMovieRatingFromTrakt(imdbid, title, year))
     ui.doModal()
     del ui
 
@@ -68,6 +68,6 @@ def doRateEpisode(episodeid):
     # display rate dialog
     import windows
     ui = windows.RateEpisodeDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initDialog(tvdbid, title, year, season, episode)
+    ui.initDialog(tvdbid, title, year, season, episode, getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode))
     ui.doModal()
     del ui

@@ -2,7 +2,8 @@
 # 
 
 import xbmc,xbmcaddon,xbmcgui
-import telnetlib, time, simplejson
+import telnetlib, time
+import simplejson as json
 from utilities import *
 from rating import *
 from sync_update import *
@@ -77,7 +78,7 @@ def autostart():
                             if watchedTime <> 0:
                                 Debug("[Rating] Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
                                 if 'type' in curVideo and 'id' in curVideo:                                   
-                                    if totalTime/2 < watchedTime:
+                                    #if totalTime/2 < watchedTime:
                                         if curVideo['type'] == 'movie' and rateMovieOption == 'true':
                                             doRateMovie(curVideo['id'])
                                         if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
