@@ -37,7 +37,6 @@ username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
 
-conn = httplib.HTTPConnection('api-trakt.apigee.com') # currently there is a DNS issue with 'api.trakt.tv'
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 def Debug(msg, force=False):
@@ -88,6 +87,13 @@ def xbmcHttpapiExec(query):
 # args: arguments to be passed by POST JSON (only applicable to POST requests), default:{}
 # anon: anonymous (dont send username/password), default:False
 def traktJsonRequest(method, req, args={}, anon=False):
+    try:
+        conn = httplib.HTTPConnection('api-trakt.apigee.com') # currently there is a DNS issue with 'api.trakt.tv'
+    except socket.timeout:
+        Debug("traktJsonRequest: can't connect to trakt - timeout")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
+        return None
+
     try:
         req = req.replace("%%API_KEY%%",apikey)
         req = req.replace("%%USERNAME%%",username)
@@ -399,6 +405,13 @@ def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
     
 #Set the rating for a tv show on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
 def rateShowOnTrakt(tvdbid, title, year, rating):
+    try:
+        conn = httplib.HTTPConnection('api-trakt.apigee.com') # currently there is a DNS issue with 'api.trakt.tv'
+    except socket.timeout:
+        Debug("traktJsonRequest: can't connect to trakt - timeout")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
+        return None
+        
     if not (rating in ("love", "hate")):
         #add error message
         return
