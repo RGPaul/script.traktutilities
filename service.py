@@ -2,7 +2,8 @@
 # 
 
 import xbmc,xbmcaddon,xbmcgui
-import telnetlib, time, simplejson
+import telnetlib, time
+import simplejson as json
 from utilities import *
 from rating import *
 from sync_update import *
