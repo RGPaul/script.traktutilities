@@ -388,6 +388,8 @@ def rateMovieOnTrakt(imdbid, title, year, rating):
     data = traktJsonRequest('POST', '/rate/movie/%%API_KEY%%', {'imdb_id': imdbid, 'title': title, 'year': year, 'rating': rating})
     if data == None:
         Debug("Error in request from 'rateMovieOnTrakt()'")
+    
+    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
     return data
 
 #Set the rating for a tv episode on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
@@ -401,44 +403,25 @@ def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
     data = traktJsonRequest('POST', '/rate/episode/%%API_KEY%%', {'tvdb_id': tvdbid, 'title': title, 'year': year, 'season': season, 'episode': episode, 'rating': rating})
     if data == None:
         Debug("Error in request from 'rateEpisodeOnTrakt()'")
+    
+    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
     return data
     
 #Set the rating for a tv show on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
-def rateShowOnTrakt(tvdbid, title, year, rating):
-    try:
-        conn = httplib.HTTPConnection('api-trakt.apigee.com') # currently there is a DNS issue with 'api.trakt.tv'
-    except socket.timeout:
-        Debug("traktJsonRequest: can't connect to trakt - timeout")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
-        return None
-        
+def rateShowOnTrakt(tvdbid, title, year, rating):   
     if not (rating in ("love", "hate")):
         #add error message
         return
     
     Debug("Rating show:" + rating)
-    try:
-        jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': tvdbid, 'title': title, 'year': year, 'rating': rating})
-        conn.request('POST', '/rate/show/' + apikey, jdata)
-    except socket.error:
-        Debug("rateShowOnTrakt: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        return None
-
-    response = conn.getresponse()
-    data = json.loads(response.read())
-
-    try:
-        if data['status'] == 'failure':
-            Debug("rateShowOnTrakt: Error: " + str(data['error']))
-            notification("Trakt Utilities", __language__(1168).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error submitting rating
-            return None
-    except TypeError:
-        pass
+    
+    data = traktJsonRequest('POST', '/rate/show/%%API_KEY%%', {'tvdb_id': tvdbid, 'title': title, 'year': year, 'rating': rating})
+    if data == None:
+        Debug("Error in request from 'rateShowOnTrakt()'")
     
     notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
-    
     return data
+    
 
 def getRecommendedMoviesFromTrakt():
     data = traktJsonRequest('POST', '/recommendations/movies/%%API_KEY%%')
