@@ -88,7 +88,7 @@ def xbmcHttpapiExec(query):
 # anon: anonymous (dont send username/password), default:False
 def traktJsonRequest(method, req, args={}, anon=False):
     try:
-        conn = httplib.HTTPConnection('api-trakt.apigee.com') # currently there is a DNS issue with 'api.trakt.tv'
+        conn = httplib.HTTPConnection('api.trakt.tv')
     except socket.timeout:
         Debug("traktJsonRequest: can't connect to trakt - timeout")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
