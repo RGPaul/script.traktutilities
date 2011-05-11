@@ -391,7 +391,11 @@ def rateMovieOnTrakt(imdbid, title, year, rating):
     if data == None:
         Debug("Error in request from 'rateMovieOnTrakt()'")
     
-    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    if (rating == "unrate"):
+        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
+    else :
+        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    
     return data
 
 #Get the rating for a movie from trakt
@@ -423,7 +427,11 @@ def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
     if data == None:
         Debug("Error in request from 'rateEpisodeOnTrakt()'")
     
-    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    if (rating == "unrate"):
+        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
+    else :
+        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    
     return data
     
 #Get the rating for a tv episode from trakt
@@ -449,7 +457,11 @@ def rateShowOnTrakt(tvdbid, title, year, rating):
     if data == None:
         Debug("Error in request from 'rateShowOnTrakt()'")
     
-    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    if (rating == "unrate"):
+        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
+    else :
+        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    
     return data
 
 #Get the rating for a tv show from trakt
