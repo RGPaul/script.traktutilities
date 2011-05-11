@@ -1,5 +1,5 @@
 <window id="4567" type="dialog">
-    <defaultcontrol always="true">101</defaultcontrol>
+    <defaultcontrol always="true">104</defaultcontrol>
     <allowoverlay>yes</allowoverlay>
     <visible>true</visible>
 	<coordinates>
@@ -79,7 +79,7 @@
             <posy>60</posy>
             <width>100</width>
             <height>25</height>
-            <visible>true</visible>
+            <visible></visible>
             <texturefocus>current-no-rating.png</texturefocus>
             <texturenofocus diffuse="44000000">current-no-rating.png</texturenofocus> 
             <colordiffuse>ffffffff</colordiffuse>
@@ -106,7 +106,7 @@
             <posy>60</posy>
             <width>100</width>
             <height>25</height>
-            <visible>true</visible>
+            <visible></visible>
             <texturefocus>current-love.png</texturefocus>
             <texturenofocus diffuse="44000000">current-love.png</texturenofocus> 
             <colordiffuse>ffffffff</colordiffuse>
@@ -133,7 +133,7 @@
             <posy>60</posy>
             <width>100</width>
             <height>25</height>
-            <visible>true</visible>
+            <visible></visible>
             <texturefocus>current-hate.png</texturefocus>
             <texturenofocus diffuse="44000000">current-hate.png</texturenofocus> 
             <colordiffuse>ffffffff</colordiffuse>
