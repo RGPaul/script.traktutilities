@@ -436,13 +436,19 @@ def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
     
 #Get the rating for a tv episode from trakt
 def getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode):
-    '''data = traktJsonRequest('POST', '/episode/sumamry.json/%%API_KEY%%/'+str(imdbid))
+    if tvdbid == "" or tvdbid == None:
+        return None #would be nice to be smarter in this situation
+    
+    data = traktJsonRequest('POST', '/show/episode/summary.json/%%API_KEY%%/'+str(tvdbid)+"/"+season+"/"+episode)
     if data == None:
-        Debug("Error in request from 'getMovieRatingFromTrakt()'")
+        Debug("Error in request from 'getEpisodeRatingFromTrakt()'")
+        return None
+        
     if 'rating' in data:
         return data['rating']
+        
     print data
-    Debug("Error in request from 'getMovieRatingFromTrakt()'")''' #Awaiting implementation on trakt side
+    Debug("Error in request from 'getEpisodeRatingFromTrakt()'")
     return None
 
 #Set the rating for a tv show on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
@@ -465,14 +471,20 @@ def rateShowOnTrakt(tvdbid, title, year, rating):
     return data
 
 #Get the rating for a tv show from trakt
-def getShowRatingFromTrakt(tvdbid, title, year, season, episode):
-    '''data = traktJsonRequest('POST', '/episode/sumamry.json/%%API_KEY%%/'+str(imdbid))
+def getShowRatingFromTrakt(tvdbid, title, year):
+    if tvdbid == "" or tvdbid == None:
+        return None #would be nice to be smarter in this situation
+    
+    data = traktJsonRequest('POST', '/show/summary.json/%%API_KEY%%/'+str(tvdbid))
     if data == None:
-        Debug("Error in request from 'getMovieRatingFromTrakt()'")
+        Debug("Error in request from 'getShowRatingFromTrakt()'")
+        return None
+        
     if 'rating' in data:
         return data['rating']
+        
     print data
-    Debug("Error in request from 'getMovieRatingFromTrakt()'")''' #Awaiting implementation on trakt side
+    Debug("Error in request from 'getShowRatingFromTrakt()'")
     return None
 
 def getRecommendedMoviesFromTrakt():
