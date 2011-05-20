@@ -1,3 +1,6 @@
+next Version:
+    - skin Aeon Nox is now integrated. (Thanks: Big Noid)
+
 Version 0.5.1:
     - rating dialog that appears after watching items is now optional
     - Can now rate whole tv shows after watching an episode
@@ -5,7 +8,6 @@ Version 0.5.1:
     - Bugfix: items played via trakt utilities weren't added to the playlist correctly
     - Bugfix: using trakt utilities to play a movie that is no longer in the library fails silently
     - Better debug output during communication errors with trakt api
-    
 
 Version 0.5.0:
     - rating dialog after watching a movie or tv episode
