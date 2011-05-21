@@ -436,6 +436,7 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         elif controlId == RATE_RATE_SHOW_BTN:
             self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
             self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
+            self.setFocus(self.getControl(RATE_DONT_KNOW))
             rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
             rateShow.initDialog(self.tvdbid, self.title, self.year, getShowRatingFromTrakt(self.tvdbid, self.title, self.year))
             rateShow.doModal()
