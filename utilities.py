@@ -82,17 +82,34 @@ def xbmcHttpapiExec(query):
     xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus(query), )
     return xml_data
 
+# get a connection to trakt
+def getTraktConnection():
+    try:
+        conn = httplib.HTTPConnection('api.trakt.tv')
+    except socket.timeout:
+        Debug("getTraktConnection: can't connect to trakt - timeout")
+        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
+        return None
+    return conn
+    
 # make a JSON api request to trakt
 # method: http method (GET or POST)
 # req: REST request (ie '/user/library/movies/all.json/%%API_KEY%%/%%USERNAME%%')
 # args: arguments to be passed by POST JSON (only applicable to POST requests), default:{}
+# returnStatus: when unset or set to false the function returns None apon error and shows a notification,
+#   when set to true the function returns the status and errors in ['error'] as given to it and doesn't show the notification,
+#   use to customise error notifications
 # anon: anonymous (dont send username/password), default:False
-def traktJsonRequest(method, req, args={}, anon=False):
-    try:
-        conn = httplib.HTTPConnection('api.trakt.tv')
-    except socket.timeout:
-        Debug("traktJsonRequest: can't connect to trakt - timeout")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
+# connection: default it to make a new connection but if you want to keep the same one alive pass it here
+def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False):
+    if conn == False:
+        conn = getTraktConnection()
+    if conn == None:
+        if returnStatus:
+            data = []
+            data['status'] = 'failure'
+            data['error'] = 'Unable to connect to trakt'
+            return data
         return None
 
     try:
@@ -120,12 +137,19 @@ def traktJsonRequest(method, req, args={}, anon=False):
         data = json.loads(raw)
     except json.decoder.JSONDecodeError:
         Debug("traktQuery: Bad JSON responce: "+raw)
+        if returnStatus:
+            data = []
+            data['status'] = 'failure'
+            data['error'] = 'Bad responce from trakt'
+            return data
         notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": Bad responce from trakt") # Error
         return None
     
     if 'status' in data:
         if data['status'] == 'failure':
             Debug("traktQuery: Error: " + str(data['error']))
+            if returnStatus:
+                return data;
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     

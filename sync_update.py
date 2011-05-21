@@ -4,7 +4,6 @@
 import os
 import xbmc,xbmcaddon,xbmcgui
 import time, socket
-import simplejson as json
 from utilities import *
 
 try:
@@ -37,7 +36,6 @@ username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
 
-conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 # updates movie collection entries on trakt (don't unlibrary)
@@ -120,14 +118,7 @@ def updateMovieCollection(daemon=False):
             if choice == False:
                 return
         
-        jdata = json.dumps({'username': username, 'password': pwd, 'movies': movie_collection})
-        
-        # refresh connection (don't want to get tcp timeout)
-        conn = httplib.HTTPConnection('api.trakt.tv')
-        conn.request('POST', '/movie/library/' + apikey, jdata, headers)
-        response = conn.getresponse()
-        
-        data = json.loads(response.read())
+        data = traktJsonRequest('POST', '/movie/library/%%API_KEY%%', {'movies': movie_collection}, returnStatus=True)
         
         if data['status'] == 'success':
             Debug ("successfully uploaded collection: ")
@@ -264,15 +255,10 @@ def updateTVShowCollection(daemon=False):
         error = None
         
         # refresh connection (don't want to get tcp timeout)
-        conn = httplib.HTTPConnection('api.trakt.tv')
+        conn = getTraktConnection()
         
         for i in range(0, len(tvshows_toadd)):
-            jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': tvshows_toadd[i]['tvdb_id'], 'title': tvshows_toadd[i]['title'], 'year': tvshows_toadd[i]['year'], 'episodes': tvshows_toadd[i]['episodes']})
-            
-            conn.request('POST', '/show/episode/library/' + apikey, jdata, headers)
-            response = conn.getresponse()
-            
-            data = json.loads(response.read())
+            data = traktJsonRequest('POST', '/show/episode/library/%%API_KEY%%', {'tvdb_id': tvshows_toadd[i]['tvdb_id'], 'title': tvshows_toadd[i]['title'], 'year': tvshows_toadd[i]['year'], 'episodes': tvshows_toadd[i]['episodes']}, returnStatus=True, conn = conn)
             
             if data['status'] == 'success':
                 Debug ("successfully uploaded collection: " + str(data['message']))
@@ -341,14 +327,7 @@ def cleanMovieCollection(daemon=False):
                 Debug (movie[1]['title'] + " not found in xbmc library")
     
     if len(to_unlibrary) > 0:
-        jdata = json.dumps({'username': username, 'password': pwd, 'movies': to_unlibrary})
-        
-        # refresh connection (don't want to get tcp timeout)
-        conn = httplib.HTTPConnection('api.trakt.tv')
-        conn.request('POST', '/movie/unlibrary/' + apikey, jdata, headers)
-        response = conn.getresponse().read()
-        
-        data = json.loads(response)
+        data = traktJsonRequest('POST', '/movie/unlibrary/%%API_KEY%%', {'movies': to_unlibrary}, returnStatus = True)
         
         if data['status'] == 'success':
             Debug ("successfully cleared collection: " + str(data['message']))
@@ -503,15 +482,10 @@ def cleanTVShowCollection(daemon=False):
         error = None
         
         # refresh connection (don't want to get tcp timeout)
-        conn = httplib.HTTPConnection('api.trakt.tv')
+        conn = getTrackConnection()
         
         for i in range(0, len(to_unlibrary)):
-            jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': to_unlibrary[i]['tvdb_id'], 'title': to_unlibrary[i]['title'], 'year': to_unlibrary[i]['year'], 'episodes': to_unlibrary[i]['episodes']})
-            
-            conn.request('POST', '/show/episode/unlibrary/' + apikey, jdata, headers)
-            response = conn.getresponse()
-            
-            data = json.loads(response.read())
+            data = traktJsonRequest('POST', '/show/episode/unlibrary/%%API_KEY%%', {'tvdb_id': to_unlibrary[i]['tvdb_id'], 'title': to_unlibrary[i]['title'], 'year': to_unlibrary[i]['year'], 'episodes': to_unlibrary[i]['episodes']}, returnStatus = True, conn = conn)
             
             if data['status'] == 'success':
                 Debug ("successfully updated collection: " + str(data['message']))
@@ -624,16 +598,9 @@ def syncSeenMovies(daemon=False):
                 if not daemon:
                     progress.close()
                 return
-    
-        jdata = json.dumps({'username': username, 'password': pwd, 'movies': movies_seen})
         
-        # refresh connection (don't want to get tcp timeout)
-        conn = httplib.HTTPConnection('api.trakt.tv')
-        conn.request('POST', '/movie/seen/' + apikey, jdata, headers)
-        response = conn.getresponse()
-
-        data = json.loads(response.read())
-
+        data = traktJsonRequest('POST', '/movie/seen/%%API_KEY%%', {'movies': movies_seen}, returnStatus = True)
+        
         if data['status'] == 'success':
             Debug ("successfully uploaded seen movies: ")
             Debug ("inserted: " + str(data['inserted']) + " already_exist: " + str(data['already_exist']) + " skipped: " + str(data['skipped']))
@@ -825,21 +792,15 @@ def syncSeenTVShows(daemon=False):
             error = None
             
             # refresh connection (don't want to get tcp timeout)
-            conn = httplib.HTTPConnection('api.trakt.tv')
+            conn = getTraktConnection()
             
             for i in range(0, len(set_as_seen)):
-                jdata = json.dumps({'username': username, 'password': pwd, 'tvdb_id': set_as_seen[i]['tvdb_id'], 'title': set_as_seen[i]['title'], 'year': set_as_seen[i]['year'], 'episodes': set_as_seen[i]['episodes']})
-            
-                conn.request('POST', '/show/episode/seen/' + apikey, jdata, headers)
-                response = conn.getresponse()
-            
-                data = json.loads(response.read())
-            
-                if data['status'] == 'success':
-                    Debug ("successfully uploaded tvshow " + set_as_seen[i]['title'] + ": " + str(data['message']))
-                elif data['status'] == 'failure':
-                    Debug ("Error uploading tvshow: " + set_as_seen[i]['title'] + ": " + str(data['error']))
+                data = traktJsonRequest('POST', '/show/episode/seen/%%API_KEY%%', {'tvdb_id': set_as_seen[i]['tvdb_id'], 'title': set_as_seen[i]['title'], 'year': set_as_seen[i]['year'], 'episodes': set_as_seen[i]['episodes']}, returnStatus = True, conn = conn)
+                if data['status'] == 'failure':
+                    Debug("Error uploading tvshow: " + set_as_seen[i]['title'] + ": " + str(data['error']))
                     error = data['error']
+                else:
+                    Debug("Successfully uploaded tvshow " + set_as_seen[i]['title'] + ": " + str(data['message']))
                 
             if error == None:
                 if daemon:
