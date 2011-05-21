@@ -135,7 +135,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
         data = json.loads(raw)
     except json.decoder.JSONDecodeError:
         Debug("traktQuery: Bad JSON responce: "+raw)
-        if returnErrors:
+        if returnStatus:
             data = []
             data['status'] = 'failure'
             data['error'] = 'Bad responce from trakt'
@@ -146,7 +146,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
     if 'status' in data:
         if data['status'] == 'failure':
             Debug("traktQuery: Error: " + str(data['error']))
-            if returnErrors:
+            if returnStatus:
                 return data;
             notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
