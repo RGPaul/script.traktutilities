@@ -1,4 +1,6 @@
-next Version:
+Version 0.5.2:
+    - fixed several bugs (for more information see tickets #35 #39 #42 #43 #47 and #49 on git)
+    - switched from own simplejson to xbmc's simplejson:
     - Skin Aeon-Nox is now integrated. (Thanks: Big Noid)
     - Support for newer nighlties that require arbitrary resolution definitions
     - Improved handling of responces from the trakt api
