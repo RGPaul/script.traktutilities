@@ -3,6 +3,7 @@
 
 import xbmc,xbmcaddon,xbmcgui
 from utilities import *
+from rating import *
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -43,6 +44,7 @@ RATE_RATE_SHOW_BTN = 108
 ACTION_PARENT_DIRECTORY = 9
 ACTION_PREVIOUS_MENU = 10
 ACTION_SELECT_ITEM = 7
+ACTION_CONTEXT_MENU = 117
 
 class MoviesWindow(xbmcgui.WindowXML):
 
@@ -138,7 +140,42 @@ class MoviesWindow(xbmcgui.WindowXML):
         
     def onFocus( self, controlId ):
         self.controlId = controlId
-
+    
+    def showContextMenu(self):
+        movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]
+        options = []
+        actions = []
+        if movie['idMovie'] != -1:
+            options.append("Play")
+            actions.append('play')
+        if 'watchlist' in movie:
+            if movie['watchlist']:
+                options.append("Remove from watchlist")
+                actions.append('unwatchlist')
+            else :
+                options.append("Add to watchlist")
+                actions.append('watchlist')
+        else:
+            options.append("Remove from watchlist")
+            actions.append('unwatchlist')
+        options.append("Rate")
+        actions.append('rate')
+        
+        select = xbmcgui.Dialog().select(movie['title']+" - "+str(movie['year']), options)
+        if select != -1:
+            Debug("Select: " + actions[select])
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+        elif actions[select] == 'play':
+            playMovieById(movie['idMovie'])
+        elif actions[select] == 'unwatchlist':
+            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        elif actions[select] == 'watchlist':
+            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        elif actions[select] == 'rate':
+            doRateMovie(imdbid=movie['imdb_id'], title=movie['title'], year=movie['year'])        
+        
     def onAction(self, action):
         if action.getId() == 0:
             return
@@ -153,6 +190,8 @@ class MoviesWindow(xbmcgui.WindowXML):
                 xbmcgui.Dialog().ok("Trakt Utilities", movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
             else:
                 playMovieById(movie['idMovie'])
+        elif action.getId() == ACTION_CONTEXT_MENU:
+            self.showContextMenu()
         else:
             Debug("Uncaught action (movies): "+str(action.getId()))
 

@@ -39,6 +39,8 @@ def showRecommendedMovies():
     for movie in movies:
         if movie['imdb_id'] in watchlist:
             movie['watchlist'] = True
+        else:
+            movie['watchlist'] = False
     
     # display recommended movies list
     import windows
