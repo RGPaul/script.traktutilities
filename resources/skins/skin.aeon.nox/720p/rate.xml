@@ -127,11 +127,10 @@
           <font>Font_Info</font>
           <textoffsetx>2</textoffsetx>
           <textoffsety>5</textoffsety>
-          <label>Unrated</label>
           <texturefocus>current-no-rating.png</texturefocus>
           <texturenofocus diffuse="44000000">current-no-rating.png</texturenofocus>
           <colordiffuse>ffffffff</colordiffuse>
-          <label>Unrated</label>
+          <label>Not Rated</label>
           <textcolor>ffffffff</textcolor>
           <shadowcolor>-</shadowcolor>
           <disabledcolor>80ffffff</disabledcolor>
