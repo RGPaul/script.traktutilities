@@ -344,6 +344,7 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
         self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
         self.getControl(RATE_CUR_NO_RATING).setEnabled(False)
+        self.setFocus(self.getControl(RATE_SKIP_RATING))
         self.updateRatedButton();
         return
         
@@ -406,6 +407,7 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         self.getControl(RATE_TITLE).setLabel(__language__(1304).encode( "utf-8", "ignore" )) # How would you rate that episode?
         self.getControl(RATE_RATE_SHOW_BTN).setLabel(__language__(1305).encode( "utf-8", "ignore" )) # Rate whole show
         self.getControl(RATE_CUR_NO_RATING).setEnabled(False)
+        self.setFocus(self.getControl(RATE_SKIP_RATING))
         self.updateRatedButton();
         return
         
@@ -476,6 +478,7 @@ class RateShowDialog(xbmcgui.WindowXMLDialog):
         self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
         self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
         self.getControl(RATE_CUR_NO_RATING).setEnabled(False)
+        self.setFocus(self.getControl(RATE_SKIP_RATING))
         self.updateRatedButton();
         return
         
