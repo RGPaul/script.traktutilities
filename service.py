@@ -4,6 +4,7 @@
 import xbmc,xbmcaddon,xbmcgui
 import telnetlib, time
 import simplejson as json
+import thread
 from utilities import *
 from rating import *
 from sync_update import *
@@ -22,6 +23,8 @@ Debug("service: " + __settings__.getAddonInfo("id") + " - version: " + __setting
 
 # starts update/sync
 def autostart():
+    thread.start_new_thread(ratingLoop, ())
+
     if checkSettings(True):
         
         autosync_moviecollection = __settings__.getSetting("autosync_moviecollection")
@@ -46,12 +49,8 @@ def autostart():
             
         if autosync_moviecollection == "true" or autosync_tvshowcollection == "true" or autosync_seenmovies == "true" or autosync_seentvshows == "true":
             notification("Trakt Utilities", __language__(1184).encode( "utf-8", "ignore" )) # update / sync done
-    
-    
-    # you can disable rating in options
-    rateMovieOption = __settings__.getSetting("rate_movie")
-    rateEpisodeOption = __settings__.getSetting("rate_episode")
-    
+
+def ratingLoop():
     #initial state
     totalTime = 0
     watchedTime = 0
@@ -79,6 +78,10 @@ def autostart():
                                 Debug("[Rating] Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
                                 if 'type' in curVideo and 'id' in curVideo:                                   
                                     if totalTime/2 < watchedTime:
+                                        # you can disable rating in options
+                                        rateMovieOption = __settings__.getSetting("rate_movie")
+                                        rateEpisodeOption = __settings__.getSetting("rate_episode")
+                                        
                                         if curVideo['type'] == 'movie' and rateMovieOption == 'true':
                                             doRateMovie(curVideo['id'])
                                         if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
