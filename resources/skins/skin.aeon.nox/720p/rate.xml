@@ -1,5 +1,5 @@
 <window id="4567" type="dialog">
-  <defaultcontrol always="true">105</defaultcontrol>
+  <defaultcontrol always="true">104</defaultcontrol>
   <allowoverlay>yes</allowoverlay>
   <visible>true</visible>
   <zorder>1</zorder>
