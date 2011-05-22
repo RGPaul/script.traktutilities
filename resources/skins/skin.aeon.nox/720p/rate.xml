@@ -1,5 +1,5 @@
 <window id="4567" type="dialog">
-  <defaultcontrol always="true">101</defaultcontrol>
+  <defaultcontrol always="true">105</defaultcontrol>
   <allowoverlay>yes</allowoverlay>
   <visible>true</visible>
   <zorder>1</zorder>
@@ -125,7 +125,7 @@
           <visible>true</visible>
           <align>center</align>
           <font>Font_Info</font>
-          <textoffsetx>0</textoffsetx>
+          <textoffsetx>2</textoffsetx>
           <textoffsety>5</textoffsety>
           <label>Unrated</label>
           <texturefocus>current-no-rating.png</texturefocus>
@@ -133,7 +133,7 @@
           <colordiffuse>ffffffff</colordiffuse>
           <label>Unrated</label>
           <textcolor>ffffffff</textcolor>
-          <shadowcolor>black</shadowcolor>
+          <shadowcolor>-</shadowcolor>
           <disabledcolor>80ffffff</disabledcolor>
           <focusedcolor>ffffffff</focusedcolor>
           <aligny></aligny>
@@ -158,7 +158,7 @@
           <textcolor>ffffffff</textcolor>
           <disabledcolor>80ffffff</disabledcolor>
           <focusedcolor>ffffffff</focusedcolor>
-          <shadowcolor>black</shadowcolor>
+          <shadowcolor>-</shadowcolor>
           <aligny></aligny>
           <pulseonselect>true</pulseonselect>
           <onclick>-</onclick>
@@ -181,13 +181,14 @@
           <textcolor>ffffffff</textcolor>
           <disabledcolor>80ffffff</disabledcolor>
           <focusedcolor>ffffffff</focusedcolor>
-          <shadowcolor>black</shadowcolor>
+          <shadowcolor>-</shadowcolor>
           <aligny></aligny>
           <pulseonselect>true</pulseonselect>
           <onclick>-</onclick>
           <onfocus>-</onfocus>
           <animation effect="slide" start="0,0" end="10,0" time="0" condition="true">Conditional</animation>
         </control>
+
       </control>
       <control type="image" id="107">
         <description>Background</description>
@@ -214,10 +215,10 @@
         <focusedcolor>FFAAAAAA</focusedcolor>
         <texturefocus></texturefocus>
         <texturenofocus></texturenofocus>
-        <onup>102</onup>
-        <ondown>101</ondown>
-        <onleft>105</onleft>
-        <onright>105</onright>
+        <onup>105</onup>
+        <ondown>105</ondown>
+        <onleft>108</onleft>
+        <onright>108</onright>
         <label>Rate whole show</label>
       </control>
     </control>
