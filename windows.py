@@ -172,7 +172,10 @@ class MoviesWindow(xbmcgui.WindowXML):
         elif actions[select] == 'unwatchlist':
             xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
         elif actions[select] == 'watchlist':
-            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+            if addMoviesToWatchlist([movie]) == None:
+                notification("Trakt Utilities", __language__(1309).encode( "utf-8", "ignore" )) # Failed to added to watch-list
+            else :
+                notification("Trakt Utilities", __language__(1310).encode( "utf-8", "ignore" )) # Successfully added to watch-list
         elif actions[select] == 'rate':
             doRateMovie(imdbid=movie['imdb_id'], title=movie['title'], year=movie['year'])        
         
