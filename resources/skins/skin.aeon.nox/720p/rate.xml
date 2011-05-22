@@ -154,7 +154,7 @@
           <font>Font_Info</font>
           <textoffsetx>20</textoffsetx>
           <textoffsety>5</textoffsety>
-          <label></label>
+          <label>Unrate</label>
           <textcolor>ffffffff</textcolor>
           <disabledcolor>80ffffff</disabledcolor>
           <focusedcolor>ffffffff</focusedcolor>
@@ -177,7 +177,7 @@
           <font>Font_Info</font>
           <textoffsetx>20</textoffsetx>
           <textoffsety>5</textoffsety>
-          <label></label>
+          <label>Unrate</label>
           <textcolor>ffffffff</textcolor>
           <disabledcolor>80ffffff</disabledcolor>
           <focusedcolor>ffffffff</focusedcolor>
