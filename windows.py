@@ -354,6 +354,40 @@ class TVShowsWindow(xbmcgui.WindowXML):
         except TypeError:
             Debug("TypeError for Watchers")
 
+    def showContextMenu(self):
+        show = self.tvshows[self.getControl(TVSHOW_LIST).getSelectedPosition()]
+        options = []
+        actions = []
+        if 'watchlist' in show:
+            if show['watchlist']:
+                options.append("Remove from watchlist")
+                actions.append('unwatchlist')
+            else :
+                options.append("Add to watchlist")
+                actions.append('watchlist')
+        else:
+            options.append("Remove from watchlist")
+            actions.append('unwatchlist')
+        options.append("Rate")
+        actions.append('rate')
+        
+        select = xbmcgui.Dialog().select(show['title'], options)
+        if select != -1:
+            Debug("Select: " + actions[select])
+        if select == -1:
+            Debug ("menu quit by user")
+            return
+        elif actions[select] == 'play':
+            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        elif actions[select] == 'unwatchlist':
+            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        elif actions[select] == 'watchlist':
+            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        elif actions[select] == 'rate':
+            rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+            rateShow.initDialog(show['tvdb_id'], show['title'], show['year'], getShowRatingFromTrakt(show['tvdb_id'], show['title'], show['year']))
+            rateShow.doModal()
+            del rateShow 
 
     def onAction(self, action):
 
@@ -366,6 +400,8 @@ class TVShowsWindow(xbmcgui.WindowXML):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             pass # do something here ?
+        elif action.getId() == ACTION_CONTEXT_MENU:
+            self.showContextMenu()
         else:
             Debug("Uncaught action (tv shows): "+str(action.getId()))
 
