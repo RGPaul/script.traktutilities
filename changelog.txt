@@ -1,3 +1,12 @@
+Version 0.5.2:
+    - fixed several bugs (for more information see tickets #35 #39 #42 #43 #47 and #49 on git)
+    - switched from own simplejson to xbmc's simplejson:
+    - Skin Aeon-Nox is now integrated. (Thanks: Big Noid)
+    - Support for newer nighlties that require arbitrary resolution definitions
+    - Improved handling of responces from the trakt api
+    - Improved handling of timeouts when talking to trakt api
+    - Ability to rate whole TV shows from current rating dialog
+
 Version 0.5.1:
     - rating dialog that appears after watching items is now optional
     - Can now rate whole tv shows after watching an episode
@@ -5,7 +14,6 @@ Version 0.5.1:
     - Bugfix: items played via trakt utilities weren't added to the playlist correctly
     - Bugfix: using trakt utilities to play a movie that is no longer in the library fails silently
     - Better debug output during communication errors with trakt api
-    
 
 Version 0.5.0:
     - rating dialog after watching a movie or tv episode
