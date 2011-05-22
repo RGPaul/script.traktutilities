@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # 
 
-import os
+import os, sys
 import xbmc,xbmcaddon,xbmcgui
 import time, socket
 import simplejson as json
+
 import urllib, re
 
 try:
@@ -124,6 +125,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
             conn.request('GET', req)
         else:
             return None
+        Debug("trakt json url: "+req)
     except socket.error:
         Debug("traktQuery: can't connect to trakt")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
@@ -403,7 +405,7 @@ def addMoviesToWatchlist(data):
 
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
 def rateMovieOnTrakt(imdbid, title, year, rating):
-    if not (rating in ("love", "hate")):
+    if not (rating in ("love", "hate", "unrate")):
         #add error message
         return
     
@@ -413,12 +415,33 @@ def rateMovieOnTrakt(imdbid, title, year, rating):
     if data == None:
         Debug("Error in request from 'rateMovieOnTrakt()'")
     
-    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    if (rating == "unrate"):
+        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
+    else :
+        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    
     return data
+
+#Get the rating for a movie from trakt
+def getMovieRatingFromTrakt(imdbid, title, year):
+    if imdbid == "" or imdbid == None:
+        return None #would be nice to be smarter in this situation
+    
+    data = traktJsonRequest('POST', '/movie/summary.json/%%API_KEY%%/'+str(imdbid))
+    if data == None:
+        Debug("Error in request from 'getMovieRatingFromTrakt()'")
+        return None
+        
+    if 'rating' in data:
+        return data['rating']
+        
+    print data
+    Debug("Error in request from 'getMovieRatingFromTrakt()'")
+    return None
 
 #Set the rating for a tv episode on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
 def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
-    if not (rating in ("love", "hate")):
+    if not (rating in ("love", "hate", "unrate")):
         #add error message
         return
     
@@ -428,12 +451,33 @@ def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
     if data == None:
         Debug("Error in request from 'rateEpisodeOnTrakt()'")
     
-    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    if (rating == "unrate"):
+        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
+    else :
+        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
+    
     return data
     
+#Get the rating for a tv episode from trakt
+def getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode):
+    if tvdbid == "" or tvdbid == None:
+        return None #would be nice to be smarter in this situation
+    
+    data = traktJsonRequest('POST', '/show/episode/summary.json/%%API_KEY%%/'+str(tvdbid)+"/"+season+"/"+episode)
+    if data == None:
+        Debug("Error in request from 'getEpisodeRatingFromTrakt()'")
+        return None
+        
+    if 'rating' in data:
+        return data['rating']
+        
+    print data
+    Debug("Error in request from 'getEpisodeRatingFromTrakt()'")
+    return None
+
 #Set the rating for a tv show on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
-def rateShowOnTrakt(tvdbid, title, year, rating):   
-    if not (rating in ("love", "hate")):
+def rateShowOnTrakt(tvdbid, title, year, rating):
+    if not (rating in ("love", "hate", "unrate")):
         #add error message
         return
     
@@ -443,9 +487,29 @@ def rateShowOnTrakt(tvdbid, title, year, rating):
     if data == None:
         Debug("Error in request from 'rateShowOnTrakt()'")
     
-    notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
-    return data
+    if (rating == "unrate"):
+        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
+    else :
+        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
     
+    return data
+
+#Get the rating for a tv show from trakt
+def getShowRatingFromTrakt(tvdbid, title, year):
+    if tvdbid == "" or tvdbid == None:
+        return None #would be nice to be smarter in this situation
+    
+    data = traktJsonRequest('POST', '/show/summary.json/%%API_KEY%%/'+str(tvdbid))
+    if data == None:
+        Debug("Error in request from 'getShowRatingFromTrakt()'")
+        return None
+        
+    if 'rating' in data:
+        return data['rating']
+        
+    print data
+    Debug("Error in request from 'getShowRatingFromTrakt()'")
+    return None
 
 def getRecommendedMoviesFromTrakt():
     data = traktJsonRequest('POST', '/recommendations/movies/%%API_KEY%%')

@@ -30,11 +30,14 @@ WATCHERS = 112
 
 RATE_SCENE = 98
 RATE_TITLE = 100
-RATE_LOVE_BTN = 101
-RATE_DONT_KNOW = 102
-RATE_HATE_BTN = 103
-RATE_RATE_SHOW_BG = 104
-RATE_RATE_SHOW_BTN = 105
+RATE_CUR_NO_RATING = 101
+RATE_CUR_LOVE = 102
+RATE_CUR_HATE = 103
+RATE_SKIP_RATING = 104
+RATE_LOVE_BTN = 105
+RATE_HATE_BTN = 106
+RATE_RATE_SHOW_BG = 107
+RATE_RATE_SHOW_BTN = 108
 
 #get actioncodes from keymap.xml
 ACTION_PARENT_DIRECTORY = 9
@@ -134,7 +137,7 @@ class MoviesWindow(xbmcgui.WindowXML):
                 Debug("TypeError for Watchers")
         
     def onFocus( self, controlId ):
-    	self.controlId = controlId
+        self.controlId = controlId
 
     def onAction(self, action):
         if action.getId() == 0:
@@ -211,7 +214,7 @@ class MovieWindow(xbmcgui.WindowXML):
                 pass
         
     def onFocus( self, controlId ):
-    	self.controlId = controlId
+        self.controlId = controlId
         
     def onClick(self, controlId):
         if controlId == PLAY_BUTTON:
@@ -247,7 +250,7 @@ class TVShowsWindow(xbmcgui.WindowXML):
             self.close()
         
     def onFocus( self, controlId ):
-    	self.controlId = controlId
+        self.controlId = controlId
         
     def listUpdate(self):
         
@@ -329,32 +332,45 @@ class TVShowsWindow(xbmcgui.WindowXML):
 
 class RateMovieDialog(xbmcgui.WindowXMLDialog):
 
-    def initDialog(self, imdbid, title, year):
+    def initDialog(self, imdbid, title, year, curRating):
         self.imdbid = imdbid
         self.title = title
         self.year = year
+        self.curRating = curRating
+        if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
         
     def onInit(self):
         self.getControl(RATE_TITLE).setLabel(__language__(1303).encode( "utf-8", "ignore" )) # How would you rate that movie?
-        self.getControl(RATE_DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
         self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
         self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
+        self.getControl(RATE_CUR_NO_RATING).setEnabled(False)
+        self.setFocus(self.getControl(RATE_SKIP_RATING))
+        self.updateRatedButton();
         return
         
     def onFocus( self, controlId ):
-    	self.controlId = controlId
+        self.controlId = controlId
         
     def onClick(self, controlId):
         if controlId == RATE_LOVE_BTN:
-            self.close()
+            self.curRating = "love"
+            self.updateRatedButton()
             rateMovieOnTrakt(self.imdbid, self.title, self.year, "love")
+            self.close()
             return
         elif controlId == RATE_HATE_BTN:
-            self.close()
+            self.curRating = "hate"
+            self.updateRatedButton()
             rateMovieOnTrakt(self.imdbid, self.title, self.year, "hate")
-            return
-        elif controlId == RATE_DONT_KNOW:
             self.close()
+            return
+        elif controlId == RATE_SKIP_RATING:
+            self.close()
+            return
+        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
+            self.curRating = None
+            self.updateRatedButton()
+            rateMovieOnTrakt(self.imdbid, self.title, self.year, "unrate")
             return
         else:
             Debug("Uncaught click (rate movie dialog): "+str(controlId))
@@ -370,43 +386,61 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
             self.close()
         else:
             Debug("Uncaught action (rate movie dialog): "+str(action.getId()))
+            
+    def updateRatedButton(self):
+        self.getControl(RATE_CUR_NO_RATING).setVisible(False if self.curRating <> None else True)
+        self.getControl(RATE_CUR_LOVE).setVisible(False if self.curRating <> "love" else True)
+        self.getControl(RATE_CUR_HATE).setVisible(False if self.curRating <> "hate" else True)
 
 class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
 
-    def initDialog(self, tvdbid, title, year, season, episode):
+    def initDialog(self, tvdbid, title, year, season, episode, curRating):
         self.tvdbid = tvdbid
         self.title = title
         self.year = year
         self.season = season
         self.episode = episode
+        self.curRating = curRating
+        if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
         
     def onInit(self):
         self.getControl(RATE_TITLE).setLabel(__language__(1304).encode( "utf-8", "ignore" )) # How would you rate that episode?
-        self.getControl(RATE_DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
         self.getControl(RATE_RATE_SHOW_BTN).setLabel(__language__(1305).encode( "utf-8", "ignore" )) # Rate whole show
+        self.getControl(RATE_CUR_NO_RATING).setEnabled(False)
+        self.setFocus(self.getControl(RATE_SKIP_RATING))
+        self.updateRatedButton();
         return
         
     def onFocus( self, controlId ):
-    	self.controlId = controlId
+        self.controlId = controlId
         
     def onClick(self, controlId):
         if controlId == RATE_LOVE_BTN:
-            self.close()
+            self.curRating = "love"
+            self.updateRatedButton()
             rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "love")
+            self.close()
             return
         elif controlId == RATE_HATE_BTN:
-            self.close()
+            self.curRating = "hate"
+            self.updateRatedButton()
             rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "hate")
-            return
-        elif controlId == RATE_DONT_KNOW:
             self.close()
+            return
+        elif controlId == RATE_SKIP_RATING:
+            self.close()
+            return
+        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
+            self.curRating = None
+            self.updateRatedButton();
+            rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "unrate")
             return
         elif controlId == RATE_RATE_SHOW_BTN:
             self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
             self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
-            self.setFocus(self.getControl(RATE_DONT_KNOW))
+            self.setFocus(self.getControl(RATE_SKIP_RATING))
             rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-            rateShow.initDialog(self.tvdbid, self.title, self.year)
+            rateShow.initDialog(self.tvdbid, self.title, self.year, getShowRatingFromTrakt(self.tvdbid, self.title, self.year))
             rateShow.doModal()
             del rateShow
         else:
@@ -423,35 +457,54 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
             self.close()
         else:
             Debug("Uncaught action (rate episode dialog): "+str(action.getId()))
+            
+    def updateRatedButton(self):
+        self.getControl(RATE_CUR_NO_RATING).setVisible(False if self.curRating <> None else True)
+        self.getControl(RATE_CUR_LOVE).setVisible(False if self.curRating <> "love" else True)
+        self.getControl(RATE_CUR_HATE).setVisible(False if self.curRating <> "hate" else True)
 
 class RateShowDialog(xbmcgui.WindowXMLDialog):
 
-    def initDialog(self, tvdbid, title, year):
+    def initDialog(self, tvdbid, title, year, curRating):
         self.tvdbid = tvdbid
         self.title = title
         self.year = year
+        self.curRating = curRating
+        if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
         
     def onInit(self):
         self.getControl(RATE_TITLE).setLabel(__language__(1306).encode( "utf-8", "ignore" )) # How would you rate that show?
-        self.getControl(RATE_DONT_KNOW).setLabel(__language__(1166).encode( "utf-8", "ignore" )) # I don't know
+        self.getControl(RATE_SCENE).setVisible(False)
         self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
         self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
+        self.getControl(RATE_CUR_NO_RATING).setEnabled(False)
+        self.setFocus(self.getControl(RATE_SKIP_RATING))
+        self.updateRatedButton();
         return
         
     def onFocus( self, controlId ):
-    	self.controlId = controlId
+        self.controlId = controlId
         
     def onClick(self, controlId):
         if controlId == RATE_LOVE_BTN:
-            self.close()
+            self.curRating = "love"
+            self.updateRatedButton()
             rateShowOnTrakt(self.tvdbid, self.title, self.year, "love")
+            self.close()
             return
         elif controlId == RATE_HATE_BTN:
-            self.close()
+            self.curRating = "hate"
+            self.updateRatedButton()
             rateShowOnTrakt(self.tvdbid, self.title, self.year, "hate")
-            return
-        elif controlId == RATE_DONT_KNOW:
             self.close()
+            return
+        elif controlId == RATE_SKIP_RATING:
+            self.close()
+            return
+        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
+            self.curRating = None
+            self.updateRatedButton();
+            rateShowOnTrakt(self.tvdbid, self.title, self.year, "unrate")
             return
         elif controlId == RATE_RATE_SHOW_BTN:
             return
@@ -469,3 +522,8 @@ class RateShowDialog(xbmcgui.WindowXMLDialog):
             self.close()
         else:
             Debug("Uncaught action (rate show dialog): "+str(action.getId()))
+            
+    def updateRatedButton(self):    
+        self.getControl(RATE_CUR_NO_RATING).setVisible(False if self.curRating <> None else True)
+        self.getControl(RATE_CUR_LOVE).setVisible(False if self.curRating <> "love" else True)
+        self.getControl(RATE_CUR_HATE).setVisible(False if self.curRating <> "hate" else True)
