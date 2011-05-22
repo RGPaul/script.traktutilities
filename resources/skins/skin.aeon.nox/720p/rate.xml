@@ -75,8 +75,8 @@
           <textoffsetx></textoffsetx>
           <textoffsety></textoffsety>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
         </control>
         <control type="button" id="104">
           <description>I dont know</description>
@@ -95,8 +95,8 @@
           <textoffsetx></textoffsetx>
           <textoffsety></textoffsety>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
         </control>
         <control type="button" id="106">
           <description>Hate</description>
@@ -115,8 +115,8 @@
           <textoffsetx></textoffsetx>
           <textoffsety></textoffsety>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
         </control>
         <control type="button" id="101">
           <description>Current not rated</description>
@@ -138,8 +138,8 @@
           <focusedcolor>ffffffff</focusedcolor>
           <aligny></aligny>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
           <animation effect="slide" start="0,0" end="10,0" time="0" condition="true">Conditional</animation>
         </control>
         <control type="button" id="102">
@@ -161,8 +161,8 @@
           <shadowcolor>-</shadowcolor>
           <aligny></aligny>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
           <animation effect="slide" start="0,0" end="10,0" time="0" condition="true">Conditional</animation>
         </control>
         <control type="button" id="103">
@@ -184,8 +184,8 @@
           <shadowcolor>-</shadowcolor>
           <aligny></aligny>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
           <animation effect="slide" start="0,0" end="10,0" time="0" condition="true">Conditional</animation>
         </control>
 
