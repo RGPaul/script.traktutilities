@@ -61,7 +61,7 @@ def showTrendingMovies():
     # display trending movie list
     import windows
     ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(movies)
+    ui.initWindow(movies, 'trending')
     ui.doModal()
     del ui
 
@@ -79,6 +79,6 @@ def showTrendingTVShows():
     # display trending tv shows
     import windows
     ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(tvshows)
+    ui.initWindow(tvshows, 'trending')
     ui.doModal()
     del ui

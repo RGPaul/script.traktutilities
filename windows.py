@@ -49,9 +49,11 @@ ACTION_CONTEXT_MENU = 117
 class MoviesWindow(xbmcgui.WindowXML):
 
     movies = None
+    type = 'basic'
 
-    def initWindow(self, movies):
+    def initWindow(self, movies, type):
         self.movies = movies
+        self.type = type
         
     def onInit(self):
         self.getControl(MOVIE_LIST).reset()
@@ -62,9 +64,10 @@ class MoviesWindow(xbmcgui.WindowXML):
                     movie['idMovie'] = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
                 if movie['idMovie'] != -1:
                     li.setProperty('Available','true')
-                if 'watchlist' in movie:
-                    if movie['watchlist']:
-                        li.setProperty('Watchlist','true')
+                if self.type <> 'watchlist':
+                    if 'watchlist' in movie:
+                        if movie['watchlist']:
+                            li.setProperty('Watchlist','true')
                 self.getControl(MOVIE_LIST).addItem(li)
             self.setFocus(self.getControl(MOVIE_LIST))
             self.listUpdate()
@@ -143,18 +146,20 @@ class MoviesWindow(xbmcgui.WindowXML):
     
     def showContextMenu(self):
         movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]
+        li = self.getControl(MOVIE_LIST).getSelectedItem()
         options = []
         actions = []
         if movie['idMovie'] != -1:
             options.append("Play")
             actions.append('play')
-        if 'watchlist' in movie:
-            if movie['watchlist']:
-                options.append("Remove from watchlist")
-                actions.append('unwatchlist')
-            else :
-                options.append("Add to watchlist")
-                actions.append('watchlist')
+        if self.type <> 'watchlist':
+            if 'watchlist' in movie:
+                if movie['watchlist']:
+                    options.append("Remove from watchlist")
+                    actions.append('unwatchlist')
+                else:
+                    options.append("Add to watchlist")
+                    actions.append('watchlist')
         else:
             options.append("Remove from watchlist")
             actions.append('unwatchlist')
@@ -174,8 +179,10 @@ class MoviesWindow(xbmcgui.WindowXML):
         elif actions[select] == 'watchlist':
             if addMoviesToWatchlist([movie]) == None:
                 notification("Trakt Utilities", __language__(1309).encode( "utf-8", "ignore" )) # Failed to added to watch-list
-            else :
+            else:
                 notification("Trakt Utilities", __language__(1310).encode( "utf-8", "ignore" )) # Successfully added to watch-list
+                li.setProperty('Watchlist','true')
+                movie['watchlist'] = True;
         elif actions[select] == 'rate':
             doRateMovie(imdbid=movie['imdb_id'], title=movie['title'], year=movie['year'])        
         
@@ -277,9 +284,11 @@ class MovieWindow(xbmcgui.WindowXML):
 class TVShowsWindow(xbmcgui.WindowXML):
 
     tvshows = None
+    type = 'basic'
 
-    def initWindow(self, tvshows):
+    def initWindow(self, tvshows, type):
         self.tvshows = tvshows
+        self.type = type
         
     def onInit(self):
         if self.tvshows != None:
@@ -361,13 +370,14 @@ class TVShowsWindow(xbmcgui.WindowXML):
         show = self.tvshows[self.getControl(TVSHOW_LIST).getSelectedPosition()]
         options = []
         actions = []
-        if 'watchlist' in show:
-            if show['watchlist']:
-                options.append("Remove from watchlist")
-                actions.append('unwatchlist')
-            else :
-                options.append("Add to watchlist")
-                actions.append('watchlist')
+        if self.type <> 'watchlist':
+            if 'watchlist' in show:
+                if show['watchlist']:
+                    options.append("Remove from watchlist")
+                    actions.append('unwatchlist')
+                else :
+                    options.append("Add to watchlist")
+                    actions.append('watchlist')
         else:
             options.append("Remove from watchlist")
             actions.append('unwatchlist')
