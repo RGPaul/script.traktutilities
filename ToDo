@@ -4,4 +4,3 @@
 - browse friends library
 - display friends profile
 - Rate buttons on movie and tv show list windows - Issue #26 (othrayte) [branch:contextmenu]
-- Allow rating things that started before the automated sync/updates have compleated - Issue #53 (othrayte) [branch:threadedrating]
