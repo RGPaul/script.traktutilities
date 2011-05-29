@@ -106,7 +106,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
         conn = getTraktConnection()
     if conn == None:
         if returnStatus:
-            data = []
+            data = {}
             data['status'] = 'failure'
             data['error'] = 'Unable to connect to trakt'
             return data
@@ -138,7 +138,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
     except json.decoder.JSONDecodeError:
         Debug("traktQuery: Bad JSON responce: "+raw)
         if returnStatus:
-            data = []
+            data = {}
             data['status'] = 'failure'
             data['error'] = 'Bad responce from trakt'
             return data
