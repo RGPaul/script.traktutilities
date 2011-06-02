@@ -414,6 +414,7 @@ def addMoviesToWatchlist(data):
     # This function has not been tested, please test it before using it
     movies = []
     for item in data:
+        movie = {}
         if "imdb_id" in item:
             movie["imdb_id"] = item["imdb_id"]
         if "tmdb_id" in item:
