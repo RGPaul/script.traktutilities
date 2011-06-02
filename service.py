@@ -70,22 +70,26 @@ def ratingLoop():
             try:
                 raw = tn.read_until("\n")
                 data = json.loads(raw)
+                #Debug("[Rating] message: " + str(data))
+                __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
+                # you can disable rating in options
+                rateMovieOption = __settings__.getSetting("rate_movie")
+                rateEpisodeOption = __settings__.getSetting("rate_episode")
+                rateEachInPlaylistOption = __settings__.getSetting("rate_each_playlist_item")
+                
                 if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
                     if data['method'] in ('Player.PlaybackStopped', 'Player.PlaybackEnded'):
                         if startTime <> 0:
                             watchedTime += time.time() - startTime
                             if watchedTime <> 0:
                                 Debug("[Rating] Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
-                                if 'type' in curVideo and 'id' in curVideo:                                   
+                                if 'type' in curVideo and 'id' in curVideo:
                                     if totalTime/2 < watchedTime:
-                                        # you can disable rating in options
-                                        rateMovieOption = __settings__.getSetting("rate_movie")
-                                        rateEpisodeOption = __settings__.getSetting("rate_episode")
-                                        
-                                        if curVideo['type'] == 'movie' and rateMovieOption == 'true':
-                                            doRateMovie(curVideo['id'])
-                                        if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
-                                            doRateEpisode(curVideo['id'])
+                                        if (getCurrentPlaylistLengthFromXBMC() <= 1) or (rateEachInPlaylistOption == 'true'):
+                                            if curVideo['type'] == 'movie' and rateMovieOption == 'true':
+                                                doRateMovie(curVideo['id'])
+                                            if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
+                                                doRateEpisode(curVideo['id'])
                                 watchedTime = 0
                             startTime = 0
                     elif data['method'] in ('Player.PlaybackStarted', 'Player.PlaybackResumed'):

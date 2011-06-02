@@ -9,4 +9,5 @@
 <setting id="autosync_seentvshows" type="bool" label="1008" default="false"/>
 <setting id="rate_movie" type="bool" label="1009" default="true"/>
 <setting id="rate_episode" type="bool" label="1010" default="true"/>
+<setting id="rate_each_playlist_item" type="bool" label="1011" default="true"/>
 </settings>

@@ -349,6 +349,32 @@ def getCurrentPlayingVideoFromXBMC():
     except KeyError:
         Debug("getCurrentPlayingVideoFromXBMC: KeyError")
         return None
+        
+# get the length of the current video playlist being played from XBMC
+def getCurrentPlaylistLengthFromXBMC():
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.GetItems','params':{}, 'id': 1})
+    
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
+    
+    # check for error
+    try:
+        error = result['error']
+        Debug("getCurrentPlaylistLengthFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+    
+    try:
+        Debug("Current playlist: "+str(result['result']))
+        current = result['result']['state']['current']
+        typ = result['result']['items'][current]['type']
+        if typ in ("movie","episode"):
+            return len(result['result']['items'])
+        return None
+    except KeyError:
+        Debug("getCurrentPlayingVideoFromXBMC: KeyError")
+        return None
 
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports selecting a single movie
