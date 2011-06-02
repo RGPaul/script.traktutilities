@@ -4,7 +4,7 @@
 import xbmc,xbmcaddon,xbmcgui
 import telnetlib, time
 import simplejson as json
-import thread
+import threading
 from utilities import *
 from rating import *
 from sync_update import *
@@ -23,7 +23,8 @@ Debug("service: " + __settings__.getAddonInfo("id") + " - version: " + __setting
 
 # starts update/sync
 def autostart():
-    thread.start_new_thread(ratingLoop, ())
+    ratingThread = RatingService()
+    ratingThread.start()
 
     if checkSettings(True):
         
@@ -49,63 +50,66 @@ def autostart():
             
         if autosync_moviecollection == "true" or autosync_tvshowcollection == "true" or autosync_seenmovies == "true" or autosync_seentvshows == "true":
             notification("Trakt Utilities", __language__(1184).encode( "utf-8", "ignore" )) # update / sync done
+            
+    ratingThread.join()
 
-def ratingLoop():
-    #initial state
-    totalTime = 0
-    watchedTime = 0
-    startTime = 0
-    curVideo = None
-    
-    #while xbmc is running
-    while (not xbmc.abortRequested):
-        try:
-            tn = telnetlib.Telnet('localhost', 9090, 10)
-        except IOError as (errno, strerror):
-            #connection failed, try again soon
-            print "[~] Telnet too soon? ("+str(errno)+") "+strerror
-            time.sleep(1)
-            continue
+class RatingService(threading.Thread):
+    def run(self):
+        #initial state
+        self.totalTime = 0
+        self.watchedTime = 0
+        self.startTime = 0
+        self.curVideo = None
+        
+        #while xbmc is running
         while (not xbmc.abortRequested):
             try:
-                raw = tn.read_until("\n")
-                data = json.loads(raw)
-                #Debug("[Rating] message: " + str(data))
-                __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
-                # you can disable rating in options
-                rateMovieOption = __settings__.getSetting("rate_movie")
-                rateEpisodeOption = __settings__.getSetting("rate_episode")
-                rateEachInPlaylistOption = __settings__.getSetting("rate_each_playlist_item")
-                
-                if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
-                    if data['method'] in ('Player.PlaybackStopped', 'Player.PlaybackEnded'):
-                        if startTime <> 0:
-                            watchedTime += time.time() - startTime
-                            if watchedTime <> 0:
-                                Debug("[Rating] Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
-                                if 'type' in curVideo and 'id' in curVideo:
-                                    if totalTime/2 < watchedTime:
-                                        if (getCurrentPlaylistLengthFromXBMC() <= 1) or (rateEachInPlaylistOption == 'true'):
-                                            if curVideo['type'] == 'movie' and rateMovieOption == 'true':
-                                                doRateMovie(curVideo['id'])
-                                            if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
-                                                doRateEpisode(curVideo['id'])
-                                watchedTime = 0
-                            startTime = 0
-                    elif data['method'] in ('Player.PlaybackStarted', 'Player.PlaybackResumed'):
-                        if xbmc.Player().isPlayingVideo():
-                            curVideo = getCurrentPlayingVideoFromXBMC()
-                            if curVideo <> None:
-                                if 'type' in curVideo and 'id' in curVideo: Debug("[Rating] Watching: "+curVideo['type']+" - "+str(curVideo['id']))
-                                totalTime = xbmc.Player().getTotalTime()
-                                startTime = time.time()
-                    elif data['method'] == 'Player.PlaybackPaused':
-                        if startTime <> 0:
-                            watchedTime += time.time() - startTime
-                            Debug("[Rating] Paused after: "+str(watchedTime))
-                            startTime = 0
-            except EOFError:
-                break #go out to the other loop to restart the connection
-        time.sleep(1)
+                tn = telnetlib.Telnet('localhost', 9090, 10)
+            except IOError as (errno, strerror):
+                #connection failed, try again soon
+                print "[~] Telnet too soon? ("+str(errno)+") "+strerror
+                time.sleep(1)
+                continue
+            while (not xbmc.abortRequested):
+                try:
+                    raw = tn.read_until("\n")
+                    data = json.loads(raw)
+                    #Debug("[Rating] message: " + str(data))
+                    __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
+                    # you can disable rating in options
+                    rateMovieOption = __settings__.getSetting("rate_movie")
+                    rateEpisodeOption = __settings__.getSetting("rate_episode")
+                    rateEachInPlaylistOption = __settings__.getSetting("rate_each_playlist_item")
+                    
+                    if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
+                        if data['method'] in ('Player.PlaybackStopped', 'Player.PlaybackEnded'):
+                            if self.startTime <> 0:
+                                self.watchedTime += time.time() - self.startTime
+                                if self.watchedTime <> 0:
+                                    Debug("[Rating] Time watched: "+str(self.watchedTime)+", Item length: "+str(self.totalTime))     
+                                    if 'type' in self.curVideo and 'id' in self.curVideo:
+                                        if self.totalTime/2 < self.watchedTime:
+                                            if (getCurrentPlaylistLengthFromXBMC() <= 1) or (rateEachInPlaylistOption == 'true'):
+                                                if self.curVideo['type'] == 'movie' and rateMovieOption == 'true':
+                                                    doRateMovie(self.curVideo['id'])
+                                                if self.curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
+                                                    doRateEpisode(self.curVideo['id'])
+                                    self.watchedTime = 0
+                                self.startTime = 0
+                        elif data['method'] in ('Player.PlaybackStarted', 'Player.PlaybackResumed'):
+                            if xbmc.Player().isPlayingVideo():
+                                self.curVideo = getCurrentPlayingVideoFromXBMC()
+                                if self.curVideo <> None:
+                                    if 'type' in self.curVideo and 'id' in self.curVideo: Debug("[Rating] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))
+                                    self.totalTime = xbmc.Player().getTotalTime()
+                                    self.startTime = time.time()
+                        elif data['method'] == 'Player.PlaybackPaused':
+                            if self.startTime <> 0:
+                                self.watchedTime += time.time() - self.startTime
+                                Debug("[Rating] Paused after: "+str(self.watchedTime))
+                                self.startTime = 0
+                except EOFError:
+                    break #go out to the other loop to restart the connection
+            time.sleep(1)
 
 autostart()
