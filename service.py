@@ -80,7 +80,7 @@ class RatingService(threading.Thread):
                     rateMovieOption = __settings__.getSetting("rate_movie")
                     rateEpisodeOption = __settings__.getSetting("rate_episode")
                     rateEachInPlaylistOption = __settings__.getSetting("rate_each_playlist_item")
-                    
+                    rateMinViewTimeOption = __settings__.getSetting("rate_min_view_time")
                     if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
                         if data['method'] in ('Player.PlaybackStopped', 'Player.PlaybackEnded'):
                             if self.startTime <> 0:
@@ -88,7 +88,7 @@ class RatingService(threading.Thread):
                                 if self.watchedTime <> 0:
                                     Debug("[Rating] Time watched: "+str(self.watchedTime)+", Item length: "+str(self.totalTime))     
                                     if 'type' in self.curVideo and 'id' in self.curVideo:
-                                        if self.totalTime/2 < self.watchedTime:
+                                        if (self.watchedTime/self.totalTime)*100>=float(rateMinViewTimeOption):
                                             if (getCurrentPlaylistLengthFromXBMC() <= 1) or (rateEachInPlaylistOption == 'true'):
                                                 if self.curVideo['type'] == 'movie' and rateMovieOption == 'true':
                                                     doRateMovie(self.curVideo['id'])

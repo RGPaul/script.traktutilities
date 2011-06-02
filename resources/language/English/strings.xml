@@ -12,6 +12,7 @@
     <string id="1009">Rate Movie after watching</string>
     <string id="1010">Rate TV Show Episode ater watching</string>
     <string id="1011">Rate each playlist item</string>
+    <string id="1012">Minimum percent watched to display rate dialog</string>
     
     <!-- Info -->
     <string id="1105"></string>
