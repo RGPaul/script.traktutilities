@@ -25,19 +25,20 @@ conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 # ask user if they liked the movie
-def doRateMovie(movieid):
-    match = xbmcHttpapiQuery(
-    "SELECT c09, c00, c07 FROM movie"+
-    " WHERE idMovie=%(movieid)d" % {'movieid':movieid})
-    
-    if match == None:
-        #add error message here
-        return
-    
-    imdbid = match[0]
-    title = match[1]
-    year = match[2]
-    
+def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
+    if (movieid <> None) :
+        match = xbmcHttpapiQuery(
+        "SELECT c09, c00, c07 FROM movie"+
+        " WHERE idMovie=%(movieid)d" % {'movieid':movieid})
+        
+        if match == None:
+            #add error message here
+            return
+        
+        imdbid = match[0]
+        title = match[1]
+        year = match[2]
+        
     # display rate dialog
     import windows
     ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
