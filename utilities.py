@@ -106,7 +106,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
         conn = getTraktConnection()
     if conn == None:
         if returnStatus:
-            data = []
+            data = {}
             data['status'] = 'failure'
             data['error'] = 'Unable to connect to trakt'
             return data
@@ -138,7 +138,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
     except json.decoder.JSONDecodeError:
         Debug("traktQuery: Bad JSON responce: "+raw)
         if returnStatus:
-            data = []
+            data = {}
             data['status'] = 'failure'
             data['error'] = 'Bad responce from trakt'
             return data
@@ -345,6 +345,32 @@ def getCurrentPlayingVideoFromXBMC():
         typ = result['result']['items'][current]['type']
         if typ in ("movie","episode"):
             return result['result']['items'][current]
+        return None
+    except KeyError:
+        Debug("getCurrentPlayingVideoFromXBMC: KeyError")
+        return None
+        
+# get the length of the current video playlist being played from XBMC
+def getCurrentPlaylistLengthFromXBMC():
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.GetItems','params':{}, 'id': 1})
+    
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
+    
+    # check for error
+    try:
+        error = result['error']
+        Debug("getCurrentPlaylistLengthFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+    
+    try:
+        Debug("Current playlist: "+str(result['result']))
+        current = result['result']['state']['current']
+        typ = result['result']['items'][current]['type']
+        if typ in ("movie","episode"):
+            return len(result['result']['items'])
         return None
     except KeyError:
         Debug("getCurrentPlayingVideoFromXBMC: KeyError")
