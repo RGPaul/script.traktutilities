@@ -64,6 +64,14 @@ def checkSettings(daemon=False):
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1107).encode( "utf-8", "ignore" )) # please enter your Password in settings
         return False
     
+    data = traktJsonRequest('POST', '/account/test/%%API_KEY%%', silent=True)
+    if data == None: #Incorrect trakt login details
+        if daemon:
+            notification("Trakt Utilities", __language__(1110).encode( "utf-8", "ignore" )) # please enter your Password in settings
+        else:
+            xbmcgui.Dialog().ok("Trakt Utilities", __language__(1110).encode( "utf-8", "ignore" )) # please enter your Password in settings
+        return False
+        
     return True
 
 # make a httpapi based XBMC db query (get data)
@@ -101,7 +109,8 @@ def getTraktConnection():
 #   use to customise error notifications
 # anon: anonymous (dont send username/password), default:False
 # connection: default it to make a new connection but if you want to keep the same one alive pass it here
-def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False):
+# silent: default is False, when true it disable any error notifications (but not debug messages)
+def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False, silent=False):
     if conn == False:
         conn = getTraktConnection()
     if conn == None:
@@ -128,7 +137,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
         Debug("trakt json url: "+req)
     except socket.error:
         Debug("traktQuery: can't connect to trakt")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        if not silent: notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
 
     response = conn.getresponse()
@@ -142,7 +151,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
             data['status'] = 'failure'
             data['error'] = 'Bad responce from trakt'
             return data
-        notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": Bad responce from trakt") # Error
+        if not silent: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": Bad responce from trakt") # Error
         return None
     
     if 'status' in data:
@@ -150,10 +159,11 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
             Debug("traktQuery: Error: " + str(data['error']))
             if returnStatus:
                 return data;
-            notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            if not silent: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     
     return data
+   
 # get movies from trakt server
 def getMoviesFromTrakt(daemon=False):
     data = traktJsonRequest('POST', '/user/library/movies/all.json/%%API_KEY%%/%%USERNAME%%')

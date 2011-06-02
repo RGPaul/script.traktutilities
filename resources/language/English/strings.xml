@@ -20,6 +20,7 @@
     <string id="1107">please enter your Password in settings</string>
     <string id="1108">can't connect to trakt</string>
     <string id="1109">Error</string>
+    <string id="1110">Incorrect username or password</string>
     <string id="1120">Checking Database for Updates</string>
     <string id="1121">Error uploading movie collection</string>
     <string id="1122">No new movies in XBMC library to update</string>

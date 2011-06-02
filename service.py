@@ -23,10 +23,9 @@ Debug("service: " + __settings__.getAddonInfo("id") + " - version: " + __setting
 
 # starts update/sync
 def autostart():
-    ratingThread = RatingService()
-    ratingThread.start()
-
     if checkSettings(True):
+        ratingThread = RatingService()
+        ratingThread.start()
         
         autosync_moviecollection = __settings__.getSetting("autosync_moviecollection")
         autosync_tvshowcollection = __settings__.getSetting("autosync_tvshowcollection")
@@ -50,8 +49,8 @@ def autostart():
             
         if autosync_moviecollection == "true" or autosync_tvshowcollection == "true" or autosync_seenmovies == "true" or autosync_seentvshows == "true":
             notification("Trakt Utilities", __language__(1184).encode( "utf-8", "ignore" )) # update / sync done
-            
-    ratingThread.join()
+        
+        ratingThread.join()
 
 class RatingService(threading.Thread):
     def run(self):
