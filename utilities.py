@@ -459,6 +459,46 @@ def removeMoviesFromWatchlist(data):
         Debug("Error in request from 'removeMoviesFromWatchlist()'")
     return data
 
+# add an array of tv shows to the watch-list
+def addTVShowsToWatchlist(data):
+    shows = []
+    for item in data:
+        show = {}
+        if "tvdb_id" in item:
+            show["tvdb_id"] = item["tvdb_id"]
+        if "imdb_id" in item:
+            show["tmdb_id"] = item["imdb_id"]
+        if "title" in item:
+            show["title"] = item["title"]
+        if "year" in item:
+            show["year"] = item["year"]
+        shows.append(show)
+    
+    data = traktJsonRequest('POST', '/show/watchlist/%%API_KEY%%', {"shows":shows})
+    if data == None:
+        Debug("Error in request from 'addMoviesToWatchlist()'")
+    return data
+
+# remove an array of tv shows from the watch-list
+def removeTVShowsFromWatchlist(data):
+    shows = []
+    for item in data:
+        show = {}
+        if "tvdb_id" in item:
+            show["tvdb_id"] = item["tvdb_id"]
+        if "imdb_id" in item:
+            show["imdb_id"] = item["imdb_id"]
+        if "title" in item:
+            show["title"] = item["title"]
+        if "year" in item:
+            show["year"] = item["year"]
+        shows.append(show)
+    
+    data = traktJsonRequest('POST', '/show/unwatchlist/%%API_KEY%%', {"shows":shows})
+    if data == None:
+        Debug("Error in request from 'removeMoviesFromWatchlist()'")
+    return data
+
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
 def rateMovieOnTrakt(imdbid, title, year, rating):
     if not (rating in ("love", "hate", "unrate")):

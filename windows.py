@@ -373,6 +373,7 @@ class TVShowsWindow(xbmcgui.WindowXML):
 
     def showContextMenu(self):
         show = self.tvshows[self.getControl(TVSHOW_LIST).getSelectedPosition()]
+        li = self.getControl(TVSHOW_LIST).getSelectedItem()
         options = []
         actions = []
         if self.type <> 'watchlist':
@@ -380,9 +381,12 @@ class TVShowsWindow(xbmcgui.WindowXML):
                 if show['watchlist']:
                     options.append("Remove from watchlist")
                     actions.append('unwatchlist')
-                else :
+                else:
                     options.append("Add to watchlist")
                     actions.append('watchlist')
+            else:
+                options.append("Add to watchlist")
+                actions.append('watchlist')
         else:
             options.append("Remove from watchlist")
             actions.append('unwatchlist')
@@ -398,9 +402,19 @@ class TVShowsWindow(xbmcgui.WindowXML):
         elif actions[select] == 'play':
             xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
         elif actions[select] == 'unwatchlist':
-            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+            if removeTVShowsFromWatchlist([show]) == None:
+                notification("Trakt Utilities", __language__(1311).encode( "utf-8", "ignore" )) # Failed to remove from watch-list
+            else:
+                notification("Trakt Utilities", __language__(1312).encode( "utf-8", "ignore" )) # Successfully removed from watch-list
+                li.setProperty('Watchlist','false')
+                show['watchlist'] = False;
         elif actions[select] == 'watchlist':
-            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+            if addTVShowsToWatchlist([show]) == None:
+                notification("Trakt Utilities", __language__(1309).encode( "utf-8", "ignore" )) # Failed to added to watch-list
+            else:
+                notification("Trakt Utilities", __language__(1310).encode( "utf-8", "ignore" )) # Successfully added to watch-list
+                li.setProperty('Watchlist','true')
+                show['watchlist'] = True;
         elif actions[select] == 'rate':
             rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
             rateShow.initDialog(show['tvdb_id'], show['title'], show['year'], getShowRatingFromTrakt(show['tvdb_id'], show['title'], show['year']))
