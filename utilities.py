@@ -421,7 +421,6 @@ def getWatchlistTVShowsFromTrakt():
 
 # add an array of movies to the watch-list
 def addMoviesToWatchlist(data):
-    # This function has not been tested, please test it before using it
     movies = []
     for item in data:
         movie = {}
@@ -438,6 +437,26 @@ def addMoviesToWatchlist(data):
     data = traktJsonRequest('POST', '/movie/watchlist/%%API_KEY%%', {"movies":movies})
     if data == None:
         Debug("Error in request from 'addMoviesToWatchlist()'")
+    return data
+
+# remove an array of movies from the watch-list
+def removeMoviesFromWatchlist(data):
+    movies = []
+    for item in data:
+        movie = {}
+        if "imdb_id" in item:
+            movie["imdb_id"] = item["imdb_id"]
+        if "tmdb_id" in item:
+            movie["tmdb_id"] = item["tmdb_id"]
+        if "title" in item:
+            movie["title"] = item["title"]
+        if "year" in item:
+            movie["year"] = item["year"]
+        movies.append(movie)
+    
+    data = traktJsonRequest('POST', '/movie/unwatchlist/%%API_KEY%%', {"movies":movies})
+    if data == None:
+        Debug("Error in request from 'removeMoviesFromWatchlist()'")
     return data
 
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja

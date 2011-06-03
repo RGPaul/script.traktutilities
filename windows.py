@@ -175,7 +175,12 @@ class MoviesWindow(xbmcgui.WindowXML):
         elif actions[select] == 'play':
             playMovieById(movie['idMovie'])
         elif actions[select] == 'unwatchlist':
-            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+            if removeMoviesFromWatchlist([movie]) == None:
+                notification("Trakt Utilities", __language__(1311).encode( "utf-8", "ignore" )) # Failed to remove from watch-list
+            else:
+                notification("Trakt Utilities", __language__(1312).encode( "utf-8", "ignore" )) # Successfully removed from watch-list
+                li.setProperty('Watchlist','false')
+                movie['watchlist'] = False;
         elif actions[select] == 'watchlist':
             if addMoviesToWatchlist([movie]) == None:
                 notification("Trakt Utilities", __language__(1309).encode( "utf-8", "ignore" )) # Failed to added to watch-list

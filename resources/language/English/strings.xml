@@ -80,6 +80,8 @@
     <string id="1308">Unrated</string>
     <string id="1309">Failed to added to watch-list</string>
     <string id="1310">Successfully added to watch-list</string>
+    <string id="1311">Failed to remove from watch-list</string>
+    <string id="1312">Successfully removed from watch-list</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>
