@@ -350,7 +350,7 @@ class TVShowsWindow(xbmcgui.WindowXML):
         except TypeError:
             Debug("TypeError for Runtime")
         try:
-            self.getControl(TAGLINE).setLabel(self.tvshows[current]['tagline'])
+            self.getControl(TAGLINE).setLabel(str(self.tvshows[current]['tagline']))
         except KeyError:
             Debug("KeyError for Tagline")
             self.getControl(TAGLINE).setLabel("")
@@ -363,13 +363,14 @@ class TVShowsWindow(xbmcgui.WindowXML):
             self.getControl(RATING).setLabel("")
         except TypeError:
             Debug("TypeError for Rating")
-        try:
-            self.getControl(WATCHERS).setLabel(str(self.tvshows[current]['watchers']) + " people watching")
-        except KeyError:
-            Debug("KeyError for Watchers")
-            self.getControl(WATCHERS).setLabel("")
-        except TypeError:
-            Debug("TypeError for Watchers")
+        if self.type == 'trending':
+            try:
+                self.getControl(WATCHERS).setLabel(str(self.tvshows[current]['watchers']) + " people watching")
+            except KeyError:
+                Debug("KeyError for Watchers")
+                self.getControl(WATCHERS).setLabel("")
+            except TypeError:
+                Debug("TypeError for Watchers")
 
     def showContextMenu(self):
         show = self.tvshows[self.getControl(TVSHOW_LIST).getSelectedPosition()]
