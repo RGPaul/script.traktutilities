@@ -66,7 +66,7 @@ class RatingService(threading.Thread):
                 tn = telnetlib.Telnet('localhost', 9090, 10)
             except IOError as (errno, strerror):
                 #connection failed, try again soon
-                print "[~] Telnet too soon? ("+str(errno)+") "+strerror
+                Debug("[Rating] Telnet too soon? ("+str(errno)+") "+strerror)
                 time.sleep(1)
                 continue
             while (not xbmc.abortRequested):
