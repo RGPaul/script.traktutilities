@@ -59,7 +59,6 @@ class RatingService(threading.Thread):
         self.watchedTime = 0
         self.startTime = 0
         self.curVideo = None
-        
         #while xbmc is running
         while (not xbmc.abortRequested):
             try:
@@ -69,11 +68,22 @@ class RatingService(threading.Thread):
                 Debug("[Rating] Telnet too soon? ("+str(errno)+") "+strerror)
                 time.sleep(1)
                 continue
+            
+            Debug("[Rating] Waiting");
+            bCount = 0
+            
             while (not xbmc.abortRequested):
                 try:
-                    raw = tn.read_until("\n")
-                    data = json.loads(raw)
-                    #Debug("[Rating] message: " + str(data))
+                    raw = tn.read_until("}")
+                    if bCount == 0: notification = ""
+                    bCount += raw.count('{')
+                    bCount -= raw.count('}')
+                    notification += raw
+                    if bCount > 0: continue
+                    if bCount < 0: bCount = 0
+                    
+                    Debug("[Rating] message: " + str(notification))
+                    data = json.loads(notification)
                     __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
                     # you can disable rating in options
                     rateMovieOption = __settings__.getSetting("rate_movie")
