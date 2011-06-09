@@ -78,6 +78,11 @@ def doRateEpisode(episodeid):
     del ui
     
 def ratingPlaybackStarted():
+    global startTime
+    global totalTime
+    global curVideo
+    
+    Debug("[~]"+str(totalTime))
     if xbmc.Player().isPlayingVideo():
         curVideo = getCurrentPlayingVideoFromXBMC()
         if curVideo <> None:
@@ -86,12 +91,20 @@ def ratingPlaybackStarted():
             startTime = time.time()
 
 def ratingPlaybackPaused():
+    global startTime
+    global watchedTime
+    
     if startTime <> 0:
         watchedTime += time.time() - startTime
         Debug("[Rating] Paused after: "+str(watchedTime))
         startTime = 0
 
 def ratingPlaybackEnded():
+    global startTime
+    global watchedTime
+    global totalTime
+    global curVideo
+
     # you can disable rating in options
     __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
     rateMovieOption = __settings__.getSetting("rate_movie")

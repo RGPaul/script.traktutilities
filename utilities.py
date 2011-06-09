@@ -186,7 +186,21 @@ def getWatchedTVShowsFromTrakt(daemon=False):
     if data == None:
         Debug("Error in request from 'getWatchedTVShowsFromTrakt()'")
     return data
-    
+
+# set episodes seen on trakt
+def setEpisodesSeenOnTrakt(tvdb_id, title, year, episodes):
+    data = traktJsonRequest('POST', '/show/episode/seen/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes})
+    if data == None:
+        Debug("Error in request from 'setEpisodeSeenOnTrakt()'")
+    return data
+
+# set episodes unseen on trakt
+def setEpisodesUnseenOnTrakt(tvdb_id, title, year, episodes):
+    data = traktJsonRequest('POST', '/show/episode/unseen/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes})
+    if data == None:
+        Debug("Error in request from 'setEpisodeSeenOnTrakt()'")
+    return data
+
 # get tvshow collection from trakt server
 def getTVShowCollectionFromTrakt(daemon=False):
     data = traktJsonRequest('POST', '/user/library/shows/collection.json/%%API_KEY%%/%%USERNAME%%')
