@@ -21,8 +21,12 @@ username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
 
-conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+
+totalTime = 0
+watchedTime = 0
+startTime = 0
+curVideo = None
 
 # ask user if they liked the movie
 def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
@@ -72,3 +76,39 @@ def doRateEpisode(episodeid):
     ui.initDialog(tvdbid, title, year, season, episode, getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode))
     ui.doModal()
     del ui
+    
+def ratingPlaybackStarted():
+    if xbmc.Player().isPlayingVideo():
+        curVideo = getCurrentPlayingVideoFromXBMC()
+        if curVideo <> None:
+            if 'type' in curVideo and 'id' in curVideo: Debug("[Rating] Watching: "+curVideo['type']+" - "+str(curVideo['id']))
+            totalTime = xbmc.Player().getTotalTime()
+            startTime = time.time()
+
+def ratingPlaybackPaused():
+    if startTime <> 0:
+        watchedTime += time.time() - startTime
+        Debug("[Rating] Paused after: "+str(watchedTime))
+        startTime = 0
+
+def ratingPlaybackEnded():
+    # you can disable rating in options
+    __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
+    rateMovieOption = __settings__.getSetting("rate_movie")
+    rateEpisodeOption = __settings__.getSetting("rate_episode")
+    rateEachInPlaylistOption = __settings__.getSetting("rate_each_playlist_item")
+    rateMinViewTimeOption = __settings__.getSetting("rate_min_view_time")
+    
+    if startTime <> 0:
+        watchedTime += time.time() - startTime
+        if watchedTime <> 0:
+            Debug("[Rating] Time watched: "+str(watchedTime)+", Item length: "+str(totalTime))     
+            if 'type' in curVideo and 'id' in curVideo:
+                if (watchedTime/totalTime)*100>=float(rateMinViewTimeOption):
+                    if (getCurrentPlaylistLengthFromXBMC() <= 1) or (rateEachInPlaylistOption == 'true'):
+                        if curVideo['type'] == 'movie' and rateMovieOption == 'true':
+                            doRateMovie(curVideo['id'])
+                        if self.curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
+                            doRateEpisode(curVideo['id'])
+            watchedTime = 0
+        startTime = 0
