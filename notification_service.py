@@ -8,6 +8,7 @@ import threading
 from utilities import *
 from rating import *
 from sync_update import *
+from instant_sync import *
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -77,12 +78,7 @@ class NotificationService(threading.Thread):
                     elif data['method'] == 'Player.OnPause':
                         ratingPlaybackPaused()
                     elif data['method'] == 'VideoLibrary.OnUpdate':
-                        {}
-                        # Move this to its own file
-                        #if 'data' in data['params'] and 'playcount' in data['params']['data']:
-                        #    if data['params']['data']['playcount'] == 0:
-                        #        setEpisodesUnseenOnTrakt()
-                        #    else:
-                        #        setEpisodesSeenOnTrakt()
+                        if 'data' in data['params'] and 'playcount' in data['params']['data']:
+                            instantSyncPlayCount(data)
                 
             time.sleep(1)

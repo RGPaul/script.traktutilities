@@ -272,6 +272,27 @@ def getEpisodesFromXBMC(tvshow, season):
         Debug("getEpisodesFromXBMC: KeyError: result['result']")
         return None
 
+# get a single episode from xbmc given the id
+def getEpisodeFromXbmc(libraryId):
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodeDetails','params':{'episodeid': libraryId, 'fields': ['showtitle', 'season', 'episode']}, 'id': 1})
+    
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
+
+    # check for error
+    try:
+        error = result['error']
+        Debug("getEpisodesFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+
+    try:
+        return result['result']
+    except KeyError:
+        Debug("getEpisodesFromXBMC: KeyError: result['result']")
+        return None
+
 # get movies from XBMC
 def getMoviesFromXBMC():
     rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
