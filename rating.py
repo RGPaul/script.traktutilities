@@ -121,7 +121,7 @@ def ratingPlaybackEnded():
                     if (getCurrentPlaylistLengthFromXBMC() <= 1) or (rateEachInPlaylistOption == 'true'):
                         if curVideo['type'] == 'movie' and rateMovieOption == 'true':
                             doRateMovie(curVideo['id'])
-                        if self.curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
+                        if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
                             doRateEpisode(curVideo['id'])
             watchedTime = 0
         startTime = 0
