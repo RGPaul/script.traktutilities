@@ -30,3 +30,14 @@ def instantSyncPlayCount(data):
         elif data['params']['data']['playcount'] == 1:
             res = setEpisodesSeenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
         Debug("Instant-sync (episode playcount): responce "+str(res))
+    if data['params']['data']['type'] == 'movie':
+        responce = getMovieFromXbmc(data['params']['data']['id'])
+        if responce == None: return
+        info = responce['moviedetails']
+        Debug("Instant-sync (movie playcount): "+str(info))
+        if 'lastplayed' not in info: info['lastplayed'] = None
+        if data['params']['data']['playcount'] == 0:
+            res = setMoviesUnseenOnTrakt([{'imdb_id':info['imdbnumber'], 'title':info['title'], 'year':info['year'], 'plays':data['params']['data']['playcount'], 'last_played':info['lastplayed']}])
+        elif data['params']['data']['playcount'] == 1:
+            res = setMoviesSeenOnTrakt([{'imdb_id':info['imdbnumber'], 'title':info['title'], 'year':info['year'], 'plays':data['params']['data']['playcount'], 'last_played':info['lastplayed']}])
+        Debug("Instant-sync (movie playcount): responce "+str(res))

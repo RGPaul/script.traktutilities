@@ -198,7 +198,23 @@ def setEpisodesSeenOnTrakt(tvdb_id, title, year, episodes):
 def setEpisodesUnseenOnTrakt(tvdb_id, title, year, episodes):
     data = traktJsonRequest('POST', '/show/episode/unseen/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes})
     if data == None:
-        Debug("Error in request from 'setEpisodeSeenOnTrakt()'")
+        Debug("Error in request from 'setEpisodesUnseenOnTrakt()'")
+    return data
+
+# set movies seen on trakt
+#  - movies, required fields are 'plays', 'last_played' and 'title', 'year' or optionally 'imdb_id'
+def setMoviesSeenOnTrakt(movies):
+    data = traktJsonRequest('POST', '/movie/seen/%%API_KEY%%', {'movies': movies})
+    if data == None:
+        Debug("Error in request from 'setMoviesSeenOnTrakt()'")
+    return data
+
+# set movies unseen on trakt
+#  - movies, required fields are 'plays', 'last_played' and 'title', 'year' or optionally 'imdb_id'
+def setMoviesUnseenOnTrakt(movies):
+    data = traktJsonRequest('POST', '/movie/unseen/%%API_KEY%%', {'movies': movies})
+    if data == None:
+        Debug("Error in request from 'setMoviesUnseenOnTrakt()'")
     return data
 
 # get tvshow collection from trakt server
@@ -282,7 +298,7 @@ def getEpisodeFromXbmc(libraryId):
     # check for error
     try:
         error = result['error']
-        Debug("getEpisodesFromXBMC: " + str(error))
+        Debug("getEpisodeFromXBMC: " + str(error))
         return None
     except KeyError:
         pass # no error
@@ -290,7 +306,7 @@ def getEpisodeFromXbmc(libraryId):
     try:
         return result['result']
     except KeyError:
-        Debug("getEpisodesFromXBMC: KeyError: result['result']")
+        Debug("getEpisodeFromXBMC: KeyError: result['result']")
         return None
 
 # get movies from XBMC
@@ -312,6 +328,27 @@ def getMoviesFromXBMC():
         return result['result']['movies']
         Debug("getMoviesFromXBMC: KeyError: result['result']['movies']")
     except KeyError:
+        return None
+
+# get a single movie from xbmc given the id
+def getMovieFromXbmc(libraryId):
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails','params':{'movieid': libraryId, 'fields': ['imdbnumber', 'title', 'year', 'playcount', 'lastplayed']}, 'id': 1})
+    
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
+
+    # check for error
+    try:
+        error = result['error']
+        Debug("getMovieFromXBMC: " + str(error))
+        return None
+    except KeyError:
+        pass # no error
+
+    try:
+        return result['result']
+    except KeyError:
+        Debug("getMovieFromXBMC: KeyError: result['result']")
         return None
 
 # sets the playcount of a given movie by imdbid
