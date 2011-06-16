@@ -2,7 +2,7 @@
 # 
 
 import os, sys
-import xbmc,xbmcaddon,xbmcgui
+import xbmc,xbmcaddon,xbmcgui,xbmcplugin
 import time, socket
 import simplejson as json
 
@@ -56,12 +56,14 @@ def checkSettings(daemon=False):
             notification("Trakt Utilities", __language__(1106).encode( "utf-8", "ignore" )) # please enter your Username and Password in settings
         else:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1106).encode( "utf-8", "ignore" )) # please enter your Username and Password in settings
+            __settings__.openSettings()
         return False
     elif __settings__.getSetting("password") == "":
         if daemon:
             notification("Trakt Utilities", __language__(1107).encode( "utf-8", "ignore" )) # please enter your Password in settings
         else:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1107).encode( "utf-8", "ignore" )) # please enter your Password in settings
+            __settings__.openSettings()
         return False
     
     data = traktJsonRequest('POST', '/account/test/%%API_KEY%%', silent=True)
@@ -70,6 +72,7 @@ def checkSettings(daemon=False):
             notification("Trakt Utilities", __language__(1110).encode( "utf-8", "ignore" )) # please enter your Password in settings
         else:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1110).encode( "utf-8", "ignore" )) # please enter your Password in settings
+            __settings__.openSettings()
         return False
         
     return True
