@@ -298,7 +298,16 @@ class TVShowsWindow(xbmcgui.WindowXML):
     def onInit(self):
         if self.tvshows != None:
             for tvshow in self.tvshows:
-                self.getControl(TVSHOW_LIST).addItem(xbmcgui.ListItem(tvshow['title'], '', tvshow['images']['poster']))
+                li = xbmcgui.ListItem(tvshow['title'], '', tvshow['images']['poster'])
+                if not ('idShow' in tvshow):
+                    tvshow['idShow'] = getShowIdFromXBMC(tvshow['tvdb_id'], tvshow['title'])
+                if tvshow['idShow'] != -1:
+                    li.setProperty('Available','true')
+                if self.type <> 'watchlist':
+                    if 'watchlist' in tvshow:
+                        if tvshow['watchlist']:
+                            li.setProperty('Watchlist','true')
+                self.getControl(TVSHOW_LIST).addItem(li)
             self.setFocus(self.getControl(TVSHOW_LIST))
             self.listUpdate()
         else:

@@ -68,6 +68,7 @@ def showTrendingMovies():
 def showTrendingTVShows():
 
     tvshows = getTrendingTVShowsFromTrakt()
+    watchlist = traktShowListByTvdbID(getWatchlistTVShowsFromTrakt())
     
     if tvshows == None: # tvshows = None => there was an error
         return # error already displayed in utilities.py
@@ -75,6 +76,12 @@ def showTrendingTVShows():
     if len(tvshows) == 0:
         xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending tv shows")
         return
+    
+    for tvshow in tvshows:
+        if tvshow['imdb_id'] in watchlist:
+            tvshow['watchlist'] = True
+        else:
+            tvshow['watchlist'] = False
     
     # display trending tv shows
     import windows

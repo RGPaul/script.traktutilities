@@ -184,6 +184,15 @@ def traktMovieListByImdbID(data):
         
     return trakt_movies
 
+# get easy access to tvshow by tvdb_id
+def traktShowListByTvdbID(data):
+    trakt_tvshows = {}
+
+    for i in range(0, len(data)):
+        trakt_tvshows[data[i]['tvdb_id']] = data[i]
+        
+    return trakt_tvshows
+
 # get seen tvshows from trakt server
 def getWatchedTVShowsFromTrakt(daemon=False):
     data = traktJsonRequest('POST', '/user/library/shows/watched.json/%%API_KEY%%/%%USERNAME%%')
@@ -464,7 +473,7 @@ def getCurrentPlaylistLengthFromXBMC():
         return None
 
 def getMovieIdFromXBMC(imdb_id, title):
-    # httpapi till jsonrpc supports selecting a single movie
+    # httpapi till jsonrpc supports searching for a single movie
     # Get id of movie by movies IMDB
     Debug("Searching for movie: "+imdb_id+", "+title)
     
@@ -481,7 +490,27 @@ def getMovieIdFromXBMC(imdb_id, title):
         return -1
         
     return match[0]
-   
+
+def getShowIdFromXBMC(tvdb_id, title):
+    # httpapi till jsonrpc supports searching for a single show
+    # Get id of show by shows tvdb id
+    
+    Debug("Searching for show: "+str(tvdb_id)+", "+title)
+    
+    match = xbmcHttpapiQuery(
+    " SELECT idShow FROM tvshow"+
+    "  WHERE c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
+    " UNION"+
+    " SELECT idShow FROM tvshow"+
+    "  WHERE upper(c00)='%(title)s'" % {'title':xcp(title.upper())}+
+    " LIMIT 1")
+    
+    if match == None:
+        Debug("getShowIdFromXBMC: cannot find movie in database")
+        return -1
+        
+    return match[0]
+
 # returns list of movies from watchlist
 def getWatchlistMoviesFromTrakt():
     data = traktJsonRequest('POST', '/user/watchlist/movies.json/%%API_KEY%%/%%USERNAME%%')

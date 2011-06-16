@@ -61,6 +61,9 @@ def showRecommendedTVShows():
         xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1159).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows recommended for you
         return
     
+    for tvshow in tvshows:
+        tvshow['watchlist'] = tvshow['in_watchlist']
+        
     # display recommended tv shows
     import windows
     ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
