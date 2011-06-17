@@ -35,7 +35,7 @@ def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
         "SELECT c09, c00, c07 FROM movie"+
         " WHERE idMovie=%(movieid)d" % {'movieid':movieid})
         
-        if match == None:
+        if not match:
             #add error message here
             return
         
@@ -60,7 +60,7 @@ def doRateEpisode(episodeid):
     " ON tvshowlinkepisode.idEpisode = episode.idEpisode"+
     " WHERE episode.idEpisode=%(episodeid)d" % {'episodeid':episodeid})
     
-    if match == None:
+    if not match:
         #add error message here
         return
     

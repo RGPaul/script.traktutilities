@@ -84,12 +84,13 @@ def xcp(s):
 # make a httpapi based XBMC db query (get data)
 def xbmcHttpapiQuery(query):
     Debug("[httpapi-sql] query: "+query)
+    
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(query), )
     match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
+    
     Debug("[httpapi-sql] responce: "+xml_data)
     Debug("[httpapi-sql] matches: "+str(match))
-    if len(match) <= 0:
-        return None
+    
     return match
 
 # execute a httpapi based XBMC db query (set data)
@@ -376,7 +377,7 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
     "SELECT movie.idFile FROM movie"+
     " WHERE movie.c09='%(imdb_id)s'" % {'imdb_id':xcp(imdb_id)})
     
-    if match == None:
+    if not match:
         #add error message here
         return
     
@@ -395,7 +396,7 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     "SELECT tvshow.idShow, tvshow.c00 FROM tvshow"+
     " WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)})
     
-    if len(match) >= 1:
+    if match:
         Debug("TV Show: " + match[1] + " idShow: " + str(match[0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
 
         # select episode table by idShow
@@ -411,7 +412,7 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
             " AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
             " AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)})
             
-            if match2 != None:
+            if match2:
                 for idFile in match2:
                     Debug("idFile: " + str(idFile) + " setting playcount...")
                     responce = xbmcHttpapiExec(
@@ -488,7 +489,7 @@ def getMovieIdFromXBMC(imdb_id, title):
     "  WHERE upper(c00)='%(title)s'" % {'title':xcp(title.upper())}+
     " LIMIT 1")
     
-    if match == None:
+    if not match:
         Debug("getMovieIdFromXBMC: cannot find movie in database")
         return -1
         
@@ -508,7 +509,7 @@ def getShowIdFromXBMC(tvdb_id, title):
     "  WHERE upper(c00)='%(title)s'" % {'title':xcp(title.upper())}+
     " LIMIT 1")
     
-    if match == None:
+    if not match:
         Debug("getShowIdFromXBMC: cannot find movie in database")
         return -1
         
