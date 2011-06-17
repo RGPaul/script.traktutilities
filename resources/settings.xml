@@ -11,4 +11,7 @@
 <setting id="rate_episode" type="bool" label="1010" default="true"/>
 <setting id="rate_each_playlist_item" type="bool" label="1011" default="true"/>
 <setting id="rate_min_view_time" type="slider" label="1012" range="0,5,100" default="75"/>
+<setting id="scrobble_movie" type="bool" label="1013" default="false"/>
+<setting id="scrobble_episode" type="bool" label="1014" default="false"/>
+<setting id="scrobble_min_view_time" type="slider" label="1015" range="0,5,100" default="75"/>
 </settings>

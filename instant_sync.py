@@ -21,9 +21,8 @@ __language__ = __settings__.getLocalizedString
 # Move this to its own file
 def instantSyncPlayCount(data):
     if data['params']['data']['type'] == 'episode':
-        responce = getEpisodeFromXbmc(data['params']['data']['id'])
-        if responce == None: return
-        info = responce['episodedetails']
+        info = getEpisodeDetailsFromXbmc(data['params']['data']['id'], ['showtitle', 'season', 'episode'])
+        if info == None: return\
         Debug("Instant-sync (episode playcount): "+str(info))
         if data['params']['data']['playcount'] == 0:
             res = setEpisodesUnseenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
@@ -31,9 +30,8 @@ def instantSyncPlayCount(data):
             res = setEpisodesSeenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
         Debug("Instant-sync (episode playcount): responce "+str(res))
     if data['params']['data']['type'] == 'movie':
-        responce = getMovieFromXbmc(data['params']['data']['id'])
-        if responce == None: return
-        info = responce['moviedetails']
+        info = getMovieDetailsFromXbmc(data['params']['data']['id'], ['imdbnumber', 'title', 'year', 'playcount', 'lastplayed'])
+        if info == None: return
         Debug("Instant-sync (movie playcount): "+str(info))
         if 'lastplayed' not in info: info['lastplayed'] = None
         if data['params']['data']['playcount'] == 0:

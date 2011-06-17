@@ -9,6 +9,7 @@ from utilities import *
 from rating import *
 from sync_update import *
 from instant_sync import *
+from scrobbler import Scrobbler
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -24,6 +25,8 @@ __language__ = __settings__.getLocalizedString
 class NotificationService(threading.Thread):
     def run(self):        
         #while xbmc is running
+        scrobbler = Scrobbler()
+        scrobbler.start()
         while (not xbmc.abortRequested):
             try:
                 tn = telnetlib.Telnet('localhost', 9090, 10)
@@ -72,11 +75,11 @@ class NotificationService(threading.Thread):
                 # Forward notification to functions
                 if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
                     if data['method'] == 'Player.OnStop':
-                        ratingPlaybackEnded()
+                        scrobbler.playbackEnded()
                     elif data['method'] == 'Player.OnPlay':
-                        ratingPlaybackStarted()
+                        scrobbler.playbackStarted()
                     elif data['method'] == 'Player.OnPause':
-                        ratingPlaybackPaused()
+                        scrobbler.playbackPaused()
                     elif data['method'] == 'VideoLibrary.OnUpdate':
                         if 'data' in data['params'] and 'playcount' in data['params']['data']:
                             instantSyncPlayCount(data)

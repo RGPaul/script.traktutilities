@@ -13,6 +13,9 @@
     <string id="1010">Rate TV Show Episode ater watching</string>
     <string id="1011">Rate each playlist item</string>
     <string id="1012">Minimum percent watched to display rate dialog</string>
+    <string id="1013">Scrobble Movies</string>
+    <string id="1014">Scrobble TV Show Episodes</string>
+    <string id="1015">Minimum percent watched to scrobble item</string>
     
     <!-- Info -->
     <string id="1105"></string>
