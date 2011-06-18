@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
     <!-- Preferences -->
-	<string id="1001">Enable debug mode</string>
-    <string id="1002">API Key (found on trakt --&gt; Settings --&gt; API)</string>
-    <string id="1003">Username</string>
-    <string id="1004">Password</string>
-    <string id="1005">Auto update Movies Collection at startup</string>
-    <string id="1006">Auto update TV Show Collection at startup</string>
-    <string id="1007">Auto sync seen Movies at startup</string>
-    <string id="1008">Auto sync seen TV Shows at startup</string>
-    <string id="1009">Rate Movie after watching</string>
-    <string id="1010">Rate TV Show Episode ater watching</string>
-    <string id="1011">Rate each playlist item</string>
-    <string id="1012">Minimum percent watched to display rate dialog</string>
-    <string id="1013">Scrobble Movies</string>
-    <string id="1014">Scrobble TV Show Episodes</string>
-    <string id="1015">Minimum percent watched to scrobble item</string>
+    <string id="1010">General</string>
+	<string id="1011">Enable debug mode</string>
+    <string id="1012">API Key (found on trakt --&gt; Settings --&gt; API)</string>
+    <string id="1013">Username</string>
+    <string id="1014">Password</string>
+    
+    <string id="1020">Auto Syncing</string>
+    <string id="1021">Auto update Movies Collection at startup</string>
+    <string id="1022">Auto update TV Show Collection at startup</string>
+    <string id="1023">Auto sync seen Movies at startup</string>
+    <string id="1024">Auto sync seen TV Shows at startup</string>
+    
+    <string id="1030">Rating</string>
+    <string id="1031">Rate Movie after watching</string>
+    <string id="1032">Rate TV Show Episode ater watching</string>
+    <string id="1033">Rate each playlist item</string>
+    <string id="1034">Minimum percent watched to display rate dialog</string>
+    
+    <string id="1040">Scrobbling</string>
+    <string id="1041">Scrobble Movies</string>
+    <string id="1042">Scrobble TV Show Episodes</string>
+    <string id="1043">Minimum percent watched to scrobble item</string>
     
     <!-- Info -->
     <string id="1105"></string>
