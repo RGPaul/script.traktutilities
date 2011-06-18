@@ -10,6 +10,7 @@ Version 0.6.0:
     - Option to diable rating dialogs during playlists that contain more than one item
     - Context menus for Movie and TV Show windows (eg watchlist, trending and recommended)
         including options for rating and changing the watchlist status
+    - Added status tags to TV Shows in the relevent windows
     - Rating dialogs now show the current rating status and allow unrating
 
 Version 0.5.2:
