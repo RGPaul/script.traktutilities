@@ -1,3 +1,17 @@
+Version 0.6.0:
+    - Added experimental scrobbling abilities (disabled by default)
+        eventually this will mean you can run Trakt Utilities by itself
+    - Support for newer jsonrpc notifications
+    - Bugfix: "'NoneType' object is not iterable" error fixed by internal refactoring
+    - trakt login details checked at startup and settings shown if missing or incorrect
+    - Bugfix: rating dialog only appearing for items started after auto syncronisation compleated
+    - Option to change the required percent viewed for rating dialog to appear
+    - Instant syncronisation of changes to the 'watched' status in standard xmbc libraries
+    - Option to diable rating dialogs during playlists that contain more than one item
+    - Context menus for Movie and TV Show windows (eg watchlist, trending and recommended)
+        including options for rating and changing the watchlist status
+    - Rating dialogs now show the current rating status and allow unrating
+
 Version 0.5.2:
     - fixed several bugs (for more information see tickets #35 #39 #42 #43 #47 and #49 on git)
     - switched from own simplejson to xbmc's simplejson:
