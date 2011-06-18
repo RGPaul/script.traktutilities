@@ -22,7 +22,7 @@ __language__ = __settings__.getLocalizedString
 def instantSyncPlayCount(data):
     if data['params']['data']['type'] == 'episode':
         info = getEpisodeDetailsFromXbmc(data['params']['data']['id'], ['showtitle', 'season', 'episode'])
-        if info == None: return\
+        if info == None: return
         Debug("Instant-sync (episode playcount): "+str(info))
         if data['params']['data']['playcount'] == 0:
             res = setEpisodesUnseenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])

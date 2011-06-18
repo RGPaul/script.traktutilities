@@ -139,7 +139,6 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
                 args['password'] = pwd
             if passVersions:
                 args['plugin_version'] = __settings__.getAddonInfo("version")
-                Debug("util: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
                 args['media_center'] = 'xbmc'
                 args['media_center_version'] = xbmc.getInfoLabel("system.buildversion")
                 args['media_center_date'] = xbmc.getInfoLabel("system.builddate")
