@@ -62,6 +62,7 @@ class Scrobbler(threading.Thread):
                     self.pinging = True
                 else:
                     self.curVideo = None
+                    self.startTime = 0
 
     def playbackPaused(self):
         if self.startTime <> 0:

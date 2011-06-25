@@ -32,11 +32,11 @@ class NotificationService(threading.Thread):
                 tn = telnetlib.Telnet('localhost', 9090, 10)
             except IOError as (errno, strerror):
                 #connection failed, try again soon
-                Debug("[Rating] Telnet too soon? ("+str(errno)+") "+strerror)
+                Debug("[Notification Service] Telnet too soon? ("+str(errno)+") "+strerror)
                 time.sleep(1)
                 continue
             
-            Debug("[Rating] Waiting~");
+            Debug("[Notification Service] Waiting~");
             bCount = 0
             
             while (not xbmc.abortRequested):
@@ -67,7 +67,7 @@ class NotificationService(threading.Thread):
                 except EOFError:
                     break #go out to the other loop to restart the connection
                 
-                Debug("[Rating] message: " + str(notification))
+                Debug("[Notification Service] message: " + str(notification))
                 
                 # Parse recieved notification
                 data = json.loads(notification)
