@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
     <!-- Preferences -->
-	<string id="1001">Enable debug mode</string>
-    <string id="1002">API Key (found on trakt --&gt; Settings --&gt; API)</string>
-    <string id="1003">Username</string>
-    <string id="1004">Password</string>
-    <string id="1005">Auto update Movies Collection at startup</string>
-    <string id="1006">Auto update TV Show Collection at startup</string>
-    <string id="1007">Auto sync seen Movies at startup</string>
-    <string id="1008">Auto sync seen TV Shows at startup</string>
-    <string id="1009">Rate Movie after watching</string>
-    <string id="1010">Rate TV Show Episode ater watching</string>
+    <string id="1010">General</string>
+	<string id="1011">Enable debug mode</string>
+    <string id="1012">API Key (found on trakt --&gt; Settings --&gt; API)</string>
+    <string id="1013">Username</string>
+    <string id="1014">Password</string>
+    
+    <string id="1020">Auto Syncing</string>
+    <string id="1021">Auto update Movies Collection at startup</string>
+    <string id="1022">Auto update TV Show Collection at startup</string>
+    <string id="1023">Auto sync seen Movies at startup</string>
+    <string id="1024">Auto sync seen TV Shows at startup</string>
+    
+    <string id="1030">Rating</string>
+    <string id="1031">Rate Movie after watching</string>
+    <string id="1032">Rate TV Show Episode ater watching</string>
+    <string id="1033">Rate each playlist item</string>
+    <string id="1034">Minimum percent watched to display rate dialog</string>
+    
+    <string id="1040">Scrobbling</string>
+    <string id="1041">Scrobble Movies</string>
+    <string id="1042">Scrobble TV Show Episodes</string>
+    <string id="1043">Minimum percent watched to scrobble item</string>
     
     <!-- Info -->
     <string id="1105"></string>
@@ -18,6 +30,7 @@
     <string id="1107">please enter your Password in settings</string>
     <string id="1108">can't connect to trakt</string>
     <string id="1109">Error</string>
+    <string id="1110">Incorrect username or password</string>
     <string id="1120">Checking Database for Updates</string>
     <string id="1121">Error uploading movie collection</string>
     <string id="1122">No new movies in XBMC library to update</string>
@@ -63,16 +76,22 @@
     <string id="1162">not found in your XBMC Library</string>
     <string id="1163">Retreiving information from Trakt servers</string>
     <string id="1164">Cross-referencing with local information</string>
-    <string id="1166">I don't know</string>
+    <string id="1166">Rating removed successfully</string>
     <string id="1167">Rating submitted successfully</string>
     <string id="1168">Error submitting rating</string>
     <string id="1300">Checking XBMC Database for new seen Movies</string>
     <string id="1301">Checking Trakt Database for new seen Movies</string>
     <string id="1302">Unable to play movie</string>
-    <string id="1303">How would you rate that movie?</string>
-    <string id="1304">How would you rate that episode?</string>
+    <string id="1303">Rate that movie?</string>
+    <string id="1304">Rate that episode?</string>
     <string id="1305">Rate whole show</string>
-    <string id="1306">How would you rate that show?</string>
+    <string id="1306">Rate that show?</string>
+    <string id="1307">Unrate</string>
+    <string id="1308">Unrated</string>
+    <string id="1309">Failed to added to watch-list</string>
+    <string id="1310">Successfully added to watch-list</string>
+    <string id="1311">Failed to remove from watch-list</string>
+    <string id="1312">Successfully removed from watch-list</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>

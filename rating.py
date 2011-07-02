@@ -21,53 +21,58 @@ username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
 
-conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
+def ratingCheck(curVideo, watchedTime, totalTime):
+    __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
+    # you can disable rating in options
+    rateMovieOption = __settings__.getSetting("rate_movie")
+    rateEpisodeOption = __settings__.getSetting("rate_episode")
+    rateEachInPlaylistOption = __settings__.getSetting("rate_each_playlist_item")
+    rateMinViewTimeOption = __settings__.getSetting("rate_min_view_time")
+
+    if (watchedTime/totalTime)*100>=float(rateMinViewTimeOption):
+        if (getCurrentPlaylistLengthFromXBMC() <= 1) or (rateEachInPlaylistOption == 'true'):
+            if curVideo['type'] == 'movie' and rateMovieOption == 'true':
+                doRateMovie(curVideo['id'])
+            if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
+                doRateEpisode(curVideo['id'])
+
 # ask user if they liked the movie
-def doRateMovie(movieid):
-    match = xbmcHttpapiQuery(
-    "SELECT c09, c00, c07 FROM movie"+
-    " WHERE idMovie=%(movieid)d" % {'movieid':movieid})
-    
-    if match == None:
-        #add error message here
-        return
-    
-    imdbid = match[0]
-    title = match[1]
-    year = match[2]
-    
+def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
+    if (movieid <> None) :
+        match = getMovieDetailsFromXbmc(movieid, ['imdbnumber','title','year'])
+        if not match:
+            #add error message here
+            return
+        
+        imdbid = match['imdbnumber']
+        title = match['title']
+        year = match['year']
+        
     # display rate dialog
     import windows
     ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initDialog(imdbid, title, year)
+    ui.initDialog(imdbid, title, year, getMovieRatingFromTrakt(imdbid, title, year))
     ui.doModal()
     del ui
 
-# ask user if they liked the movie
-def doRateEpisode(episodeid):
-    match = xbmcHttpapiQuery(
-    "SELECT tvshow.c12, tvshow.c00, tvshow.c05, episode.c12, episode.c13 FROM tvshow"+
-    " INNER JOIN tvshowlinkepisode"+
-    " ON tvshow.idShow = tvshowlinkepisode.idShow"+
-    " INNER JOIN episode"+
-    " ON tvshowlinkepisode.idEpisode = episode.idEpisode"+
-    " WHERE episode.idEpisode=%(episodeid)d" % {'episodeid':episodeid})
-    
-    if match == None:
+# ask user if they liked the episode
+def doRateEpisode(episodeId):
+    match = getEpisodeDetailsFromXbmc(episodeId, ['showtitle', 'season', 'episode'])
+    if not match:
         #add error message here
         return
     
-    tvdbid = match[0]
-    title = match[1]
-    year = match[2]
-    season = match[3]
-    episode = match[4]
+    tvdbid = None #match['tvdbnumber']
+    title = match['showtitle']
+    year = None #match['year']
+    season = match['season']
+    episode = match['episode']
     
     # display rate dialog
     import windows
     ui = windows.RateEpisodeDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initDialog(tvdbid, title, year, season, episode)
+    ui.initDialog(tvdbid, title, year, season, episode, getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode))
     ui.doModal()
     del ui

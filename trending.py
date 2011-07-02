@@ -55,17 +55,20 @@ def showTrendingMovies():
     for movie in movies:
         if movie['imdb_id'] in watchlist:
             movie['watchlist'] = True
+        else:
+            movie['watchlist'] = False
     
     # display trending movie list
     import windows
     ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(movies)
+    ui.initWindow(movies, 'trending')
     ui.doModal()
     del ui
 
 def showTrendingTVShows():
 
     tvshows = getTrendingTVShowsFromTrakt()
+    watchlist = traktShowListByTvdbID(getWatchlistTVShowsFromTrakt())
     
     if tvshows == None: # tvshows = None => there was an error
         return # error already displayed in utilities.py
@@ -74,9 +77,15 @@ def showTrendingTVShows():
         xbmcgui.Dialog().ok("Trakt Utilities", "there are no trending tv shows")
         return
     
+    for tvshow in tvshows:
+        if tvshow['imdb_id'] in watchlist:
+            tvshow['watchlist'] = True
+        else:
+            tvshow['watchlist'] = False
+    
     # display trending tv shows
     import windows
     ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(tvshows)
+    ui.initWindow(tvshows, 'trending')
     ui.doModal()
     del ui

@@ -55,7 +55,7 @@ def showWatchlistMovies():
     # display watchlist movie list
     import windows
     ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(movies)
+    ui.initWindow(movies, 'watchlist')
     ui.doModal()
     del ui
 
@@ -74,7 +74,7 @@ def showWatchlistTVShows():
     # display watchlist tv shows
     import windows
     ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(tvshows)
+    ui.initWindow(tvshows, 'watchlist')
     ui.doModal()
     del ui
     

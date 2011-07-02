@@ -1,5 +1,5 @@
 <window id="4567" type="dialog">
-  <defaultcontrol always="true">101</defaultcontrol>
+  <defaultcontrol always="true">105</defaultcontrol>
   <allowoverlay>yes</allowoverlay>
   <visible>true</visible>
   <zorder>1</zorder>
@@ -46,7 +46,7 @@
         <posy>8</posy>
         <include>Dialogs_LabelVars</include>
         <visible>true</visible>
-        <label>How would you rate that movie?</label>
+        <label></label>
       </control>
       <control type="grouplist">
         <posx>200</posx>
@@ -56,9 +56,9 @@
         <visible>true</visible>
         <itemgap>10</itemgap>
         <orientation>horizontal</orientation>
-        <onup>105</onup>
-        <ondown>105</ondown>
-        <control type="button" id="101">
+        <onup>108</onup>
+        <ondown>108</ondown>
+        <control type="button" id="105">
           <description>Love</description>
           <width>40</width>
           <height>30</height>
@@ -75,10 +75,10 @@
           <textoffsetx></textoffsetx>
           <textoffsety></textoffsety>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
         </control>
-        <control type="button" id="102">
+        <control type="button" id="104">
           <description>I dont know</description>
           <width>40</width>
           <height>30</height>
@@ -95,10 +95,10 @@
           <textoffsetx></textoffsetx>
           <textoffsety></textoffsety>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
         </control>
-        <control type="button" id="103">
+        <control type="button" id="106">
           <description>Hate</description>
           <width>40</width>
           <height>30</height>
@@ -115,11 +115,82 @@
           <textoffsetx></textoffsetx>
           <textoffsety></textoffsety>
           <pulseonselect>true</pulseonselect>
-          <onclick>-</onclick>
-          <onfocus>-</onfocus>
+          <onclick></onclick>
+          <onfocus></onfocus>
         </control>
+        <control type="button" id="101">
+          <description>Current not rated</description>
+          <width>120</width>
+          <height>30</height>
+          <visible>true</visible>
+          <align>center</align>
+          <font>Font_Info</font>
+          <textoffsetx>2</textoffsetx>
+          <textoffsety>5</textoffsety>
+          <label>Unrated</label>
+          <texturefocus>current-no-rating.png</texturefocus>
+          <texturenofocus diffuse="44000000">current-no-rating.png</texturenofocus>
+          <colordiffuse>ffffffff</colordiffuse>
+          <label>Unrated</label>
+          <textcolor>ffffffff</textcolor>
+          <shadowcolor>-</shadowcolor>
+          <disabledcolor>80ffffff</disabledcolor>
+          <focusedcolor>ffffffff</focusedcolor>
+          <aligny></aligny>
+          <pulseonselect>true</pulseonselect>
+          <onclick></onclick>
+          <onfocus></onfocus>
+          <animation effect="slide" start="0,0" end="10,0" time="0" condition="true">Conditional</animation>
+        </control>
+        <control type="button" id="102">
+          <description>Current love</description>
+          <width>120</width>
+          <height>30</height>
+          <visible>true</visible>
+          <texturefocus>current-love.png</texturefocus>
+          <texturenofocus diffuse="44000000">current-love.png</texturenofocus>
+          <colordiffuse>ffffffff</colordiffuse>
+          <align>right</align>
+          <font>Font_Info</font>
+          <textoffsetx>20</textoffsetx>
+          <textoffsety>5</textoffsety>
+          <label>Unrate</label>
+          <textcolor>ffffffff</textcolor>
+          <disabledcolor>80ffffff</disabledcolor>
+          <focusedcolor>ffffffff</focusedcolor>
+          <shadowcolor>-</shadowcolor>
+          <aligny></aligny>
+          <pulseonselect>true</pulseonselect>
+          <onclick></onclick>
+          <onfocus></onfocus>
+          <animation effect="slide" start="0,0" end="10,0" time="0" condition="true">Conditional</animation>
+        </control>
+        <control type="button" id="103">
+          <description>Current hate</description>
+          <width>120</width>
+          <height>30</height>
+          <visible>true</visible>
+          <texturefocus>current-hate.png</texturefocus>
+          <texturenofocus diffuse="44000000">current-hate.png</texturenofocus>
+          <colordiffuse>ffffffff</colordiffuse>
+          <align>right</align>
+          <font>Font_Info</font>
+          <textoffsetx>20</textoffsetx>
+          <textoffsety>5</textoffsety>
+          <label>Unrate</label>
+          <textcolor>ffffffff</textcolor>
+          <disabledcolor>80ffffff</disabledcolor>
+          <focusedcolor>ffffffff</focusedcolor>
+          <shadowcolor>-</shadowcolor>
+          <aligny></aligny>
+          <pulseonselect>true</pulseonselect>
+          <onclick></onclick>
+          <onfocus></onfocus>
+          <animation effect="slide" start="0,0" end="10,0" time="0" condition="true">Conditional</animation>
+        </control>
+
       </control>
-      <control type="image" id="104">
+      <control type="image" id="107">
         <description>Background</description>
         <posx>0</posx>
         <posy>0</posy>
@@ -129,7 +200,7 @@
         <texture>-</texture>
         <fadetime>20</fadetime>
       </control>
-      <control type="button" id="105">
+      <control type="button" id="108">
         <description>Rate show</description>
         <posy>62</posy>
         <posx>105</posx>
@@ -144,10 +215,10 @@
         <focusedcolor>FFAAAAAA</focusedcolor>
         <texturefocus></texturefocus>
         <texturenofocus></texturenofocus>
-        <onup>102</onup>
-        <ondown>101</ondown>
-        <onleft>105</onleft>
-        <onright>105</onright>
+        <onup>105</onup>
+        <ondown>105</ondown>
+        <onleft>108</onleft>
+        <onright>108</onright>
         <label>Rate whole show</label>
       </control>
     </control>

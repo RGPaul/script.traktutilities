@@ -39,11 +39,13 @@ def showRecommendedMovies():
     for movie in movies:
         if movie['imdb_id'] in watchlist:
             movie['watchlist'] = True
+        else:
+            movie['watchlist'] = False
     
     # display recommended movies list
     import windows
     ui = windows.MoviesWindow("movies.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(movies)
+    ui.initWindow(movies, 'recommended')
     ui.doModal()
     del ui
     
@@ -59,10 +61,13 @@ def showRecommendedTVShows():
         xbmcgui.Dialog().ok(__language__(1201).encode( "utf-8", "ignore" ), __language__(1159).encode( "utf-8", "ignore" )) # Trakt Utilities, there are no tv shows recommended for you
         return
     
+    for tvshow in tvshows:
+        tvshow['watchlist'] = tvshow['in_watchlist']
+        
     # display recommended tv shows
     import windows
     ui = windows.TVShowsWindow("tvshows.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initWindow(tvshows)
+    ui.initWindow(tvshows, 'recommended')
     ui.doModal()
     del ui
     
