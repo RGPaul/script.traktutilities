@@ -2,7 +2,7 @@
 # 
 
 import os, sys
-import xbmc,xbmcaddon,xbmcgui,xbmcplugin
+import xbmc,xbmcaddon,xbmcgui
 import time, socket
 import simplejson as json
 
@@ -118,7 +118,8 @@ def getTraktConnection():
 # anon: anonymous (dont send username/password), default:False
 # connection: default it to make a new connection but if you want to keep the same one alive pass it here
 # silent: default is False, when true it disable any error notifications (but not debug messages)
-def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False, silent=False):
+# passVersions: default is False, when true it passes extra version information to trakt to help debug problems
+def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False, silent=False, passVersions=False):
     if conn == False:
         conn = getTraktConnection()
     if conn == None:
@@ -136,6 +137,11 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
             if not anon:
                 args['username'] = username
                 args['password'] = pwd
+            if passVersions:
+                args['plugin_version'] = __settings__.getAddonInfo("version")
+                args['media_center'] = 'xbmc'
+                args['media_center_version'] = xbmc.getInfoLabel("system.buildversion")
+                args['media_center_date'] = xbmc.getInfoLabel("system.builddate")
             jdata = json.dumps(args)
             conn.request('POST', req, jdata)
         elif method == 'GET':
@@ -306,8 +312,8 @@ def getEpisodesFromXBMC(tvshow, season):
         return None
 
 # get a single episode from xbmc given the id
-def getEpisodeFromXbmc(libraryId):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodeDetails','params':{'episodeid': libraryId, 'fields': ['showtitle', 'season', 'episode']}, 'id': 1})
+def getEpisodeDetailsFromXbmc(libraryId, fields):
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodeDetails','params':{'episodeid': libraryId, 'fields': fields}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -315,15 +321,15 @@ def getEpisodeFromXbmc(libraryId):
     # check for error
     try:
         error = result['error']
-        Debug("getEpisodeFromXBMC: " + str(error))
+        Debug("getEpisodeDetailsFromXbmc: " + str(error))
         return None
     except KeyError:
         pass # no error
 
     try:
-        return result['result']
+        return result['result']['episodedetails']
     except KeyError:
-        Debug("getEpisodeFromXBMC: KeyError: result['result']")
+        Debug("getEpisodeDetailsFromXbmc: KeyError: result['result']['episodedetails']")
         return None
 
 # get movies from XBMC
@@ -348,8 +354,8 @@ def getMoviesFromXBMC():
         return None
 
 # get a single movie from xbmc given the id
-def getMovieFromXbmc(libraryId):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails','params':{'movieid': libraryId, 'fields': ['imdbnumber', 'title', 'year', 'playcount', 'lastplayed']}, 'id': 1})
+def getMovieDetailsFromXbmc(libraryId, fields):
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails','params':{'movieid': libraryId, 'fields': fields}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -357,15 +363,15 @@ def getMovieFromXbmc(libraryId):
     # check for error
     try:
         error = result['error']
-        Debug("getMovieFromXBMC: " + str(error))
+        Debug("getMovieDetailsFromXbmc: " + str(error))
         return None
     except KeyError:
         pass # no error
 
     try:
-        return result['result']
+        return result['result']['moviedetails']
     except KeyError:
-        Debug("getMovieFromXBMC: KeyError: result['result']")
+        Debug("getMovieDetailsFromXbmc: KeyError: result['result']['moviedetails']")
         return None
 
 # sets the playcount of a given movie by imdbid
@@ -467,13 +473,9 @@ def getCurrentPlaylistLengthFromXBMC():
     
     try:
         Debug("Current playlist: "+str(result['result']))
-        current = result['result']['state']['current']
-        typ = result['result']['items'][current]['type']
-        if typ in ("movie","episode"):
-            return len(result['result']['items'])
-        return None
+        return result['result']['limits']['total']
     except KeyError:
-        Debug("getCurrentPlayingVideoFromXBMC: KeyError")
+        Debug("getCurrentPlaylistLengthFromXBMC: KeyError")
         return None
 
 def getMovieIdFromXBMC(imdb_id, title):
@@ -803,7 +805,54 @@ def playMovieById(idMovie):
             Debug("playMovieById, VideoPlaylist.Play: KeyError")
             return None
 
+###############################
+##### Scrobbling to trakt #####
+###############################
 
+#tell trakt that the user is watching a movie
+def watchingMovieOnTrakt(imdb_id, title, year, duration, percent):
+    responce = traktJsonRequest('POST', '/movie/watching/%%API_KEY%%', {'imdb_id': imdb_id, 'title': title, 'year': year, 'duration': duration, 'progress': percent}, passVersions=True)
+    if responce == None:
+        Debug("Error in request from 'watchingMovieOnTrakt()'")
+    return responce
+
+#tell trakt that the user is watching an episode
+def watchingEpisodeOnTrakt(tvdb_id, title, year, season, episode, duration, percent):
+    responce = traktJsonRequest('POST', '/show/watching/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'season': season, 'episode': episode, 'duration': duration, 'progress': percent}, passVersions=True)
+    if responce == None:
+        Debug("Error in request from 'watchingEpisodeOnTrakt()'")
+    return responce
+
+#tell trakt that the user has stopped watching a movie
+def cancelWatchingMovieOnTrakt():
+    responce = traktJsonRequest('POST', '/movie/cancelwatching/%%API_KEY%%')
+    if responce == None:
+        Debug("Error in request from 'cancelWatchingMovieOnTrakt()'")
+    return responce
+
+#tell trakt that the user has stopped an episode
+def cancelWatchingEpisodeOnTrakt():
+    responce = traktJsonRequest('POST', '/show/cancelwatching/%%API_KEY%%')
+    if responce == None:
+        Debug("Error in request from 'cancelWatchingEpisodeOnTrakt()'")
+    return responce
+
+#tell trakt that the user has finished watching an movie
+def scrobbleMovieOnTrakt(imdb_id, title, year, duration, percent):
+    responce = traktJsonRequest('POST', '/movie/scrobble/%%API_KEY%%', {'imdb_id': imdb_id, 'title': title, 'year': year, 'duration': duration, 'progress': percent}, passVersions=True)
+    if responce == None:
+        Debug("Error in request from 'scrobbleMovieOnTrakt()'")
+    return responce
+
+#tell trakt that the user has finished watching an episode
+def scrobbleEpisodeOnTrakt(tvdb_id, title, year, season, episode, duration, percent):
+    responce = traktJsonRequest('POST', '/show/scrobble/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'season': season, 'episode': episode, 'duration': duration, 'progress': percent}, passVersions=True)
+    if responce == None:
+        Debug("Error in request from 'scrobbleEpisodeOnTrakt()'")
+    return responce
+
+            
+            
 """
 ToDo:
 

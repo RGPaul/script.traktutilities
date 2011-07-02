@@ -9,6 +9,7 @@ from utilities import *
 from rating import *
 from sync_update import *
 from instant_sync import *
+from scrobbler import Scrobbler
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -24,16 +25,18 @@ __language__ = __settings__.getLocalizedString
 class NotificationService(threading.Thread):
     def run(self):        
         #while xbmc is running
+        scrobbler = Scrobbler()
+        scrobbler.start()
         while (not xbmc.abortRequested):
             try:
                 tn = telnetlib.Telnet('localhost', 9090, 10)
             except IOError as (errno, strerror):
                 #connection failed, try again soon
-                Debug("[Rating] Telnet too soon? ("+str(errno)+") "+strerror)
+                Debug("[Notification Service] Telnet too soon? ("+str(errno)+") "+strerror)
                 time.sleep(1)
                 continue
             
-            Debug("[Rating] Waiting~");
+            Debug("[Notification Service] Waiting~");
             bCount = 0
             
             while (not xbmc.abortRequested):
@@ -64,7 +67,7 @@ class NotificationService(threading.Thread):
                 except EOFError:
                     break #go out to the other loop to restart the connection
                 
-                Debug("[Rating] message: " + str(notification))
+                Debug("[Notification Service] message: " + str(notification))
                 
                 # Parse recieved notification
                 data = json.loads(notification)
@@ -72,11 +75,11 @@ class NotificationService(threading.Thread):
                 # Forward notification to functions
                 if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
                     if data['method'] == 'Player.OnStop':
-                        ratingPlaybackEnded()
+                        scrobbler.playbackEnded()
                     elif data['method'] == 'Player.OnPlay':
-                        ratingPlaybackStarted()
+                        scrobbler.playbackStarted()
                     elif data['method'] == 'Player.OnPause':
-                        ratingPlaybackPaused()
+                        scrobbler.playbackPaused()
                     elif data['method'] == 'VideoLibrary.OnUpdate':
                         if 'data' in data['params'] and 'playcount' in data['params']['data']:
                             instantSyncPlayCount(data)
