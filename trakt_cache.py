@@ -36,6 +36,56 @@ class TraktCache:
         _expire = shelve.open(_location+".ttl")
         
     @staticmethod
+    def _sync():
+        #send changes to trakt
+        _attemptResend()
+        #receive latest accordign to trakt
+        
+        #check for diff between local(trakt) and xbmc
+        
+        #log changes into queue and send to trakt
+        
+    @staticmethod
+    def _attemptResend():
+        for change in _movies['_queue']:
+            if 'remoteId' in change and 'subject' in change and 'value' in change:
+                if change['subject'] == 'watchlistStatus':
+                    if change['remoteId'] in _movies and '_watchlistStatus' in _movies[change['remoteId']]:
+                        movie = _movies[change['remoteId']]
+                        if change['value'] == True:
+                            if addMoviesToWatchlist([movie.traktise()]) is None:
+                                continue # failed, leave in queue for next time
+                        else:
+                            if removeMoviesFromWatchlist([movie.traktise()]) is None:
+                                continue # failed, leave in queue for next time
+                elif change['subject'] == 'seenStatus':
+                    if change['remoteId'] in _movies and '_playcount' in _movies[change['remoteId']]:
+                        movie = _movies[change['remoteId']]
+                        if change['value'] >= 1:
+                            if setMoviesSeenOnTrakt([movie.traktise()]) is None:
+                                continue # failed, leave in queue for next time
+                        else:
+                            if setMoviesUnseenOnTrakt([movie.traktise()]) is None:
+                                continue # failed, leave in queue for next time
+                elif change['subject'] == 'watchingStatus':
+                    if change['remoteId'] in _movies and '_watchingStatus' in _movies[change['remoteId']]:
+                        movie = _movies[change['remoteId']]
+                        if change['value'] == True:
+                            if watchingMovieOnTrakt() is None:
+                                continue # failed, leave in queue for next time
+                        else:
+                            if cancelWatchingMovieOnTrakt([movie.traktise()]) is None:
+                                continue # failed, leave in queue for next time
+                elif change['subject'] == 'libraryStatus':
+                    continue
+                elif change['subject'] == 'rating':
+                    continue
+                elif change['subject'] == 'scrobble':
+                    continue
+            # either succeeded or invalid
+            _movies['_queue'].remove(change)
+        
+    @staticmethod
     def getMovie(remoteId = None, localId = None):
         if remoteId is None and localId is None:
             raise ValueError("Must provide at least one form of id")
@@ -46,6 +96,12 @@ class TraktCache:
             raise ValueError("Unknown movie")
         return _movies[remoteId]
         
+    @staticmethod
+    def saveMovie(movie):
+        if remoteId not in movie:
+            raise ValueError("Invalid movie")
+        _shows[movie.remoteId] = movie
+    
     @staticmethod
     def getMovieWatchList():
         if 'moviewatchlist' not in _expire or _expire['moviewatchlist'] < time.gmtime():

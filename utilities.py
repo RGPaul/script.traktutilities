@@ -810,15 +810,32 @@ def playMovieById(idMovie):
 ###############################
 
 #tell trakt that the user is watching a movie
-def watchingMovieOnTrakt(imdb_id, title, year, duration, percent):
-    responce = traktJsonRequest('POST', '/movie/watching/%%API_KEY%%', {'imdb_id': imdb_id, 'title': title, 'year': year, 'duration': duration, 'progress': percent}, passVersions=True)
+imdb_id, title, year, duration, percent
+def watchingMovieOnTrakt():
+    if 'imdb_id' not in movie and 'tmdb_id' not in movie and ('title' not in movie or 'year' not in movie):
+        Debug("Insufficient movie id for 'watchingMovieOnTrakt()'")
+        return None
+    if 'duration' not in movie or 'percent' not in movie:
+        Debug("Insufficient status for 'watchingMovieOnTrakt()'")
+        return None
+    responce = traktJsonRequest('POST', '/movie/watching/%%API_KEY%%', movie, passVersions=True)
     if responce == None:
         Debug("Error in request from 'watchingMovieOnTrakt()'")
     return responce
 
 #tell trakt that the user is watching an episode
-def watchingEpisodeOnTrakt(tvdb_id, title, year, season, episode, duration, percent):
-    responce = traktJsonRequest('POST', '/show/watching/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'season': season, 'episode': episode, 'duration': duration, 'progress': percent}, passVersions=True)
+# required fields for episode are tvdb_id, title, year, season, episode, duration, percent
+def watchingEpisodeOnTrakt(episode):
+    if 'tvdb_id' not in episode and 'imdb_id' not in episode and ('title' not in episode or 'year' not in episode):
+        Debug("Insufficient show id for 'watchingEpisodeOnTrakt()'")
+        return None
+    if 'season' not in episode or 'episode' not in episode:
+        Debug("Insufficient episode id for 'watchingEpisodeOnTrakt()'")
+        return None
+    if 'duration' not in episode or 'percent' not in episode:
+        Debug("Insufficient status for 'watchingEpisodeOnTrakt()'")
+        return None
+    responce = traktJsonRequest('POST', '/show/watching/%%API_KEY%%', episode, passVersions=True)
     if responce == None:
         Debug("Error in request from 'watchingEpisodeOnTrakt()'")
     return responce
