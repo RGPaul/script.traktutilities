@@ -15,7 +15,7 @@ __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
 # Caches all information between the add-on and the web based trakt api
-class Movie:
+class Show:
     _remoteId
     _title
     _year
@@ -60,49 +60,29 @@ class Movie:
         raise NotImplementedError("This function has not been written")
         
     def traktise(self):
-        movie = {}
-        movie['title'] = _title
-        movie['year'] = _year
-        movie['plays'] = _playcount
-        movie['in_watchlist'] = _watchlistStatus
-        movie['in_collection'] = _libraryStatus
+        show = {}
+        show['title'] = _title
+        show['year'] = _year
+        show['plays'] = _playcount
+        show['in_watchlist'] = _watchlistStatus
+        show['in_collection'] = _libraryStatus
+        if str(_remoteId).find('tvbd=') == 0:
+            show['tvdb_id'] = _remoteId[5:]
         if str(_remoteId).find('imbd=') == 0:
-            movie['imdb_id'] = _remoteId[5:]
-        if str(_remoteId).find('tmbd=') == 0:
-            movie['tmdb_id'] = _remoteId[5:]
-        return movie
+            show['imdb_id'] = _remoteId[5:]
+        return show
         
     @staticmethod
-    def fromTrakt(movie):
-        if 'imdb_id' in movie:
-            local = Movie("imdb="+movie['imdb_id'])
-        else if 'tmdb_id' in movie:
-            local = Movie("tmdb="+movie['tmdb_id'])
+    def fromTrakt(show):
+        if 'tvdb_id' in show:
+            local = Show("tvdb="+show['tvdb_id'])
+        else if 'imdb_id' in movie:
+            local = Show("imdb="+show['imdb_id'])
         else
             return None
-        local._title = movie['title']
-        local._year = movie['year']
-        local._playcount = movie['plays']
-        local._watchlistStatus = movie['in_watchlist']
-        local._libraryStatus = movie['in_collection']
-        return local
-     
-    @staticmethod
-    def fromXbmc(movie):
-        local = Movie("imdb="+)
-        if 'imdbnumber' not in movie or movie['imdbnumber'].trim() == "":
-            traktMovie = searchTraktForMovie(movie['title'], movie['year'])
-            if traktMovie is None:
-                return None
-            if 'imdb_id' in traktMovie:
-                local = Movie("imdb="+traktMovie['imdb_id'])
-            else if 'tmdb_id' in traktMovie:
-                local = Movie("tmdb="+traktMovie['tmdb_id'])
-            else
-                return None
-        else:
-            local = Movie("imdb="+movie['imdbnumber'].trim())
-        local._title = movie['title']
-        local._year = movie['year']
-        local._playcount = movie['playcount']
+        local._title = show['title']
+        local._year = show['year']
+        local._playcount = show['plays']
+        local._watchlistStatus = show['in_watchlist']
+        local._libraryStatus = show['in_collection']
         return local

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 # 
 
 import os, sys
@@ -184,7 +184,7 @@ def getMoviesFromTrakt(daemon=False):
     if data == None:
         Debug("Error in request from 'getMoviesFromTrakt()'")
     return data
-
+    
 # get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
     trakt_movies = {}
@@ -194,6 +194,25 @@ def traktMovieListByImdbID(data):
         
     return trakt_movies
 
+# search movies on trakt
+def searchTraktForMovie(title, year=None):
+    data = traktJsonRequest('POST', '/search/movies.json/%%API_KEY%%/'+title)
+    if data is None:
+        Debug("Error in request from 'getShowsFromTrakt()'")
+    if year is not None:
+        for item in data:
+            if 'year' in item and item['year'] == year:
+                return item           
+        return None
+    return data
+    
+# get shows from trakt server
+def getShowsFromTrakt(daemon=False):
+    data = traktJsonRequest('POST', '/user/library/shows/all.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getShowsFromTrakt()'")
+    return data
+    
 # get easy access to tvshow by tvdb_id
 def traktShowListByTvdbID(data):
     trakt_tvshows = {}

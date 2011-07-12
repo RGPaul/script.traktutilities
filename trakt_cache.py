@@ -2,6 +2,7 @@
 # 
 
 import xbmc,xbmcaddon
+import * from utilities.py
 import time
 import shelve
 
@@ -39,11 +40,22 @@ class TraktCache:
     def _sync():
         #send changes to trakt
         _attemptResend()
-        #receive latest accordign to trakt
         
-        #check for diff between local(trakt) and xbmc
+        #receive latest according to trakt
+        traktData = _copyTrakt()
+        #get latest xbmc
+        xbmcData = _copyXbmc()
+        #threeway compare, xbmc-old(local)-trakt
+        xbmcChanges, traktChanges, cacheChanges = _threeWayCompare(xbmcData, traktData)
         
-        #log changes into queue and send to trakt
+        #perform local (ie to xbmc) changes
+        _updateXbmc(xbmcChanges)
+        #perform cache changes
+        _updateCache(cacheChanges)
+        #log remote (ie to trakt) changes into queue and send to trakt
+        _updateTrakt(traktChanges)
+        #update next sync times
+        
         
     @staticmethod
     def _attemptResend():
@@ -84,6 +96,74 @@ class TraktCache:
                     continue
             # either succeeded or invalid
             _movies['_queue'].remove(change)
+    
+    @staticmethod
+    def _copyTrakt():
+        traktData = {}
+        
+        movies = []
+        traktMovies = getMoviesFromTrakt(daemon=True)
+        watchlistMovies = traktMovieListByImdbID(getWatchlistMoviesFromTrakt())
+        for movie in traktMovies:
+            local = Movie.fromTrakt(movie)
+            if local is None:
+                continue
+            if 'imdb_id' in movie:
+                local._watchlistStatus = moviemovie['imdb_id'] in watchlistMovies
+            movies[local._remoteId] = local
+            
+        
+        shows = []
+        #traktShows = getShowsFromTrakt(daemon=True)
+        #for show in traktShows:
+        #    shows.append(Show.fromTrakt(show))
+            
+        episodes = []
+        #traktEpisodes = getEpisodesFromTrakt(daemon=True)
+        #for episode in traktEpisodes:
+        #    episodes.append(Episode.fromTrakt(episode))
+            
+        traktData['movies'] = movies
+        traktData['shows'] = shows
+        traktData['episodes'] = episodes
+        return traktData
+    
+    @staticmethod
+    def _copyXbmc():
+        xbmcData = {}
+        
+        movies = []
+        xbmcMovies = getMoviesFromXBMC()
+        for movie in xbmcMovies:
+            local = Movie.fromXbmc(movie)
+            if local is None:
+                continue
+            movies[local._remoteId] = local
+        
+        shows = []
+        #traktShows = getShowsFromTrakt(daemon=True)
+        #for show in traktShows:
+        #    shows.append(Show.fromTrakt(show))
+            
+        episodes = []
+        #traktEpisodes = getEpisodesFromTrakt(daemon=True)
+        #for episode in traktEpisodes:
+        #    episodes.append(Episode.fromTrakt(episode))
+            
+        xbmcData['movies'] = movies
+        xbmcData['shows'] = shows
+        xbmcData['episodes'] = episodes
+        return xbmcData
+    
+    @staticmethod
+    def _threeWayCompare(xbmcData, traktData):
+        for movie in _movies:
+            if '_remoteId' not in movie:
+                continue
+            remoteId = movie['_remoteId']
+            if remoteId not in traktData['movies']:
+            if remoteId not in traktData['movies']:
+            
         
     @staticmethod
     def getMovie(remoteId = None, localId = None):
