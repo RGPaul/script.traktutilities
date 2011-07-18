@@ -49,6 +49,7 @@ ACTION_CONTEXT_MENU = 117
 class MoviesWindow(xbmcgui.WindowXML):
 
     movies = None
+    lis = [] #list items
     type = 'basic'
 
     def initWindow(self, movies, type):
@@ -68,6 +69,7 @@ class MoviesWindow(xbmcgui.WindowXML):
                     if 'watchlist' in movie:
                         if movie['watchlist']:
                             li.setProperty('Watchlist','true')
+                self.lis.append(li)
                 self.getControl(MOVIE_LIST).addItem(li)
             self.setFocus(self.getControl(MOVIE_LIST))
             self.listUpdate()
@@ -165,6 +167,12 @@ class MoviesWindow(xbmcgui.WindowXML):
             actions.append('unwatchlist')
         options.append("Rate")
         actions.append('rate')
+        if 'plays' in movie and movie['plays'] == 0:
+            options.append("Mark as seen")
+            actions.append('seen')
+        elif 'watchlist' in movie and movie['watchlist']:
+            options.append("Mark as seen")
+            actions.append('seen')
         
         select = xbmcgui.Dialog().select(movie['title']+" - "+str(movie['year']), options)
         if select != -1:
@@ -181,6 +189,10 @@ class MoviesWindow(xbmcgui.WindowXML):
                 notification("Trakt Utilities", __language__(1312).encode( "utf-8", "ignore" )) # Successfully removed from watch-list
                 li.setProperty('Watchlist','false')
                 movie['watchlist'] = False;
+                if self.type == 'watchlist':
+                    self.lis.remove(li)
+                    self.getControl(MOVIE_LIST).reset()
+                    self.getControl(MOVIE_LIST).addItems(self.lis)
         elif actions[select] == 'watchlist':
             if addMoviesToWatchlist([movie]) == None:
                 notification("Trakt Utilities", __language__(1309).encode( "utf-8", "ignore" )) # Failed to added to watch-list
@@ -189,7 +201,16 @@ class MoviesWindow(xbmcgui.WindowXML):
                 li.setProperty('Watchlist','true')
                 movie['watchlist'] = True;
         elif actions[select] == 'rate':
-            doRateMovie(imdbid=movie['imdb_id'], title=movie['title'], year=movie['year'])        
+            doRateMovie(imdbid=movie['imdb_id'], title=movie['title'], year=movie['year'])  
+        elif actions[select] == 'seen':
+            if setMoviesSeenOnTrakt([movie]) is None:
+                notification("Trakt Utilities", __language__(1313).encode( "utf-8", "ignore" )) # Failed to mark as seen
+            else:
+                if self.type == 'watchlist':
+                    self.lis.remove(li)
+                    self.getControl(MOVIE_LIST).reset()
+                    self.getControl(MOVIE_LIST).addItems(self.lis)
+                notification("Trakt Utilities", __language__(1314).encode( "utf-8", "ignore" )) # Successfully marked as seen
         
     def onAction(self, action):
         if action.getId() == 0:
