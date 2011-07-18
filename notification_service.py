@@ -77,7 +77,8 @@ class NotificationService(threading.Thread):
                     if data['method'] == 'Player.OnStop':
                         scrobbler.playbackEnded()
                     elif data['method'] == 'Player.OnPlay':
-                        scrobbler.playbackStarted()
+                        if 'data' in data['params'] and 'id' in data['params']['data'] and 'type' in data['params']['data']:
+                            scrobbler.playbackStarted(data['params']['data'])
                     elif data['method'] == 'Player.OnPause':
                         scrobbler.playbackPaused()
                     elif data['method'] == 'VideoLibrary.OnUpdate':
