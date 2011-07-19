@@ -402,33 +402,22 @@ def cleanTVShowCollection(daemon=False):
         tvshow['episodes'] = []
         try:
             xbmc_tvshow = xbmc_tvshows_tvdbid[trakt_tvshow[1]['tvdb_id']]
-            # check seasons
-            xbmc_seasons = getSeasonsFromXBMC(xbmc_tvshow)
-            for i in range(0, len(trakt_tvshow[1]['seasons'])):
-                foundseason = False
-                for j in range(0, xbmc_seasons['limits']['total']):
-                    seasonid = xbmc_seasons['seasons'][j]['season']
-                    xbmc_episodes = getEpisodesFromXBMC(xbmc_tvshow, seasonid)
-                    if xbmc_episodes['limits']['total'] > 0:
-                        if trakt_tvshow[1]['seasons'][i]['season'] == seasonid:
-                            foundseason = True
-                            # check episodes
-                            for k in range(0, len(trakt_tvshow[1]['seasons'][i]['episodes'])):
-                                episodeid = trakt_tvshow[1]['seasons'][i]['episodes'][k]
-                                found = False
-                                for l in range(0, xbmc_episodes['limits']['total']):
-                                    if xbmc_episodes['episodes'][l]['episode'] == episodeid:
-                                        found = True
-                                        break
-                                if found == False:
-                                    # delte episode from trakt collection
-                                    tvshow['episodes'].append({'season': seasonid, 'episode': episodeid})
-                            break
-                if foundseason == False:
-                    Debug("Season not found: " + str(trakt_tvshow[1]['title']) + ": " + str(trakt_tvshow[1]['seasons'][i]['season']))
-                    # delte season from trakt collection
-                    for episodeid in trakt_tvshow[1]['seasons'][i]['episodes']:
-                        tvshow['episodes'].append({'season': trakt_tvshow[1]['seasons'][i]['season'], 'episode': episodeid})
+            # Check seasons
+            xbmcSeasons = [item['season'] for item in getSeasonsFromXBMC(xbmc_tvshow)['seasons']] # Get list of season numbers in xbmc
+            for season in trakt_tvshow[1]['seasons']:
+                traktSeason = season['season']
+                if traktSeason in xbmcSeasons: # Season in both
+                    # Check episodes
+                    xbmcEpisodes = [item['episode'] for item in getEpisodesFromXBMC(xbmc_tvshow, traktSeason)['episodes']] # Get list of episode numbers in xbmc
+                    for traktEpisode in season['episodes']:
+                        if traktEpisode not in xbmcEpisodes: # If XBMC doesn't have the episode that trakt has
+                            # Delete episode from trakt collection
+                            tvshow['episodes'].append({'season': traktSeason, 'episode': traktEpisode})
+                else: # Trakt season not present in XBMC
+                    Debug("Season not found: " + str(trakt_tvshow[1]['title']) + ": " + str(traktSeason))
+                    # Delete season from trakt collection
+                    for traktEpisode in season['episodes']:
+                        tvshow['episodes'].append({'season': traktSeason, 'episode': traktEpisode})
             
         except KeyError:
             Debug ("TVShow not found: " + trakt_tvshow[1]['title'])
