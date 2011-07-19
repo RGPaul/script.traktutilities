@@ -184,7 +184,7 @@ def getMoviesFromTrakt(daemon=False):
     if data == None:
         Debug("Error in request from 'getMoviesFromTrakt()'")
     return data
-    
+
 # get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
     trakt_movies = {}
@@ -205,7 +205,15 @@ def searchTraktForMovie(title, year=None):
                 return item           
         return None
     return data
-    
+
+# get movie summary from trakt server
+# title: Either the slug (i.e. the-social-network-2010), IMDB ID, or TMDB ID.
+def getMovieFromTrakt(title, daemon=False):
+    data = traktJsonRequest('POST', '/movie/summary.json/%%API_KEY%%/'+title)
+    if data == None:
+        Debug("Error in request from 'getMovieFromTrakt()'")
+    return data
+
 # get shows from trakt server
 def getShowsFromTrakt(daemon=False):
     data = traktJsonRequest('POST', '/user/library/shows/all.json/%%API_KEY%%/%%USERNAME%%')
@@ -829,7 +837,7 @@ def playMovieById(idMovie):
 ###############################
 
 #tell trakt that the user is watching a movie
-imdb_id, title, year, duration, percent
+# required fields for movies are imdb_id, title, year, duration, percent
 def watchingMovieOnTrakt():
     if 'imdb_id' not in movie and 'tmdb_id' not in movie and ('title' not in movie or 'year' not in movie):
         Debug("Insufficient movie id for 'watchingMovieOnTrakt()'")

@@ -2,7 +2,7 @@
 # 
 
 import xbmc,xbmcaddon
-from trakt_cache import TraktCache
+from trakt_cache import *
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -15,20 +15,47 @@ __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
 # Caches all information between the add-on and the web based trakt api
-class Movie:
-    _remoteId
-    _title
-    _year
-    _playcount
-    _watchlistStatus
-    _recommendedStatus
-    _libraryStatus
+class Movie():
+    _remoteId = None
+    _title = None
+    _year = None
+    _playcount = 0
+    _rating = None
+    _watchlistStatus = False
+    _recommendedStatus = False
+    _libraryStatus = False
     
     def __init__(self, remoteId):
         if remoteId is None:
             raise ValueError("Must provide the id for the movie")
-        self._remoteId = remoteId
+        self._remoteId = str(remoteId)
         
+    def __repr__(self):
+        return "<"+self._title+" ("+str(self._year)+") - "+self._remoteId+">"
+        
+    def __str__(self):
+        return self._title+" ("+str(self._year)+")"
+    
+    def __getitem__(self, index):
+        if index is "_remoteId": return self._remoteId
+        if index is "_title": return self._title
+        if index is "_year": return self._year
+        if index is "_playcount": return self._playcount
+        if index is "_rating": return self._rating
+        if index is "_watchlistStatus": return self._watchlistStatus
+        if index is "_recommendedStatus": return self._recommendedStatus
+        if index is "_libraryStatus": return self._libraryStatus
+    
+    def __setitem__(self, index, value):
+        if index is "_remoteId": self._remoteId = value
+        if index is "_title": self._title = value
+        if index is "_year": self._year = value
+        if index is "_playcount": self._playcount = value
+        if index is "_rating": self._rating = value
+        if index is "_watchlistStatus": self._watchlistStatus = value
+        if index is "_recommendedStatus": self._recommendedStatus = value
+        if index is "_libraryStatus": self._libraryStatus = value
+    
     def save(self):
         TraktCache.saveMovie(self)
         
@@ -39,15 +66,23 @@ class Movie:
     def shout(self, text):
         raise NotImplementedError("This function has not been written")
         
-    def setSeenStatus(self, value):
+    def setRating(self, value):
         raise NotImplementedError("This function has not been written")
-    def getSeenStatus(self):
+    def getRating(self):
+        self._expireCheck()
+        return _rating
+        
+    def setPlaycount(self, value):
         raise NotImplementedError("This function has not been written")
+    def getPlaycount(self):
+        self._expireCheck()
+        return _playcount
         
     def setLibraryStatus(self, value):
         raise NotImplementedError("This function has not been written")
     def getLibraryStatus(self):
-        raise NotImplementedError("This function has not been written")
+        self._expireCheck('movielibrary')
+        return _libraryStatus
         
     def setWatchingStatus(self, value):
         raise NotImplementedError("This function has not been written")
@@ -57,8 +92,27 @@ class Movie:
     def setWatchlistStatus(self, value):
         raise NotImplementedError("This function has not been written")
     def getWatchlistStatus(self):
-        raise NotImplementedError("This function has not been written")
+        self._expireCheck('moviewatchlist')
+        return _watchlistStatus
         
+    def getRecommendedStatus(self):
+        self._expireCheck('movierecommended')
+        return _recommendedStatus
+    
+    def _expireCheck(self, state=None):
+        if state is not None:
+            if state in _expire and _expire[state] >= time.time():
+                return
+        if self._remoteId not in _expire or _expire[_remoteId] < time.time():
+            refreshMovie(_remoteId)
+    
+    @staticmethod
+    def download(remoteId):
+        local = getMovieFromTrakt(Movie.devolveId(remoteId))
+        if local is None:
+            return None
+        return Movie.fromTrakt(local)
+    
     def traktise(self):
         movie = {}
         movie['title'] = _title
@@ -76,9 +130,9 @@ class Movie:
     def fromTrakt(movie):
         if 'imdb_id' in movie:
             local = Movie("imdb="+movie['imdb_id'])
-        else if 'tmdb_id' in movie:
+        elif 'tmdb_id' in movie:
             local = Movie("tmdb="+movie['tmdb_id'])
-        else
+        else:
             return None
         local._title = movie['title']
         local._year = movie['year']
@@ -89,20 +143,36 @@ class Movie:
      
     @staticmethod
     def fromXbmc(movie):
-        local = Movie("imdb="+)
-        if 'imdbnumber' not in movie or movie['imdbnumber'].trim() == "":
+        if 'imdbnumber' not in movie or movie['imdbnumber'].strip() == "":
             traktMovie = searchTraktForMovie(movie['title'], movie['year'])
             if traktMovie is None:
                 return None
             if 'imdb_id' in traktMovie:
                 local = Movie("imdb="+traktMovie['imdb_id'])
-            else if 'tmdb_id' in traktMovie:
+            elif 'tmdb_id' in traktMovie:
                 local = Movie("tmdb="+traktMovie['tmdb_id'])
-            else
+            else:
                 return None
         else:
-            local = Movie("imdb="+movie['imdbnumber'].trim())
+            local = Movie(evolveId(movie['imdbnumber']))
         local._title = movie['title']
         local._year = movie['year']
         local._playcount = movie['playcount']
         return local
+    
+    @staticmethod
+    def evolveId(idString):
+        if idString.find('tt') == 0:
+            return str("imdb="+idString.strip())
+        else:
+            return str("tmdb="+idString.strip())
+    
+    @staticmethod
+    def devolveId(idString):
+        if idString.find('imbd=') == 0:
+            if idString.find('tt') == 0:
+                return idString[5:]
+            else:
+                return "tt"+idString[5:]
+        if idString.find('tmbd=') == 0:
+            return idString[5:]

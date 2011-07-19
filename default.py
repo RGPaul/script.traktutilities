@@ -10,6 +10,8 @@ from recommend import *
 from friends import *
 from trending import *
 
+from trakt_cache import TraktCache
+
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Justin Nemeth",  "Sean Rudford"]
 __license__ = "GPL"
@@ -32,6 +34,9 @@ def menu():
 
     options = [__language__(1210).encode( "utf-8", "ignore" ), __language__(1211).encode( "utf-8", "ignore" ), __language__(1212).encode( "utf-8", "ignore" ), __language__(1213).encode( "utf-8", "ignore" ), __language__(1214).encode( "utf-8", "ignore" )]
     
+    if __settings__.getSetting("debug"):
+        options.append("Testing [Employees only]")
+    
     while True:
         select = xbmcgui.Dialog().select("Trakt Utilities", options)
         Debug("Select: " + str(select))
@@ -49,6 +54,8 @@ def menu():
                 submenuTrendingMoviesTVShows()
             elif select == 4: # Update / Sync / Clean
                 submenuUpdateSyncClean()
+            elif __settings__.getSetting("debug") and select == 5:
+                testing()
 
 
 def submenuUpdateSyncClean():
@@ -118,5 +125,10 @@ def submenuRecommendations():
             showRecommendedMovies()
         elif select == 1: # Watchlist TV Shows
             showRecommendedTVShows()
+
+def testing():
+    TraktCache.init("special://profile/addon_data/script.TraktUtilities/trakt_cache")
+    Debug(str(TraktCache.getMovieWatchList()))
+    xbmcgui.Dialog().ok("Trakt Utilities, TESTS", "Success")
 
 menu()
