@@ -271,7 +271,7 @@ def getTVShowsFromXBMC():
 # get seasons for a given tvshow from XBMC
 def getSeasonsFromXBMC(tvshow):
     Debug("getSeasonsFromXBMC: "+str(tvshow))
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetSeasons','params':{'tvshowid': tvshow['tvshowid']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetSeasons','params':{'tvshowid': tvshow['tvshowid'], 'fields': ['season']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
