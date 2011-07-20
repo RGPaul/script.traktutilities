@@ -50,9 +50,9 @@ class Scrobbler(threading.Thread):
             else:
                 count = 0
     
-    def playbackStarted(self):
+    def playbackStarted(self, data):
         if xbmc.Player().isPlayingVideo():
-            self.curVideo = getCurrentPlayingVideoFromXBMC()
+            self.curVideo = data
             if self.curVideo <> None:
                 if 'type' in self.curVideo and 'id' in self.curVideo:
                     Debug("[Rating] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))

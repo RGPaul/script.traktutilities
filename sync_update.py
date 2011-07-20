@@ -438,7 +438,7 @@ def cleanTVShowCollection(daemon=False):
                     if seasonid > 50:
                         continue
                 if foundseason == False:
-                    Debug("Season not found: " + trakt_tvshow[1]['title'] + ": " + trakt_tvshow[1]['seasons'][i]['season'])
+                    Debug("Season not found: " + str(trakt_tvshow[1]['title']) + ": " + str(trakt_tvshow[1]['seasons'][i]['season']))
                     # delte season from trakt collection
                     for episodeid in trakt_tvshow[1]['seasons'][i]['episodes']:
                         tvshow['episodes'].append({'season': trakt_tvshow[1]['seasons'][i]['season'], 'episode': episodeid})
