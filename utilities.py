@@ -196,15 +196,33 @@ def traktMovieListByImdbID(data):
 
 # search movies on trakt
 def searchTraktForMovie(title, year=None):
-    data = traktJsonRequest('POST', '/search/movies.json/%%API_KEY%%/'+title)
+    data = traktJsonRequest('POST', '/search/movies.json/%%API_KEY%%/'+urllib.quote_plus(repr(unicode(title))[1:].strip('\'\"')))
     if data is None:
-        Debug("Error in request from 'getShowsFromTrakt()'")
+        Debug("Error in request from 'searchTraktForMovie()'")
+        return None
     if year is not None:
         for item in data:
             if 'year' in item and item['year'] == year:
-                return item           
+                return item
+        
+    options = ["Skip"]
+    for item in data:
+        options.append(unicode(item['title'])+" ["+unicode(item['year'])+"]")
+    
+    if len(data) == 0:
         return None
-    return data
+    
+    if not xbmcgui.Dialog().yesno("Trakt Utilities", "Trakt Utilities is having trouble identifing a movie, do you want to manually choose from a list?"):
+        return None
+        
+    while True:
+        select = xbmcgui.Dialog().select("Which is correct - "+unicode(title)+" ["+unicode(year)+"]", options)
+        Debug("Select: " + str(select))
+        if select == -1 or select == 0:
+            Debug ("menu quit by user")
+            return None
+        elif (select-1) <= len(data):
+            return data[select-1]
 
 # get movie summary from trakt server
 # title: Either the slug (i.e. the-social-network-2010), IMDB ID, or TMDB ID.

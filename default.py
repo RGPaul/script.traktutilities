@@ -10,7 +10,7 @@ from recommend import *
 from friends import *
 from trending import *
 
-from trakt_cache import TraktCache
+import trakt_cache
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Justin Nemeth",  "Sean Rudford"]
@@ -127,8 +127,8 @@ def submenuRecommendations():
             showRecommendedTVShows()
 
 def testing():
-    TraktCache.init("special://profile/addon_data/script.TraktUtilities/trakt_cache")
-    Debug(str(TraktCache.getMovieWatchList()))
+    trakt_cache.init("special://profile/addon_data/script.TraktUtilities/trakt_cache")
+    Debug(str(trakt_cache.getMovieWatchList()))
     xbmcgui.Dialog().ok("Trakt Utilities, TESTS", "Success")
 
 menu()

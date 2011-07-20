@@ -2,7 +2,8 @@
 # 
 
 import xbmc,xbmcaddon
-from trakt_cache import *
+from utilities import *
+import trakt_cache
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -57,7 +58,7 @@ class Movie():
         if index is "_libraryStatus": self._libraryStatus = value
     
     def save(self):
-        TraktCache.saveMovie(self)
+        trakt_cache.saveMovie(self)
         
     def scrobble(self):
         raise NotImplementedError("This function has not been written")
@@ -108,6 +109,7 @@ class Movie():
     
     @staticmethod
     def download(remoteId):
+        Debug("[Movie] Downloading info for "+str(Movie.devolveId(remoteId)))
         local = getMovieFromTrakt(Movie.devolveId(remoteId))
         if local is None:
             return None
@@ -137,24 +139,33 @@ class Movie():
         local._title = movie['title']
         local._year = movie['year']
         local._playcount = movie['plays']
-        local._watchlistStatus = movie['in_watchlist']
-        local._libraryStatus = movie['in_collection']
+        if 'in_watchlist' in movie:
+            local._watchlistStatus = movie['in_watchlist']
+        if 'in_collection' in movie:
+            local._libraryStatus = movie['in_collection']
         return local
      
     @staticmethod
     def fromXbmc(movie):
+        #Debug("[Movie] Creating from: "+str(movie))
         if 'imdbnumber' not in movie or movie['imdbnumber'].strip() == "":
-            traktMovie = searchTraktForMovie(movie['title'], movie['year'])
-            if traktMovie is None:
-                return None
-            if 'imdb_id' in traktMovie:
-                local = Movie("imdb="+traktMovie['imdb_id'])
-            elif 'tmdb_id' in traktMovie:
-                local = Movie("tmdb="+traktMovie['tmdb_id'])
+            remoteId = trakt_cache.getMovieId(movie['movieid'])
+            if remoteId is not None:
+                local = Movie(remoteId)
             else:
-                return None
+                traktMovie = searchTraktForMovie(movie['title'], movie['year'])
+                if traktMovie is None:
+                    return None
+                if 'imdb_id' in traktMovie:
+                    local = Movie("imdb="+traktMovie['imdb_id'])
+                elif 'tmdb_id' in traktMovie:
+                    local = Movie("tmdb="+traktMovie['tmdb_id'])
+                else:
+                    return None
+                # Related movieid to remoteId, now store the relationship
+                trakt_cache.relateMovieId(movie['movieid'], local['_remoteId'])
         else:
-            local = Movie(evolveId(movie['imdbnumber']))
+            local = Movie(Movie.evolveId(movie['imdbnumber']))
         local._title = movie['title']
         local._year = movie['year']
         local._playcount = movie['playcount']
@@ -169,10 +180,11 @@ class Movie():
     
     @staticmethod
     def devolveId(idString):
-        if idString.find('imbd=') == 0:
-            if idString.find('tt') == 0:
-                return idString[5:]
-            else:
-                return "tt"+idString[5:]
-        if idString.find('tmbd=') == 0:
+        #Debug("[Movie] Devolving id: "+str(idString))
+        if idString.find('imdb=tt') == 0:
             return idString[5:]
+        elif idString.find('imdb=') == 0:
+            return "tt"+idString[5:]
+        elif idString.find('tmbd=') == 0:
+            return idString[5:]
+        
