@@ -482,7 +482,7 @@ def cleanTVShowCollection(daemon=False):
         error = None
         
         # refresh connection (don't want to get tcp timeout)
-        conn = getTrackConnection()
+        conn = getTraktConnection()
         
         for i in range(0, len(to_unlibrary)):
             data = traktJsonRequest('POST', '/show/episode/unlibrary/%%API_KEY%%', {'tvdb_id': to_unlibrary[i]['tvdb_id'], 'title': to_unlibrary[i]['title'], 'year': to_unlibrary[i]['year'], 'episodes': to_unlibrary[i]['episodes']}, returnStatus = True, conn = conn)
