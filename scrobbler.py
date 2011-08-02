@@ -51,18 +51,23 @@ class Scrobbler(threading.Thread):
                 count = 0
     
     def playbackStarted(self, data):
-        if xbmc.Player().isPlayingVideo():
-            self.curVideo = data
-            if self.curVideo <> None:
-                if 'type' in self.curVideo and 'id' in self.curVideo:
-                    Debug("[Rating] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))
+        self.curVideo = data
+        if self.curVideo <> None:
+            if 'type' in self.curVideo and 'id' in self.curVideo:
+                Debug("[Rating] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))
+                try:
+                    if not xbmc.Player().isPlayingVideo():
+                        Debug("[Rating] Suddenly stopped watching item")
+                        return
                     self.totalTime = xbmc.Player().getTotalTime()
-                    self.startTime = time.time()
-                    self.startedWatching()
-                    self.pinging = True
-                else:
-                    self.curVideo = None
-                    self.startTime = 0
+                except:
+                    Debug("[Rating] Suddenly stopped watching item, or error: "+repr(sys.exc_info()[0]))
+                self.startTime = time.time()
+                self.startedWatching()
+                self.pinging = True
+            else:
+                self.curVideo = None
+                self.startTime = 0
 
     def playbackPaused(self):
         if self.startTime <> 0:
