@@ -340,7 +340,8 @@ def cleanMovieCollection(daemon=False):
             else:
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
     else:
-        xbmcgui.Dialog().ok("Trakt Utilities", __language__(1130).encode( "utf-8", "ignore" )) # No new movies in library to update
+        if not daemon:
+			xbmcgui.Dialog().ok("Trakt Utilities", __language__(1130).encode( "utf-8", "ignore" )) # No new movies in library to update
     if not daemon:
         progress.close()
 
