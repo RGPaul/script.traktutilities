@@ -37,7 +37,7 @@ class Scrobbler(threading.Thread):
         count = 0
         while (not xbmc.abortRequested):
             time.sleep(5) # 1min wait
-            Debug("[Scrobbler] Cycling " + str(self.pinging))
+            #Debug("[Scrobbler] Cycling " + str(self.pinging))
             if self.pinging:
                 count += 1
                 if count>=100:
