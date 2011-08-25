@@ -36,11 +36,11 @@ class Scrobbler(threading.Thread):
         # When requested ping trakt to say that the user is still watching the item
         count = 0
         while (not xbmc.abortRequested):
-            time.sleep(60) # 1min wait
+            time.sleep(5) # 1min wait
             Debug("[Scrobbler] Cycling " + str(self.pinging))
             if self.pinging:
                 count += 1
-                if count>=10:
+                if count>=100:
                     Debug("[Scrobbler] Pinging watching "+str(self.curVideo))
                     tmp = time.time()
                     self.watchedTime += tmp - self.startTime
