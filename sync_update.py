@@ -55,6 +55,7 @@ def updateMovieCollection(daemon=False):
     movie_collection = []
     
     for i in range(0, len(xbmc_movies)):
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / len(xbmc_movies) * i)
             if progress.iscanceled():
@@ -104,6 +105,7 @@ def updateMovieCollection(daemon=False):
     
     movies_string = ""
     for i in range(0, len(movie_collection)):
+        if xbmc.abortRequested: raise SystemExit()
         if i == 0:
             movies_string += movie_collection[i]['title']
         elif i > 5:
@@ -161,6 +163,7 @@ def updateTVShowCollection(daemon=False):
     foundseason = False
         
     for i in range(0, xbmc_tvshows['limits']['total']):
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / xbmc_tvshows['limits']['total'] * i)
             if progress.iscanceled():
@@ -258,6 +261,7 @@ def updateTVShowCollection(daemon=False):
         conn = getTraktConnection()
         
         for i in range(0, len(tvshows_toadd)):
+            if xbmc.abortRequested: raise SystemExit()
             data = traktJsonRequest('POST', '/show/episode/library/%%API_KEY%%', {'tvdb_id': tvshows_toadd[i]['tvdb_id'], 'title': tvshows_toadd[i]['title'], 'year': tvshows_toadd[i]['year'], 'episodes': tvshows_toadd[i]['episodes']}, returnStatus=True, conn = conn)
             
             if data['status'] == 'success':
@@ -313,6 +317,7 @@ def cleanMovieCollection(daemon=False):
     
     progresscount = 0
     for movie in trakt_movies.items():
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progresscount += 1
             progress.update(100 / len(trakt_movies.items()) * progresscount)
@@ -386,6 +391,7 @@ def cleanTVShowCollection(daemon=False):
             continue # missing data, skip tvshow
     
     for trakt_tvshow in trakt_tvshows.items():
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progresscount += 1
             progress.update(100 / len(trakt_tvshows) * progresscount)
@@ -486,6 +492,7 @@ def cleanTVShowCollection(daemon=False):
         conn = getTraktConnection()
         
         for i in range(0, len(to_unlibrary)):
+            if xbmc.abortRequested: raise SystemExit()
             data = traktJsonRequest('POST', '/show/episode/unlibrary/%%API_KEY%%', {'tvdb_id': to_unlibrary[i]['tvdb_id'], 'title': to_unlibrary[i]['title'], 'year': to_unlibrary[i]['year'], 'episodes': to_unlibrary[i]['episodes']}, returnStatus = True, conn = conn)
             
             if data['status'] == 'success':
@@ -527,6 +534,7 @@ def syncSeenMovies(daemon=False):
     movies_seen = []
 
     for i in range(0, len(xbmc_movies)):
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / len(xbmc_movies) * i)
             if progress.iscanceled():
@@ -665,6 +673,7 @@ def syncSeenMovies(daemon=False):
                 return
         
         for i in range(0, len(movies_seen)):
+            if xbmc.abortRequested: raise SystemExit()
             setXBMCMoviePlaycount(movies_seen[i]['imdb_id'], movies_seen[i]['plays']) # set playcount on xbmc
         if daemon:
             notification("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1129).encode( "utf-8", "ignore" )) # Movies updated on XBMC
@@ -700,6 +709,7 @@ def syncSeenTVShows(daemon=False):
     tvshow = {}
     
     for i in range(0, xbmc_tvshows['limits']['total']):
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / xbmc_tvshows['limits']['total'] * i)
             if progress.iscanceled():
@@ -796,6 +806,7 @@ def syncSeenTVShows(daemon=False):
             conn = getTraktConnection()
             
             for i in range(0, len(set_as_seen)):
+                if xbmc.abortRequested: raise SystemExit()
                 data = traktJsonRequest('POST', '/show/episode/seen/%%API_KEY%%', {'tvdb_id': set_as_seen[i]['tvdb_id'], 'title': set_as_seen[i]['title'], 'year': set_as_seen[i]['year'], 'episodes': set_as_seen[i]['episodes']}, returnStatus = True, conn = conn)
                 if data['status'] == 'failure':
                     Debug("Error uploading tvshow: " + set_as_seen[i]['title'] + ": " + str(data['error']))
@@ -836,6 +847,7 @@ def syncSeenTVShows(daemon=False):
 
     # add seen episodes to xbmc
     for tvshow in trakt_tvshowlist:
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / len(trakt_tvshowlist) * progress_count)
             progress_count += 1
@@ -918,6 +930,7 @@ def syncSeenTVShows(daemon=False):
             progress_count = 0
 
             for tvshow in set_as_seen:
+                if xbmc.abortRequested: raise SystemExit()
                 if not daemon:
                     progress.update(100 / len(set_as_seen) * progress_count)
                     progress_count += 1
