@@ -185,11 +185,19 @@ def getMoviesFromTrakt(daemon=False):
         Debug("Error in request from 'getMoviesFromTrakt()'")
     return data
 
+# get movie that are listed as in the users collection from trakt server
+def getMovieCollectionFromTrakt(daemon=False):
+    data = traktJsonRequest('POST', '/user/library/movies/collection.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getMovieCollectionFromTrakt()'")
+    return data
+
 # get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
     trakt_movies = {}
 
     for i in range(0, len(data)):
+        if data[i]['imdb_id'] == "": continue
         trakt_movies[data[i]['imdb_id']] = data[i]
         
     return trakt_movies

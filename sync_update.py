@@ -46,7 +46,7 @@ def updateMovieCollection(daemon=False):
         progress.create("Trakt Utilities", __language__(1132).encode( "utf-8", "ignore" )) # Checking Database for new Episodes
     
     # get the required informations
-    trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
+    trakt_movies = traktMovieListByImdbID(getMovieCollectionFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
     
     if xbmc_movies == None or trakt_movies == None: # error
@@ -115,24 +115,37 @@ def updateMovieCollection(daemon=False):
 
     # add movies to trakt library (collection):
     if len(movie_collection) > 0:
+        inserted = 0
+        exist = 0
+        skipped = 0
+        
         if not daemon:
             choice = xbmcgui.Dialog().yesno("Trakt Utilities", str(len(movie_collection)) + " " + __language__(1125).encode( "utf-8", "ignore" ), movies_string) # Movies will be added to Trakt Collection
             if choice == False:
                 return
-        
-        data = traktJsonRequest('POST', '/movie/library/%%API_KEY%%', {'movies': movie_collection}, returnStatus=True)
-        
-        if data['status'] == 'success':
-            Debug ("successfully uploaded collection: ")
-            Debug ("inserted: " + str(data['inserted']) + " already_exist: " + str(data['already_exist']) + " skipped: " + str(data['skipped']))
-            if data['skipped'] > 0:
-                Debug ("skipped movies: " + str(data['skipped_movies']))
-            if not daemon:
-                xbmcgui.Dialog().ok("Trakt Utilities", str(len(movie_collection) - data['skipped']) + " " + __language__(1126).encode( "utf-8", "ignore" ), str(data['skipped']) + " " + __language__(1138).encode( "utf-8", "ignore" )) # Movies updated on Trakt / Movies skipped
-        elif data['status'] == 'failure':
-            Debug ("Error uploading movie collection: " + str(data['error']))
-            if not daemon:
-                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
+        first = 0
+        last = 0
+        while last <= len(movie_collection):
+            if xbmc.abortRequested: raise SystemExit()
+            last = first+25
+            data = traktJsonRequest('POST', '/movie/library/%%API_KEY%%', {'movies': movie_collection[first:last]}, returnStatus=True)
+            first = last
+            
+            if data['status'] == 'success':
+                Debug ("successfully uploaded collection: ")
+                Debug ("inserted: " + str(data['inserted']) + " already_exist: " + str(data['already_exist']) + " skipped: " + str(data['skipped']))
+                if data['skipped'] > 0:
+                    Debug ("skipped movies: " + str(data['skipped_movies']))
+                inserted += data['inserted']
+                exist += data['already_exist']
+                skipped += data['skipped']
+                
+            elif data['status'] == 'failure':
+                Debug ("Error uploading movie collection: " + str(data['error']))
+                if not daemon:
+                    xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
+        if not daemon:
+                xbmcgui.Dialog().ok("Trakt Utilities", str(inserted) + " " + __language__(1126).encode( "utf-8", "ignore" ), str(skipped) + " " + __language__(1138).encode( "utf-8", "ignore" )) # Movies updated on Trakt / Movies skipped
     else:
         if not daemon:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1122).encode( "utf-8", "ignore" )) # No new movies in XBMC library to update
