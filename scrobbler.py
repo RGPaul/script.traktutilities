@@ -31,11 +31,12 @@ class Scrobbler(threading.Thread):
     startTime = 0
     curVideo = None
     pinging = False
+    abortRequested = False
     
     def run(self):
         # When requested ping trakt to say that the user is still watching the item
         count = 0
-        while (not xbmc.abortRequested):
+        while (not (self.abortRequested or xbmc.abortRequested)):
             time.sleep(5) # 1min wait
             #Debug("[Scrobbler] Cycling " + str(self.pinging))
             if self.pinging:

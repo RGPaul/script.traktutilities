@@ -59,6 +59,7 @@ def autostart():
             if autosync_moviecollection == "true" or autosync_tvshowcollection == "true" or autosync_seenmovies == "true" or autosync_seentvshows == "true":
                 notification("Trakt Utilities", __language__(1184).encode( "utf-8", "ignore" )) # update / sync done
         except SystemExit:
+            notificationThread.abortRequested = True
             Debug("[Service] Auto sync processes aborted due to shutdown request")
             
         notificationThread.join()
