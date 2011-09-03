@@ -12,6 +12,8 @@
     <string id="1022">Auto update TV Show Collection at startup</string>
     <string id="1023">Auto sync seen Movies at startup</string>
     <string id="1024">Auto sync seen TV Shows at startup</string>
+    <string id="1025">Auto clean Movies Collection at startup</string>
+    <string id="1026">Auto clean TV Show Collection at startup</string>
     
     <string id="1030">Rating</string>
     <string id="1031">Rate Movie after watching</string>

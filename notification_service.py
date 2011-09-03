@@ -23,11 +23,13 @@ __language__ = __settings__.getLocalizedString
 
 # Receives XBMC notifications and passes them off to the rating functions
 class NotificationService(threading.Thread):
+    abortRequested = False
     def run(self):        
         #while xbmc is running
         scrobbler = Scrobbler()
         scrobbler.start()
-        while (not xbmc.abortRequested):
+        
+        while (not (self.abortRequested or xbmc.abortRequested)):
             try:
                 tn = telnetlib.Telnet('localhost', 9090, 10)
             except IOError as (errno, strerror):
@@ -39,7 +41,7 @@ class NotificationService(threading.Thread):
             Debug("[Notification Service] Waiting~");
             bCount = 0
             
-            while (not xbmc.abortRequested):
+            while (not (self.abortRequested or xbmc.abortRequested)):
                 try:
                     if bCount == 0:
                         notification = ""
@@ -77,7 +79,8 @@ class NotificationService(threading.Thread):
                     if data['method'] == 'Player.OnStop':
                         scrobbler.playbackEnded()
                     elif data['method'] == 'Player.OnPlay':
-                        scrobbler.playbackStarted()
+                        if 'data' in data['params'] and 'id' in data['params']['data'] and 'type' in data['params']['data']:
+                            scrobbler.playbackStarted(data['params']['data'])
                     elif data['method'] == 'Player.OnPause':
                         scrobbler.playbackPaused()
                     elif data['method'] == 'VideoLibrary.OnUpdate':
@@ -85,3 +88,4 @@ class NotificationService(threading.Thread):
                             instantSyncPlayCount(data)
                 
             time.sleep(1)
+        scrobbler.abortRequested = True

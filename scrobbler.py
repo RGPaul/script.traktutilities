@@ -31,16 +31,17 @@ class Scrobbler(threading.Thread):
     startTime = 0
     curVideo = None
     pinging = False
+    abortRequested = False
     
     def run(self):
         # When requested ping trakt to say that the user is still watching the item
         count = 0
-        while (not xbmc.abortRequested):
-            time.sleep(60) # 1min wait
-            Debug("[Scrobbler] Cycling " + str(self.pinging))
+        while (not (self.abortRequested or xbmc.abortRequested)):
+            time.sleep(5) # 1min wait
+            #Debug("[Scrobbler] Cycling " + str(self.pinging))
             if self.pinging:
                 count += 1
-                if count>=10:
+                if count>=100:
                     Debug("[Scrobbler] Pinging watching "+str(self.curVideo))
                     tmp = time.time()
                     self.watchedTime += tmp - self.startTime
@@ -50,19 +51,24 @@ class Scrobbler(threading.Thread):
             else:
                 count = 0
     
-    def playbackStarted(self):
-        if xbmc.Player().isPlayingVideo():
-            self.curVideo = getCurrentPlayingVideoFromXBMC()
-            if self.curVideo <> None:
-                if 'type' in self.curVideo and 'id' in self.curVideo:
-                    Debug("[Rating] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))
+    def playbackStarted(self, data):
+        self.curVideo = data
+        if self.curVideo <> None:
+            if 'type' in self.curVideo and 'id' in self.curVideo:
+                Debug("[Rating] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))
+                try:
+                    if not xbmc.Player().isPlayingVideo():
+                        Debug("[Rating] Suddenly stopped watching item")
+                        return
                     self.totalTime = xbmc.Player().getTotalTime()
-                    self.startTime = time.time()
-                    self.startedWatching()
-                    self.pinging = True
-                else:
-                    self.curVideo = None
-                    self.startTime = 0
+                except:
+                    Debug("[Rating] Suddenly stopped watching item, or error: "+repr(sys.exc_info()[0]))
+                self.startTime = time.time()
+                self.startedWatching()
+                self.pinging = True
+            else:
+                self.curVideo = None
+                self.startTime = 0
 
     def playbackPaused(self):
         if self.startTime <> 0:
