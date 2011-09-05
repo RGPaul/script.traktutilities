@@ -80,6 +80,9 @@ class Scrobbler(threading.Thread):
 
     def playbackEnded(self):
         if self.startTime <> 0:
+            if self.curVideo == None:
+                Debug("[Scrobbler]: Warning: Playback ended but video forgotten")
+                return
             self.watchedTime += time.time() - self.startTime
             self.pinging = False
             if self.watchedTime <> 0:
