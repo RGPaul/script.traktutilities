@@ -54,7 +54,6 @@ class NBHTTPConnection(threading.Thread):
     
     def go(self):
         self.responceLock.acquire()
-        print str(self.responceLock)
         self.start()
         
     def run(self):
