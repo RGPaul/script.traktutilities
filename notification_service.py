@@ -86,6 +86,9 @@ class NotificationService(threading.Thread):
                     elif data['method'] == 'VideoLibrary.OnUpdate':
                         if 'data' in data['params'] and 'playcount' in data['params']['data']:
                             instantSyncPlayCount(data)
+                    elif data['method'] == 'System.OnQuit':
+                        self.abortRequested = True
                 
             time.sleep(1)
+        tn.close()
         scrobbler.abortRequested = True
