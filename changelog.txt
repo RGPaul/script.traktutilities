@@ -1,3 +1,11 @@
+Version 0.6.1:
+    - Fixed (hopefully) major bug where Trakt Utilities prevented xbmc from closing, indefinatly, #91
+    - Fixed major bug where items that where already marked as seen where not added to the collection #90
+    - Fixed problems with changed json versions in xbmc #86 & #88 
+    - Fixed misc bugs #63, #67, #69, #74, #75, #86, #87
+    - Added option to automatically clean the movie/tv collection on trakt
+    - Scrobbling seems stable now and Trakt Utilities can be used safely by itself
+
 Version 0.6.0:
     - Added experimental scrobbling abilities (disabled by default)
         eventually this will mean you can run Trakt Utilities by itself
