@@ -57,14 +57,11 @@ class NotificationService(threading.Thread):
                         match = match.group(0)
                         if match == "\"":
                             inString = not inString
-                            #Debug("[~] "+match+" "+str(inString)+" >"+raw)
                             continue
                         if match == "{":
                             bCount += 1
-                            #Debug("[~] "+match+" "+str(bCount)+" >"+raw)
                         if match == "}":
                             bCount -= 1
-                            #Debug("[~] "+match+" "+str(bCount)+" >"+raw)
                     if bCount > 0:
                         continue
                     if bCount < 0:
