@@ -4,7 +4,11 @@
 import os, sys
 import xbmc,xbmcaddon,xbmcgui
 import time, socket
-import simplejson as json
+
+try: import simplejson as json
+except ImportError: import json
+
+from nbhttpconnection import *
 
 import urllib, re
 
@@ -101,7 +105,7 @@ def xbmcHttpapiExec(query):
 # get a connection to trakt
 def getTraktConnection():
     try:
-        conn = httplib.HTTPConnection('api.trakt.tv')
+        conn = NBHTTPConnection('api.trakt.tv')
     except socket.timeout:
         Debug("getTraktConnection: can't connect to trakt - timeout")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
@@ -120,8 +124,10 @@ def getTraktConnection():
 # silent: default is False, when true it disable any error notifications (but not debug messages)
 # passVersions: default is False, when true it passes extra version information to trakt to help debug problems
 def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False, silent=False, passVersions=False):
+    closeConnection = False
     if conn == False:
         conn = getTraktConnection()
+        closeConnection = True
     if conn == None:
         if returnStatus:
             data = {}
@@ -153,12 +159,32 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
         Debug("traktQuery: can't connect to trakt")
         if not silent: notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
-
-    response = conn.getresponse()
+     
+    conn.go()
+    
+    while True:
+        if conn.hasResult() or xbmc.abortRequested:
+            if xbmc.abortRequested:
+                Debug("Broke loop due to abort")
+                if returnStatus:
+                    data = {}
+                    data['status'] = 'failure'
+                    data['error'] = 'Abort requested, not waiting for responce'
+                    return data;
+                return None
+            if closeConnection:
+                conn.close()
+            break
+        time.sleep(1)
+    
+    response = conn.getResult()
+    if closeConnection:
+        conn.close()
+    
     try:
         raw = response.read()
         data = json.loads(raw)
-    except json.decoder.JSONDecodeError:
+    except ValueError:
         Debug("traktQuery: Bad JSON responce: "+raw)
         if returnStatus:
             data = {}
@@ -185,11 +211,19 @@ def getMoviesFromTrakt(daemon=False):
         Debug("Error in request from 'getMoviesFromTrakt()'")
     return data
 
+# get movie that are listed as in the users collection from trakt server
+def getMovieCollectionFromTrakt(daemon=False):
+    data = traktJsonRequest('POST', '/user/library/movies/collection.json/%%API_KEY%%/%%USERNAME%%')
+    if data == None:
+        Debug("Error in request from 'getMovieCollectionFromTrakt()'")
+    return data
+
 # get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
     trakt_movies = {}
 
     for i in range(0, len(data)):
+        if data[i]['imdb_id'] == "": continue
         trakt_movies[data[i]['imdb_id']] = data[i]
         
     return trakt_movies

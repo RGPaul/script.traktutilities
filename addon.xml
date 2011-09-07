@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.TraktUtilities"
     name="Trakt Utilities"
-    version="0.6.0"
+    version="0.6.1"
     provider-name="Manromen">
     <requires>
         <import addon="xbmc.python" version="1.0"/>
@@ -10,7 +10,7 @@
     <extension point="xbmc.python.script" library="default.py">
         <provides>video</provides>
     </extension>
-    <res width="1280" height="720" aspect="16x9">720p</res>
+    <res width="1280" height="720" aspect="16x9" default="true" folder="720p" />
     <extension point="xbmc.service" name="TraktUtilities.service" library="service.py"/>
     <extension point="xbmc.addon.repository" name="Manromen XBMC Addons testing">
         <info compressed="true">http://xbmc.rgpaul.com/XBMC-Repository-devel/addons.xml</info>

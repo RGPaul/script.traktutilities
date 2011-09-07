@@ -46,7 +46,7 @@ def updateMovieCollection(daemon=False):
         progress.create("Trakt Utilities", __language__(1132).encode( "utf-8", "ignore" )) # Checking Database for new Episodes
     
     # get the required informations
-    trakt_movies = traktMovieListByImdbID(getMoviesFromTrakt())
+    trakt_movies = traktMovieListByImdbID(getMovieCollectionFromTrakt())
     xbmc_movies = getMoviesFromXBMC()
     
     if xbmc_movies == None or trakt_movies == None: # error
@@ -55,6 +55,7 @@ def updateMovieCollection(daemon=False):
     movie_collection = []
     
     for i in range(0, len(xbmc_movies)):
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / len(xbmc_movies) * i)
             if progress.iscanceled():
@@ -104,6 +105,7 @@ def updateMovieCollection(daemon=False):
     
     movies_string = ""
     for i in range(0, len(movie_collection)):
+        if xbmc.abortRequested: raise SystemExit()
         if i == 0:
             movies_string += movie_collection[i]['title']
         elif i > 5:
@@ -113,24 +115,37 @@ def updateMovieCollection(daemon=False):
 
     # add movies to trakt library (collection):
     if len(movie_collection) > 0:
+        inserted = 0
+        exist = 0
+        skipped = 0
+        
         if not daemon:
             choice = xbmcgui.Dialog().yesno("Trakt Utilities", str(len(movie_collection)) + " " + __language__(1125).encode( "utf-8", "ignore" ), movies_string) # Movies will be added to Trakt Collection
             if choice == False:
                 return
-        
-        data = traktJsonRequest('POST', '/movie/library/%%API_KEY%%', {'movies': movie_collection}, returnStatus=True)
-        
-        if data['status'] == 'success':
-            Debug ("successfully uploaded collection: ")
-            Debug ("inserted: " + str(data['inserted']) + " already_exist: " + str(data['already_exist']) + " skipped: " + str(data['skipped']))
-            if data['skipped'] > 0:
-                Debug ("skipped movies: " + str(data['skipped_movies']))
-            if not daemon:
-                xbmcgui.Dialog().ok("Trakt Utilities", str(len(movie_collection) - data['skipped']) + " " + __language__(1126).encode( "utf-8", "ignore" ), str(data['skipped']) + " " + __language__(1138).encode( "utf-8", "ignore" )) # Movies updated on Trakt / Movies skipped
-        elif data['status'] == 'failure':
-            Debug ("Error uploading movie collection: " + str(data['error']))
-            if not daemon:
-                xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
+        first = 0
+        last = 0
+        while last <= len(movie_collection):
+            if xbmc.abortRequested: raise SystemExit()
+            last = first+25
+            data = traktJsonRequest('POST', '/movie/library/%%API_KEY%%', {'movies': movie_collection[first:last]}, returnStatus=True)
+            first = last
+            
+            if data['status'] == 'success':
+                Debug ("successfully uploaded collection: ")
+                Debug ("inserted: " + str(data['inserted']) + " already_exist: " + str(data['already_exist']) + " skipped: " + str(data['skipped']))
+                if data['skipped'] > 0:
+                    Debug ("skipped movies: " + str(data['skipped_movies']))
+                inserted += data['inserted']
+                exist += data['already_exist']
+                skipped += data['skipped']
+                
+            elif data['status'] == 'failure':
+                Debug ("Error uploading movie collection: " + str(data['error']))
+                if not daemon:
+                    xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
+        if not daemon:
+                xbmcgui.Dialog().ok("Trakt Utilities", str(inserted) + " " + __language__(1126).encode( "utf-8", "ignore" ), str(skipped) + " " + __language__(1138).encode( "utf-8", "ignore" )) # Movies updated on Trakt / Movies skipped
     else:
         if not daemon:
             xbmcgui.Dialog().ok("Trakt Utilities", __language__(1122).encode( "utf-8", "ignore" )) # No new movies in XBMC library to update
@@ -161,6 +176,7 @@ def updateTVShowCollection(daemon=False):
     foundseason = False
         
     for i in range(0, xbmc_tvshows['limits']['total']):
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / xbmc_tvshows['limits']['total'] * i)
             if progress.iscanceled():
@@ -258,6 +274,7 @@ def updateTVShowCollection(daemon=False):
         conn = getTraktConnection()
         
         for i in range(0, len(tvshows_toadd)):
+            if xbmc.abortRequested: raise SystemExit()
             data = traktJsonRequest('POST', '/show/episode/library/%%API_KEY%%', {'tvdb_id': tvshows_toadd[i]['tvdb_id'], 'title': tvshows_toadd[i]['title'], 'year': tvshows_toadd[i]['year'], 'episodes': tvshows_toadd[i]['episodes']}, returnStatus=True, conn = conn)
             
             if data['status'] == 'success':
@@ -313,6 +330,7 @@ def cleanMovieCollection(daemon=False):
     
     progresscount = 0
     for movie in trakt_movies.items():
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progresscount += 1
             progress.update(100 / len(trakt_movies.items()) * progresscount)
@@ -340,7 +358,8 @@ def cleanMovieCollection(daemon=False):
             else:
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1121).encode( "utf-8", "ignore" ), str(data['error'])) # Error uploading movie collection
     else:
-        xbmcgui.Dialog().ok("Trakt Utilities", __language__(1130).encode( "utf-8", "ignore" )) # No new movies in library to update
+        if not daemon:
+			xbmcgui.Dialog().ok("Trakt Utilities", __language__(1130).encode( "utf-8", "ignore" )) # No new movies in library to update
     if not daemon:
         progress.close()
 
@@ -385,6 +404,7 @@ def cleanTVShowCollection(daemon=False):
             continue # missing data, skip tvshow
     
     for trakt_tvshow in trakt_tvshows.items():
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progresscount += 1
             progress.update(100 / len(trakt_tvshows) * progresscount)
@@ -438,7 +458,7 @@ def cleanTVShowCollection(daemon=False):
                     if seasonid > 50:
                         continue
                 if foundseason == False:
-                    Debug("Season not found: " + trakt_tvshow[1]['title'] + ": " + trakt_tvshow[1]['seasons'][i]['season'])
+                    Debug("Season not found: " + str(trakt_tvshow[1]['title']) + ": " + str(trakt_tvshow[1]['seasons'][i]['season']))
                     # delte season from trakt collection
                     for episodeid in trakt_tvshow[1]['seasons'][i]['episodes']:
                         tvshow['episodes'].append({'season': trakt_tvshow[1]['seasons'][i]['season'], 'episode': episodeid})
@@ -482,9 +502,10 @@ def cleanTVShowCollection(daemon=False):
         error = None
         
         # refresh connection (don't want to get tcp timeout)
-        conn = getTrackConnection()
+        conn = getTraktConnection()
         
         for i in range(0, len(to_unlibrary)):
+            if xbmc.abortRequested: raise SystemExit()
             data = traktJsonRequest('POST', '/show/episode/unlibrary/%%API_KEY%%', {'tvdb_id': to_unlibrary[i]['tvdb_id'], 'title': to_unlibrary[i]['title'], 'year': to_unlibrary[i]['year'], 'episodes': to_unlibrary[i]['episodes']}, returnStatus = True, conn = conn)
             
             if data['status'] == 'success':
@@ -526,6 +547,7 @@ def syncSeenMovies(daemon=False):
     movies_seen = []
 
     for i in range(0, len(xbmc_movies)):
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / len(xbmc_movies) * i)
             if progress.iscanceled():
@@ -664,6 +686,7 @@ def syncSeenMovies(daemon=False):
                 return
         
         for i in range(0, len(movies_seen)):
+            if xbmc.abortRequested: raise SystemExit()
             setXBMCMoviePlaycount(movies_seen[i]['imdb_id'], movies_seen[i]['plays']) # set playcount on xbmc
         if daemon:
             notification("Trakt Utilities", str(len(movies_seen)) + " " + __language__(1129).encode( "utf-8", "ignore" )) # Movies updated on XBMC
@@ -699,6 +722,7 @@ def syncSeenTVShows(daemon=False):
     tvshow = {}
     
     for i in range(0, xbmc_tvshows['limits']['total']):
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / xbmc_tvshows['limits']['total'] * i)
             if progress.iscanceled():
@@ -795,6 +819,7 @@ def syncSeenTVShows(daemon=False):
             conn = getTraktConnection()
             
             for i in range(0, len(set_as_seen)):
+                if xbmc.abortRequested: raise SystemExit()
                 data = traktJsonRequest('POST', '/show/episode/seen/%%API_KEY%%', {'tvdb_id': set_as_seen[i]['tvdb_id'], 'title': set_as_seen[i]['title'], 'year': set_as_seen[i]['year'], 'episodes': set_as_seen[i]['episodes']}, returnStatus = True, conn = conn)
                 if data['status'] == 'failure':
                     Debug("Error uploading tvshow: " + set_as_seen[i]['title'] + ": " + str(data['error']))
@@ -835,6 +860,7 @@ def syncSeenTVShows(daemon=False):
 
     # add seen episodes to xbmc
     for tvshow in trakt_tvshowlist:
+        if xbmc.abortRequested: raise SystemExit()
         if not daemon:
             progress.update(100 / len(trakt_tvshowlist) * progress_count)
             progress_count += 1
@@ -917,6 +943,7 @@ def syncSeenTVShows(daemon=False):
             progress_count = 0
 
             for tvshow in set_as_seen:
+                if xbmc.abortRequested: raise SystemExit()
                 if not daemon:
                     progress.update(100 / len(set_as_seen) * progress_count)
                     progress_count += 1

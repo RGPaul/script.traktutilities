@@ -3,7 +3,10 @@
 
 import xbmc,xbmcaddon,xbmcgui
 import telnetlib, time
-import simplejson as json
+
+try: import simplejson as json
+except ImportError: import json
+
 import threading
 from utilities import *
 from instant_sync import *
@@ -28,6 +31,8 @@ def instantSyncPlayCount(data):
             res = setEpisodesUnseenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
         elif data['params']['data']['playcount'] == 1:
             res = setEpisodesSeenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
+        else:
+            return
         Debug("Instant-sync (episode playcount): responce "+str(res))
     if data['params']['data']['type'] == 'movie':
         info = getMovieDetailsFromXbmc(data['params']['data']['id'], ['imdbnumber', 'title', 'year', 'playcount', 'lastplayed'])
@@ -38,4 +43,6 @@ def instantSyncPlayCount(data):
             res = setMoviesUnseenOnTrakt([{'imdb_id':info['imdbnumber'], 'title':info['title'], 'year':info['year'], 'plays':data['params']['data']['playcount'], 'last_played':info['lastplayed']}])
         elif data['params']['data']['playcount'] == 1:
             res = setMoviesSeenOnTrakt([{'imdb_id':info['imdbnumber'], 'title':info['title'], 'year':info['year'], 'plays':data['params']['data']['playcount'], 'last_played':info['lastplayed']}])
+        else:
+            return
         Debug("Instant-sync (movie playcount): responce "+str(res))
