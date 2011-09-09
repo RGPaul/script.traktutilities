@@ -3,7 +3,10 @@
 
 import xbmc,xbmcaddon,xbmcgui
 import telnetlib, time
-import simplejson as json
+
+try: import simplejson as json
+except ImportError: import json
+
 import threading
 from utilities import *
 from instant_sync import *

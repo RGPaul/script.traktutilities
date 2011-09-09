@@ -3,7 +3,10 @@
 
 import xbmc,xbmcaddon,xbmcgui
 import telnetlib, time
-import simplejson as json
+
+try: import simplejson as json
+except ImportError: import json
+
 import threading
 from utilities import *
 from rating import *
@@ -23,11 +26,13 @@ __language__ = __settings__.getLocalizedString
 
 # Receives XBMC notifications and passes them off to the rating functions
 class NotificationService(threading.Thread):
+    abortRequested = False
     def run(self):        
         #while xbmc is running
         scrobbler = Scrobbler()
         scrobbler.start()
-        while (not xbmc.abortRequested):
+        
+        while (not (self.abortRequested or xbmc.abortRequested)):
             try:
                 tn = telnetlib.Telnet('localhost', 9090, 10)
             except IOError as (errno, strerror):
@@ -39,7 +44,7 @@ class NotificationService(threading.Thread):
             Debug("[Notification Service] Waiting~");
             bCount = 0
             
-            while (not xbmc.abortRequested):
+            while (not (self.abortRequested or xbmc.abortRequested)):
                 try:
                     if bCount == 0:
                         notification = ""
@@ -52,14 +57,11 @@ class NotificationService(threading.Thread):
                         match = match.group(0)
                         if match == "\"":
                             inString = not inString
-                            #Debug("[~] "+match+" "+str(inString)+" >"+raw)
                             continue
                         if match == "{":
                             bCount += 1
-                            #Debug("[~] "+match+" "+str(bCount)+" >"+raw)
                         if match == "}":
                             bCount -= 1
-                            #Debug("[~] "+match+" "+str(bCount)+" >"+raw)
                     if bCount > 0:
                         continue
                     if bCount < 0:
@@ -84,5 +86,9 @@ class NotificationService(threading.Thread):
                     elif data['method'] == 'VideoLibrary.OnUpdate':
                         if 'data' in data['params'] and 'playcount' in data['params']['data']:
                             instantSyncPlayCount(data)
+                    elif data['method'] == 'System.OnQuit':
+                        self.abortRequested = True
                 
             time.sleep(1)
+        tn.close()
+        scrobbler.abortRequested = True
