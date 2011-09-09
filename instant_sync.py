@@ -3,7 +3,10 @@
 
 import xbmc,xbmcaddon,xbmcgui
 import telnetlib, time
-import simplejson as json
+
+try: import simplejson as json
+except ImportError: import json
+
 import threading
 from utilities import *
 from instant_sync import *
@@ -18,19 +21,20 @@ __status__ = "Production"
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
-# Move this to its own file
+# Instantly syncronise changes in playcount
 def instantSyncPlayCount(data):
     if data['params']['data']['type'] == 'episode':
-        info = getEpisodeDetailsFromXbmc(data['params']['data']['id'], ['showtitle', 'season', 'episode'])
+        info = getEpisodeDetailsFromXbmc(data['params']['data']['id'], ['imdbnumber', 'showtitle', 'year', 'season', 'episode'])
         if info == None: return
         Debug("Instant-sync (episode playcount): "+str(info))
         if data['params']['data']['playcount'] == 0:
-            res = setEpisodesUnseenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
+            res = setEpisodesUnseenOnTrakt(info['imdbnumber'], info['showtitle'], info['year'], [{'season':info['season'], 'episode':info['episode']}])
         elif data['params']['data']['playcount'] == 1:
-            res = setEpisodesSeenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
+            res = setEpisodesSeenOnTrakt(info['imdbnumber'], info['showtitle'], info['year'], [{'season':info['season'], 'episode':info['episode']}])
         else:
             return
         Debug("Instant-sync (episode playcount): responce "+str(res))
+        
     if data['params']['data']['type'] == 'movie':
         info = getMovieDetailsFromXbmc(data['params']['data']['id'], ['imdbnumber', 'title', 'year', 'playcount', 'lastplayed'])
         if info == None: return
@@ -43,3 +47,37 @@ def instantSyncPlayCount(data):
         else:
             return
         Debug("Instant-sync (movie playcount): responce "+str(res))
+        
+# Instantly syncronise removal of items from the library
+def instantSyncRemove(data):
+    if data['params']['data']['type'] == 'episode':
+        info = getEpisodeDetailsFromXbmc(data['params']['data']['id'], ['imdbnumber', 'showtitle', 'year', 'season', 'episode'])
+        if info == None: return
+        Debug("Instant-sync (episode removed): "+str(info))
+        res = removeEpisodesFromTraktCollection(info['imdbnumber'], info['showtitle'], info['year'], [{'season':info['season'], 'episode':info['episode']}], daemon=True)
+        Debug("Instant-sync (episode removed): responce "+str(res))
+        
+    if data['params']['data']['type'] == 'movie':
+        info = getMovieDetailsFromXbmc(data['params']['data']['id'], ['imdbnumber', 'title', 'year'])
+        if info == None: return
+        info['imdb_id'] = info['imbdnumber']
+        Debug("Instant-sync (movie removed): "+str(info))
+        res = removeMoviesFromTraktCollection([info], daemon=True)
+        Debug("Instant-sync (movie removed): responce "+str(res))
+                
+# Instantly syncronise addition of items to the library
+def instantSyncAdd(data):
+    if data['params']['data']['type'] == 'episode':
+        info = getEpisodeDetailsFromXbmc(data['params']['data']['id'], ['imdbnumber', 'showtitle', 'year', 'season', 'episode'])
+        if info == None: return
+        Debug("Instant-sync (episode added): "+str(info))
+        res = addEpisodesToTraktCollection(info['imdbnumber'], info['showtitle'], info['year'], [{'season':info['season'], 'episode':info['episode']}], daemon=True)
+        Debug("Instant-sync (episode added): responce "+str(res))
+        
+    if data['params']['data']['type'] == 'movie':
+        info = getMovieDetailsFromXbmc(data['params']['data']['id'], ['imdbnumber', 'title', 'year'])
+        if info == None: return
+        info['imdb_id'] = info['imbdnumber']
+        Debug("Instant-sync (movie added): "+str(info))
+        res = addMoviesToTraktCollection([info], daemon=True)
+        Debug("Instant-sync (movie added): responce "+str(res))

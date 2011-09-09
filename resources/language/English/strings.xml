@@ -12,6 +12,8 @@
     <string id="1022">Auto update TV Show Collection at startup</string>
     <string id="1023">Auto sync seen Movies at startup</string>
     <string id="1024">Auto sync seen TV Shows at startup</string>
+    <string id="1025">Auto clean Movies Collection at startup</string>
+    <string id="1026">Auto clean TV Show Collection at startup</string>
     
     <string id="1030">Rating</string>
     <string id="1031">Rate Movie after watching</string>
@@ -92,6 +94,8 @@
     <string id="1310">Successfully added to watch-list</string>
     <string id="1311">Failed to remove from watch-list</string>
     <string id="1312">Successfully removed from watch-list</string>
+    <string id="1313">Failed to mark as seen</string>
+    <string id="1314">Successfully marked as seen</string>
 
     <!-- auto update / sync -->
     <string id="1180">start movie collection update</string>

@@ -4,7 +4,10 @@
 import os
 import xbmc,xbmcaddon,xbmcgui
 import time, socket
-import simplejson as json
+
+try: import simplejson as json
+except ImportError: import json
+
 from utilities import *
 
 try:
