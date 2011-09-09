@@ -128,7 +128,7 @@ def updateMovieCollection(daemon=False):
         while last <= len(movie_collection):
             if xbmc.abortRequested: raise SystemExit()
             last = first+25
-            data = traktJsonRequest('POST', '/movie/library/%%API_KEY%%', {'movies': movie_collection[first:last]}, returnStatus=True)
+            data = addMoviesToTraktCollection(movie_collection[first:last], returnStatus=True, daemon=daemon)
             first = last
             
             if data['status'] == 'success':
@@ -275,8 +275,7 @@ def updateTVShowCollection(daemon=False):
         
         for i in range(0, len(tvshows_toadd)):
             if xbmc.abortRequested: raise SystemExit()
-            data = traktJsonRequest('POST', '/show/episode/library/%%API_KEY%%', {'tvdb_id': tvshows_toadd[i]['tvdb_id'], 'title': tvshows_toadd[i]['title'], 'year': tvshows_toadd[i]['year'], 'episodes': tvshows_toadd[i]['episodes']}, returnStatus=True, conn = conn)
-            
+            data = addEpisodesToTraktCollection(tvshows_toadd[i]['tvdb_id'], tvshows_toadd[i]['title'], tvshows_toadd[i]['year'], tvshows_toadd[i]['episodes'], returnStatus=True, conn = conn)
             if data['status'] == 'success':
                 Debug ("successfully uploaded collection: " + str(data['message']))
             elif data['status'] == 'failure':
@@ -345,7 +344,7 @@ def cleanMovieCollection(daemon=False):
                 Debug (movie[1]['title'] + " not found in xbmc library")
     
     if len(to_unlibrary) > 0:
-        data = traktJsonRequest('POST', '/movie/unlibrary/%%API_KEY%%', {'movies': to_unlibrary}, returnStatus = True)
+        data = removeMoviesFromTraktCollection(to_unlibrary, returnStatus = True, daemon=daemon)
         
         if data['status'] == 'success':
             Debug ("successfully cleared collection: " + str(data['message']))
@@ -480,8 +479,7 @@ def cleanTVShowCollection(daemon=False):
         
         for i in range(0, len(to_unlibrary)):
             if xbmc.abortRequested: raise SystemExit()
-            data = traktJsonRequest('POST', '/show/episode/unlibrary/%%API_KEY%%', {'tvdb_id': to_unlibrary[i]['tvdb_id'], 'title': to_unlibrary[i]['title'], 'year': to_unlibrary[i]['year'], 'episodes': to_unlibrary[i]['episodes']}, returnStatus = True, conn = conn)
-            
+            data = removeEpisodesFromTraktCollection(to_unlibrary[i]['tvdb_id'], to_unlibrary[i]['title'], to_unlibrary[i]['year'], to_unlibrary[i]['episodes'], returnStatus = True, conn = conn)
             if data['status'] == 'success':
                 Debug ("successfully updated collection: " + str(data['message']))
             elif data['status'] == 'failure':

@@ -199,25 +199,39 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
             Debug("traktQuery: Error: " + str(data['error']))
             if returnStatus:
                 return data;
-            if not silent: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
+            if not daemon: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
             return None
     
     return data
    
 # get movies from trakt server
-def getMoviesFromTrakt(daemon=False):
-    data = traktJsonRequest('POST', '/user/library/movies/all.json/%%API_KEY%%/%%USERNAME%%')
+def getMoviesFromTrakt(*args, **argd):
+    data = traktJsonRequest('POST', '/user/library/movies/all.json/%%API_KEY%%/%%USERNAME%%', *args, **argd)
     if data == None:
         Debug("Error in request from 'getMoviesFromTrakt()'")
     return data
 
 # get movie that are listed as in the users collection from trakt server
-def getMovieCollectionFromTrakt(daemon=False):
-    data = traktJsonRequest('POST', '/user/library/movies/collection.json/%%API_KEY%%/%%USERNAME%%')
+def getMovieCollectionFromTrakt(*args, **argd):
+    data = traktJsonRequest('POST', '/user/library/movies/collection.json/%%API_KEY%%/%%USERNAME%%', *args, **argd)
     if data == None:
         Debug("Error in request from 'getMovieCollectionFromTrakt()'")
     return data
 
+# add movies to the users collection on trakt
+def addMoviesToTraktCollection(movies, *args, **argd):
+    data = traktJsonRequest('POST', '/movie/library/%%API_KEY%%', {'movies': movies}, *args, **argd)
+    if data == None:
+        Debug("Error in request from 'addMoviesToTraktCollection()'")
+    return data
+
+# remove movies from the users collection on trakt
+def removeMoviesFromTraktCollection(movies, *args, **argd):
+    data = traktJsonRequest('POST', '/movie/unlibrary/%%API_KEY%%', {'movies': movies}, *args, **argd)
+    if data == None:
+        Debug("Error in request from 'removeMoviesFromTraktCollection()'")
+    return data
+    
 # get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
     trakt_movies = {}
@@ -280,7 +294,35 @@ def getTVShowCollectionFromTrakt(daemon=False):
     if data == None:
         Debug("Error in request from 'getTVShowCollectionFromTrakt()'")
     return data
-    
+
+# add a whole tv show to the users collection
+def addWholeTvShowToTraktCollection(tvdb_id, title, year, imdb_id=None, *args, **argd):
+    data = traktJsonRequest('POST', '/show/library/%%API_KEY%%', {'imdb_id': imdb_id, 'tvdb_id': tvdb_id, 'title': title, 'year': year}, *args, **argd)
+    if data == None:
+        Debug("Error in request from 'addWholeTvShowToTraktCollection()'")
+    return data
+
+# add individual episodes of a tshow to the users trakt collection
+def addEpisodesToTraktCollection(tvdb_id, title, year, imdb_id=None, *args, **argd):
+    data = traktJsonRequest('POST', '/show/episode/library/%%API_KEY%%', {'imdb_id': imdb_id, 'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes}, *args, **argd)
+    if data == None:
+        Debug("Error in request from 'addEpisodesToTraktCollection()'")
+    return data
+
+# remove a whole tv show from the users collection
+def removeWholeTvShowFromTraktCollection(tvdb_id, title, year, imdb_id=None, *args, **argd):
+    data = traktJsonRequest('POST', '/show/unlibrary/%%API_KEY%%', {'imdb_id': imdb_id, 'tvdb_id': tvdb_id, 'title': title, 'year': year}, *args, **argd)
+    if data == None:
+        Debug("Error in request from 'removeWholeTvShowFromTraktCollection()'")
+    return data
+
+# remove individual episodes of a tshow from the users trakt collection
+def removeEpisodesFromTraktCollection(tvdb_id, title, year, imdb_id=None, *args, **argd):
+    data = traktJsonRequest('POST', '/show/episode/unlibrary/%%API_KEY%%', {'imdb_id': imdb_id, 'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes}, *args, **argd)
+    if data == None:
+        Debug("Error in request from 'removeEpisodesFromTraktCollection()'")
+    return data
+
 # get tvshows from XBMC
 def getTVShowsFromXBMC():
     rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShows','params':{'fields': ['title', 'year', 'imdbnumber', 'playcount']}, 'id': 1})
