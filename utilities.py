@@ -70,7 +70,7 @@ def checkSettings(daemon=False):
             __settings__.openSettings()
         return False
     
-    data = traktJsonRequest('POST', '/account/test/%%API_KEY%%', silent=True)
+    data = traktJsonRequest('POST', '/account/test/%%API_KEY%%', daemon=True)
     if data == None: #Incorrect trakt login details
         if daemon:
             notification("Trakt Utilities", __language__(1110).encode( "utf-8", "ignore" )) # please enter your Password in settings
@@ -121,9 +121,9 @@ def getTraktConnection():
 #   use to customise error notifications
 # anon: anonymous (dont send username/password), default:False
 # connection: default it to make a new connection but if you want to keep the same one alive pass it here
-# silent: default is False, when true it disable any error notifications (but not debug messages)
+# daemon: default is False, when true it disable any error notifications (but not debug messages)
 # passVersions: default is False, when true it passes extra version information to trakt to help debug problems
-def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False, silent=False, passVersions=False):
+def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False, daemon=False, passVersions=False):
     closeConnection = False
     if conn == False:
         conn = getTraktConnection()
@@ -157,7 +157,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
         Debug("trakt json url: "+req)
     except socket.error:
         Debug("traktQuery: can't connect to trakt")
-        if not silent: notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        if not daemon: notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
         return None
      
     conn.go()
@@ -191,7 +191,7 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
             data['status'] = 'failure'
             data['error'] = 'Bad responce from trakt'
             return data
-        if not silent: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": Bad responce from trakt") # Error
+        if not daemon: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": Bad responce from trakt") # Error
         return None
     
     if 'status' in data:
