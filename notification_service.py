@@ -86,6 +86,9 @@ class NotificationService(threading.Thread):
                     elif data['method'] == 'VideoLibrary.OnUpdate':
                         if 'data' in data['params'] and 'playcount' in data['params']['data']:
                             instantSyncPlayCount(data)
+                    elif data['method'] == 'VideoLibrary.OnRemove':
+                        if 'data' in data['params'] and 'id' in data['params']['data']:
+                            instantSyncRemove(data)
                     elif data['method'] == 'System.OnQuit':
                         self.abortRequested = True
                 
