@@ -272,6 +272,26 @@ def searchTraktForMovie(title, year=None):
         elif (select-1) <= len(data):
             return data[select-1]
 
+# search imdb via google
+def searchGoogleForImdbId(query):
+    conn = httplib.HTTPConnection("ajax.googleapis.com")
+    conn.request("GET", "/ajax/services/search/web?v=1.0&q=site:www.imdb.com+"+urllib.quote_plus(repr(unicode(query))[1:].strip('\'\"')))
+    response = conn.getresponse()
+    try:
+        raw = response.read()
+        data = json.loads(raw)
+        for result in data['responseData']['results']:
+            if (result['visibleUrl'] == "www.imdb.com"):
+                if (re.match("http[:]//www[.]imdb[.]com/title/", result['url'])):
+                    imdbid = re.search('/(tt[0-9]{7})/', result['url']).group(1)
+                    Debug("[~] "+str(imdbid))
+                    return imdbid;
+    except ValueError:
+        Debug("googleQuery: Bad JSON responce: "+raw)
+        if not daemon: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": Bad responce from google") # Error
+        return None
+    return None
+    
 # get movie summary from trakt server
 # title: Either the slug (i.e. the-social-network-2010), IMDB ID, or TMDB ID.
 def getMovieFromTrakt(title, daemon=False):

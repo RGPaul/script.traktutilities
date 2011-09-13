@@ -25,6 +25,7 @@ class Movie():
     _watchlistStatus = False
     _recommendedStatus = False
     _libraryStatus = False
+    _traktDbStatus = True
     
     def __init__(self, remoteId):
         if remoteId is None:
@@ -112,7 +113,9 @@ class Movie():
         Debug("[Movie] Downloading info for "+str(Movie.devolveId(remoteId)))
         local = getMovieFromTrakt(Movie.devolveId(remoteId))
         if local is None:
-            return None
+            movie = Movie(remoteId)
+            movie._traktDbStatus = False
+            return movie
         return Movie.fromTrakt(local)
     
     def traktise(self):
@@ -153,15 +156,21 @@ class Movie():
             if remoteId is not None:
                 local = Movie(remoteId)
             else:
-                traktMovie = searchTraktForMovie(movie['title'], movie['year'])
-                if traktMovie is None:
+                imdb_id = searchGoogleForImdbId(unicode(movie['title'])+"+"+unicode(movie['year']))
+                if imdb_id is None:
+                    traktMovie = searchTraktForMovie(movie['title'], movie['year'])
+                    if traktMovie is None:
+                         Debug("[Movie] Unable to find movie '"+unicode(movie['title'])+"' ["+unicode(movie['year'])+"]")
+                    else:
+                        if 'imdb_id' in traktMovie:
+                            local = Movie("imdb="+traktMovie['imdb_id'])
+                        elif 'tmdb_id' in traktMovie:
+                            local = Movie("tmdb="+traktMovie['tmdb_id'])
+                        else:
+                            return None
                     return None
-                if 'imdb_id' in traktMovie:
-                    local = Movie("imdb="+traktMovie['imdb_id'])
-                elif 'tmdb_id' in traktMovie:
-                    local = Movie("tmdb="+traktMovie['tmdb_id'])
                 else:
-                    return None
+                    local = Movie("imdb="+imdb_id)
                 # Related movieid to remoteId, now store the relationship
                 trakt_cache.relateMovieId(movie['movieid'], local['_remoteId'])
         else:
