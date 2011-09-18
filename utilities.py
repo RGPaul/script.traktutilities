@@ -158,6 +158,11 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
     except socket.error:
         Debug("traktQuery: can't connect to trakt")
         if not silent: notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        if returnStatus:
+            data = {}
+            data['status'] = 'failure'
+            data['error'] = 'Socket error, unable to connect to trakt'
+            return data;
         return None
      
     conn.go()
