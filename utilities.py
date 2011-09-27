@@ -288,7 +288,7 @@ def getTVShowCollectionFromTrakt(daemon=False):
     
 # get tvshows from XBMC
 def getTVShowsFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShows','params':{'fields': ['title', 'year', 'imdbnumber', 'playcount']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShows','params':{'properties': ['title', 'year', 'imdbnumber', 'playcount']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -331,7 +331,7 @@ def getSeasonsFromXBMC(tvshow):
     
 # get episodes for a given tvshow / season from XBMC
 def getEpisodesFromXBMC(tvshow, season):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes','params':{'tvshowid': tvshow['tvshowid'], 'season': season, 'fields': ['playcount', 'episode']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes','params':{'tvshowid': tvshow['tvshowid'], 'season': season, 'properties': ['playcount', 'episode']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -352,7 +352,7 @@ def getEpisodesFromXBMC(tvshow, season):
 
 # get a single episode from xbmc given the id
 def getEpisodeDetailsFromXbmc(libraryId, fields):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodeDetails','params':{'episodeid': libraryId, 'fields': fields}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodeDetails','params':{'episodeid': libraryId, 'properties': fields}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -373,7 +373,7 @@ def getEpisodeDetailsFromXbmc(libraryId, fields):
 
 # get movies from XBMC
 def getMoviesFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'properties': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
 
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -394,7 +394,7 @@ def getMoviesFromXBMC():
 
 # get a single movie from xbmc given the id
 def getMovieDetailsFromXbmc(libraryId, fields):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails','params':{'movieid': libraryId, 'fields': fields}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails','params':{'movieid': libraryId, 'properties': fields}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
