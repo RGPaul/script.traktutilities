@@ -79,13 +79,13 @@ class NotificationService(threading.Thread):
                     if data['method'] == 'Player.OnStop':
                         scrobbler.playbackEnded()
                     elif data['method'] == 'Player.OnPlay':
-                        if 'data' in data['params'] and 'id' in data['params']['data'] and 'type' in data['params']['data']:
-                            scrobbler.playbackStarted(data['params']['data'])
+                        if 'data' in data['params'] and 'item' in data['params']['data'] and 'id' in data['params']['data']['item'] and 'type' in data['params']['data']['item']:
+                            scrobbler.playbackStarted(data['params']['data']['item'])
                     elif data['method'] == 'Player.OnPause':
                         scrobbler.playbackPaused()
                     elif data['method'] == 'VideoLibrary.OnUpdate':
                         if 'data' in data['params'] and 'playcount' in data['params']['data']:
-                            instantSyncPlayCount(data)
+                            instantSyncPlayCount(data) #Known to be broken with the latest nightly builds of xbmc (playcount no longer provided)
                     elif data['method'] == 'System.OnQuit':
                         self.abortRequested = True
                 

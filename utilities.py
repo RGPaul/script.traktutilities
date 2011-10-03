@@ -832,7 +832,7 @@ def playMovieById(idMovie):
             pass # no error
             
         try:
-            if result['result']['success']:
+            if result['result'] == "OK":
                 if xbmc.Player().isPlayingVideo():
                     return True
             notification("Trakt Utilities", __language__(1302).encode( "utf-8", "ignore" )) # Unable to play movie
