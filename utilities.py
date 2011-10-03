@@ -477,7 +477,7 @@ def getCurrentPlayingVideoFromXBMC():
     # check for error
     try:
         error = result['error']
-        Debug("getCurrentPlayingVideoFromXBMC: " + str(error))
+        Debug("[Util] getCurrentPlayingVideoFromXBMC: " + str(error))
         return None
     except KeyError:
         pass # no error
@@ -497,32 +497,43 @@ def getCurrentPlayingVideoFromXBMC():
                 Debug("Current playlist: "+str(result2['result']))
                 
                 return result['result']['items'][position]
-        Debug("[Util] No video playing")
+        Debug("[Util] getCurrentPlayingVideoFromXBMC: No current video player")
         return None
     except KeyError:
-        Debug("getCurrentPlayingVideoFromXBMC: KeyError")
+        Debug("[Util] getCurrentPlayingVideoFromXBMC: KeyError")
         return None
         
 # get the length of the current video playlist being played from XBMC
 def getCurrentPlaylistLengthFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.GetItems','params':{}, 'id': 1})
-    
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Player.GetActivePlayers','params':{}, 'id': 1})
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
-    
     # check for error
     try:
         error = result['error']
-        Debug("getCurrentPlaylistLengthFromXBMC: " + str(error))
+        Debug("[Util] getCurrentPlaylistLengthFromXBMC: " + str(error))
         return None
     except KeyError:
         pass # no error
     
     try:
-        Debug("Current playlist: "+str(result['result']))
-        return result['result']['limits']['total']
+        for (player in result['result']['items']):
+            if player['properties']['type'] == 'video':
+                rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Player.GetProperties','params':{'playerid': player['properties']['playerid'], 'properties':['playlistid']}, 'id': 1})
+                result2 = xbmc.executeJSONRPC(rpccmd)
+                result2 = json.loads(result2)
+                playlistid = result2['result']['playlistid']
+                
+                rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Playlist.GetProperties','params':{'playlistid': playlistid, 'properties': ['size']}, 'id': 1})
+                result2 = xbmc.executeJSONRPC(rpccmd)
+                result2 = json.loads(result2)
+                Debug("Current playlist: "+str(result2['result']))
+                
+                return result['result']['size']
+        Debug("[Util] getCurrentPlaylistLengthFromXBMC: No current video player")
+        return None
     except KeyError:
-        Debug("getCurrentPlaylistLengthFromXBMC: KeyError")
+        Debug("[Util] getCurrentPlaylistLengthFromXBMC: KeyError")
         return None
 
 def getMovieIdFromXBMC(imdb_id, title):
