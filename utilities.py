@@ -471,11 +471,9 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     
 # get current video being played from XBMC
 def getCurrentPlayingVideoFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.GetItems','params':{}, 'id': 1})
-    
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Player.GetActivePlayers','params':{}, 'id': 1})
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
-    
     # check for error
     try:
         error = result['error']
@@ -485,11 +483,21 @@ def getCurrentPlayingVideoFromXBMC():
         pass # no error
     
     try:
-        Debug("Current playlist: "+str(result['result']))
-        current = result['result']['state']['current']
-        typ = result['result']['items'][current]['type']
-        if typ in ("movie","episode"):
-            return result['result']['items'][current]
+        for (player in result['result']['items']):
+            if player['properties']['type'] == 'video':
+                rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Player.GetProperties','params':{'playerid': player['properties']['playerid'], 'properties':['playlistid', 'position']}, 'id': 1})
+                result2 = xbmc.executeJSONRPC(rpccmd)
+                result2 = json.loads(result2)
+                playlistid = result2['result']['playlistid']
+                position = result2['result']['position']
+                
+                rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Playlist.GetItems','params':{'playlistid': playlistid}, 'id': 1})
+                result2 = xbmc.executeJSONRPC(rpccmd)
+                result2 = json.loads(result2)
+                Debug("Current playlist: "+str(result2['result']))
+                
+                return result['result']['items'][position]
+        Debug("[Util] No video playing")
         return None
     except KeyError:
         Debug("getCurrentPlayingVideoFromXBMC: KeyError")
