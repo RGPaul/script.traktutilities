@@ -85,7 +85,7 @@ class NotificationService(threading.Thread):
                         scrobbler.playbackPaused()
                     elif data['method'] == 'VideoLibrary.OnUpdate':
                         if 'data' in data['params'] and 'playcount' in data['params']['data']:
-                            instantSyncPlayCount(data) #Known to be broken with the latest nightly builds of xbmc (playcount no longer provided)
+                            instantSyncPlayCount(data)
                     elif data['method'] == 'System.OnQuit':
                         self.abortRequested = True
                 

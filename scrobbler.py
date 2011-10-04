@@ -31,6 +31,7 @@ class Scrobbler(threading.Thread):
     startTime = 0
     curVideo = None
     pinging = False
+    playlistLength = 1
     abortRequested = False
     
     def run(self):
@@ -61,8 +62,17 @@ class Scrobbler(threading.Thread):
                         Debug("[Scrobbler] Suddenly stopped watching item")
                         return
                     self.totalTime = xbmc.Player().getTotalTime()
+                    self.playlistLength = getCurrentPlaylistLengthFromXBMC()
+                    if (self.playlistLength == 0):
+                        Debug("[Scrobbler] Suddenly stopped watching item?!")
+                        self.curVideo = None
+                        self.startTime = 0
+                        return
                 except:
-                    Debug("[Scrobbler] Suddenly stopped watching item, or error: "+repr(sys.exc_info()[0]))
+                    Debug("[Scrobbler] Suddenly stopped watching item, or error: "+str(sys.exc_info()[0]))
+                    self.curVideo = None
+                    self.startTime = 0
+                    return
                 self.startTime = time.time()
                 self.startedWatching()
                 self.pinging = True
@@ -81,14 +91,14 @@ class Scrobbler(threading.Thread):
     def playbackEnded(self):
         if self.startTime <> 0:
             if self.curVideo == None:
-                Debug("[Scrobbler]: Warning: Playback ended but video forgotten")
+                Debug("[Scrobbler] Warning: Playback ended but video forgotten")
                 return
             self.watchedTime += time.time() - self.startTime
             self.pinging = False
             if self.watchedTime <> 0:
                 if 'type' in self.curVideo and 'id' in self.curVideo:
                     self.check()
-                    ratingCheck(self.curVideo, self.watchedTime, self.totalTime)
+                    ratingCheck(self.curVideo, self.watchedTime, self.totalTime, self.playlistLength)
                 self.watchedTime = 0
             self.startTime = 0
             
