@@ -146,7 +146,9 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
             if passVersions:
                 args['plugin_version'] = __settings__.getAddonInfo("version")
                 args['media_center'] = 'xbmc'
-                args['media_center_version'] = xbmc.getInfoLabel("system.buildversion")
+                #This is currently broken seems to return corrupt buildversions
+                #args['media_center_version'] = xbmc.getInfoLabel("system.buildversion")
+                Debug("[~] "+xbmc.getInfoLabel("system.buildversion")) # Remove when the value is no longer corrupt
                 args['media_center_date'] = xbmc.getInfoLabel("system.builddate")
             jdata = json.dumps(args)
             conn.request('POST', req, jdata)
