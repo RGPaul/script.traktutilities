@@ -1,3 +1,6 @@
+Version 0.6.3:
+    - Repository hotfix
+
 Version 0.6.2:
     - Hotfix: bug that caused trakt connection reuse to throw and exception, this prevented tv show syncing
     

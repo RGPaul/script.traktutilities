@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.TraktUtilities"
     name="Trakt Utilities"
-    version="0.6.2"
+    version="0.6.3"
     provider-name="Manromen">
     <requires>
         <import addon="xbmc.python" version="1.0"/>
@@ -13,9 +13,9 @@
     <res width="1280" height="720" aspect="16x9" default="true" folder="720p" />
     <extension point="xbmc.service" name="TraktUtilities.service" library="service.py"/>
     <extension point="xbmc.addon.repository" name="Manromen XBMC Addons testing">
-        <info compressed="true">http://xbmc.rgpaul.com/XBMC-Repository-devel/addons.xml</info>
-        <checksum>http://xbmc.rgpaul.com/XBMC-Repository-devel/addons.xml.md5</checksum>
-        <datadir zip="true">http://xbmc.rgpaul.com/XBMC-Repository-devel</datadir>
+        <info compressed="true">http://dl.dropbox.com/u/1711476/XBMC-Repository-devel/addons.xml</info>
+        <checksum>http://dl.dropbox.com/u/1711476/XBMC-Repository-devel/addons.xml.md5</checksum>
+        <datadir zip="true">http://dl.dropbox.com/u/1711476/XBMC-Repository-devel</datadir>
     </extension>
     <extension point="xbmc.addon.metadata" name="TraktUtilities.metadata">
         <summary lang="en">some trakt utilities</summary>
