@@ -53,7 +53,7 @@ class Scrobbler(threading.Thread):
                 count = 0
     
     def playbackStarted(self, data):
-        self.curVideo = data
+        self.curVideo = data['item']
         if self.curVideo <> None:
             if 'type' in self.curVideo and 'id' in self.curVideo:
                 Debug("[Scrobbler] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))
@@ -62,12 +62,10 @@ class Scrobbler(threading.Thread):
                         Debug("[Scrobbler] Suddenly stopped watching item")
                         return
                     self.totalTime = xbmc.Player().getTotalTime()
-                    self.playlistLength = getCurrentPlaylistLengthFromXBMC()
+                    self.playlistLength = getPlaylistLengthFromXBMCPlayer(data['player']['playerid'])
                     if (self.playlistLength == 0):
-                        Debug("[Scrobbler] Suddenly stopped watching item?!")
-                        self.curVideo = None
-                        self.startTime = 0
-                        return
+                        Debug("[Scrobbler] Warning: Cant find playlist length?!, assuming that this item is by itself")
+                        self.playlistLength = 1
                 except:
                     Debug("[Scrobbler] Suddenly stopped watching item, or error: "+str(sys.exc_info()[0]))
                     self.curVideo = None
