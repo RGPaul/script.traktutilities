@@ -23,7 +23,7 @@ debug = __settings__.getSetting( "debug" )
 
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
-def ratingCheck(curVideo, watchedTime, totalTime):
+def ratingCheck(curVideo, watchedTime, totalTime, playlistLength):
     __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
     # you can disable rating in options
     rateMovieOption = __settings__.getSetting("rate_movie")
@@ -32,7 +32,7 @@ def ratingCheck(curVideo, watchedTime, totalTime):
     rateMinViewTimeOption = __settings__.getSetting("rate_min_view_time")
 
     if (watchedTime/totalTime)*100>=float(rateMinViewTimeOption):
-        if (getCurrentPlaylistLengthFromXBMC() <= 1) or (rateEachInPlaylistOption == 'true'):
+        if (playlistLength <= 1) or (rateEachInPlaylistOption == 'true'):
             if curVideo['type'] == 'movie' and rateMovieOption == 'true':
                 doRateMovie(curVideo['id'])
             if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
