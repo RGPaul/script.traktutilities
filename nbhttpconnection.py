@@ -4,6 +4,7 @@
 import os, sys
 import time, socket
 import urllib
+import thread
 import threading
 
 try:
@@ -28,14 +29,12 @@ __email__ = "ralph-gordon.paul@uni-duesseldorf.de"
 __status__ = "Production"
 
 # Allows non-blocking http requests
-class NBHTTPConnection(threading.Thread):    
+class NBHTTPConnection():    
     def __init__(self, host, port = None, strict = None, timeout = None):
         self.rawConnection = httplib.HTTPConnection(host, port, strict, timeout)
         self.responce = None
         self.responceLock = threading.Lock()
         self.closing = False
-        
-        threading.Thread.__init__(self)
     
     def request(self, method, url, body = None, headers = {}):
         self.rawConnection.request(method, url, body, headers);
@@ -54,9 +53,9 @@ class NBHTTPConnection(threading.Thread):
     
     def go(self):
         self.responceLock.acquire()
-        self.start()
+        thread.start_new_thread ( NBHTTPConnection._run, ( self, ) )
         
-    def run(self):
+    def _run(self):
         self.responce = self.rawConnection.getresponse()
         self.responceLock.release()
         

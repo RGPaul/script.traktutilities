@@ -31,6 +31,7 @@ class Scrobbler(threading.Thread):
     startTime = 0
     curVideo = None
     pinging = False
+    playlistLength = 1
     abortRequested = False
     
     def run(self):
@@ -52,17 +53,24 @@ class Scrobbler(threading.Thread):
                 count = 0
     
     def playbackStarted(self, data):
-        self.curVideo = data
+        self.curVideo = data['item']
         if self.curVideo <> None:
             if 'type' in self.curVideo and 'id' in self.curVideo:
-                Debug("[Rating] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))
+                Debug("[Scrobbler] Watching: "+self.curVideo['type']+" - "+str(self.curVideo['id']))
                 try:
                     if not xbmc.Player().isPlayingVideo():
-                        Debug("[Rating] Suddenly stopped watching item")
+                        Debug("[Scrobbler] Suddenly stopped watching item")
                         return
                     self.totalTime = xbmc.Player().getTotalTime()
+                    self.playlistLength = getPlaylistLengthFromXBMCPlayer(data['player']['playerid'])
+                    if (self.playlistLength == 0):
+                        Debug("[Scrobbler] Warning: Cant find playlist length?!, assuming that this item is by itself")
+                        self.playlistLength = 1
                 except:
-                    Debug("[Rating] Suddenly stopped watching item, or error: "+repr(sys.exc_info()[0]))
+                    Debug("[Scrobbler] Suddenly stopped watching item, or error: "+str(sys.exc_info()[0]))
+                    self.curVideo = None
+                    self.startTime = 0
+                    return
                 self.startTime = time.time()
                 self.startedWatching()
                 self.pinging = True
@@ -73,7 +81,7 @@ class Scrobbler(threading.Thread):
     def playbackPaused(self):
         if self.startTime <> 0:
             self.watchedTime += time.time() - self.startTime
-            Debug("[Rating] Paused after: "+str(self.watchedTime))
+            Debug("[Scrobbler] Paused after: "+str(self.watchedTime))
             self.startTime = 0
             self.pinging = False
             self.stoppedWatching()
@@ -81,14 +89,14 @@ class Scrobbler(threading.Thread):
     def playbackEnded(self):
         if self.startTime <> 0:
             if self.curVideo == None:
-                Debug("[Scrobbler]: Warning: Playback ended but video forgotten")
+                Debug("[Scrobbler] Warning: Playback ended but video forgotten")
                 return
             self.watchedTime += time.time() - self.startTime
             self.pinging = False
             if self.watchedTime <> 0:
                 if 'type' in self.curVideo and 'id' in self.curVideo:
                     self.check()
-                    ratingCheck(self.curVideo, self.watchedTime, self.totalTime)
+                    ratingCheck(self.curVideo, self.watchedTime, self.totalTime, self.playlistLength)
                 self.watchedTime = 0
             self.startTime = 0
             

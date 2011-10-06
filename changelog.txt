@@ -1,3 +1,9 @@
+Version 0.6.3:
+    - Repository hotfix
+
+Version 0.6.2:
+    - Hotfix: bug that caused trakt connection reuse to throw and exception, this prevented tv show syncing
+    
 Version 0.6.1:
     - Fixed (hopefully) major bug where Trakt Utilities prevented xbmc from closing, indefinatly, #91
     - Fixed major bug where items that where already marked as seen where not added to the collection #90
