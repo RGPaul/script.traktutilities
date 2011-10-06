@@ -15,8 +15,22 @@
             <aspectratio>scale down</aspectratio>
         </control>
 
+      <control type="group">
+        <visible>Skin.HasSetting(altoverlayinfowall)]</visible>
+        <control type="image">
+          <width>1280</width>
+          <height>720</height>
+          <texture>wall/wall_bg_small.png</texture>
+          <include>Animation_WindowFade200</include>
+          <animation effect="fade" start="90" end="90" time="400" condition="Control.IsVisible(512)|Control.IsVisible(514)">Conditional</animation>
+        </control>
+      </control>
+      <control type="group">
+        <visible>!Skin.HasSetting(altoverlayinfowall)</visible>
         <include>Common_Fanartoverlay</include>
-        <control type="group">
+      </control>
+      <include>CommonCurtainBackdrop</include>
+      <control type="group">
             <posy>-20</posy>
          
             <control type="panel" id="110">
@@ -26,8 +40,8 @@
                 <height>570</height>
                 <onleft>9000</onleft>
                 <onright>60</onright>
-                <onup>512</onup>
-                <ondown>512</ondown>
+                <onup>110</onup>
+                <ondown>110</ondown>
                 <preloaditems>4</preloaditems>
                 <scrolltime>150</scrolltime>
                 <visible>true</visible>
@@ -161,7 +175,7 @@
                 <posy>100</posy>
                 <width>65</width>
                 <height>548</height>
-                <visible allowhiddenfocus="true">Control.IsVisible(110)</visible>
+                <visible allowhiddenfocus="true">Control.HasFocus(60)</visible>
                 <texturesliderbackground>views/scrollbarbacklist.png</texturesliderbackground>
                 <texturesliderbar>-</texturesliderbar>
                 <texturesliderbarfocus>-</texturesliderbarfocus>
@@ -183,68 +197,74 @@
                 <width>400</width>
                 <font>Font_Bold25</font>
                 <textcolor>white2</textcolor>
-                <shadowcolor>black</shadowcolor>
                 <scroll>true</scroll>
                 <label>[UPPERCASE]$INFO[Control.GetLabel(103)][/UPPERCASE]</label>
             </control>
-            <control type="group">
+          <control type="image">
+            <posx>840</posx>
+            <posy>162</posy>
+            <height>1</height>
+            <width>375</width>
+            <texture>views/listpanel_line.png</texture>
+          </control>
+          <control type="image">
+            <posx>840</posx>
+            <posy>412</posy>
+            <height>1</height>
+            <width>375</width>
+            <texture>views/listpanel_line.png</texture>
+          </control>
+          <control type="group">
                 <visible>true</visible>
                 <control type="label" id="109">
-                    <posx>840</posx>
-                    <posy>135</posy>
-                    <height>13</height>
-                    <width>400</width>
-                    <font>Font_Info</font>
-                    <textcolor>abFFFFFF</textcolor>
-                    <shadowcolor>black</shadowcolor>
-                    <scroll>true</scroll>
+                  <posx>840</posx>
+                  <posy>135</posy>
+                  <height>13</height>
+                  <width>400</width>
+                  <font>Font_Reg18</font>
+                  <textcolor>abFFFFFF</textcolor>
+                  <scroll>true</scroll>
                 </control>
                 <control type="label" id="107">
-                    <posx>840</posx>
-                    <posy>160</posy>
-                    <height>13</height>
-                    <width>400</width>
-                    <font>Font_Info</font>
-                    <textcolor>abFFFFFF</textcolor>
-                    <shadowcolor>black</shadowcolor>
-                    <scroll>true</scroll>
+                  <include>HiddenObject</include>
                 </control>
                 <control type="label" id="108">
-                    <posx>990</posx>
-                    <posy>160</posy>
-                    <height>13</height>
-                    <width>400</width>
-                    <font>Font_Info</font>
-                    <textcolor>abFFFFFF</textcolor>
-                    <shadowcolor>black</shadowcolor>
-                    <scroll>true</scroll>
+                  <include>HiddenObject</include>
                 </control>
                 <control type="label" id="111">
-                    <posx>840</posx>
-                    <posy>185</posy>
-                    <height>13</height>
-                    <width>400</width>
-                    <font>Font_Info</font>
-                    <textcolor>abFFFFFF</textcolor>
-                    <shadowcolor>black</shadowcolor>
+                  <include>HiddenObject</include>
                 </control>
                 <control type="label" id="112">
-                    <posx>990</posx>
-                    <posy>185</posy>
-                    <height>13</height>
-                    <width>400</width>
-                    <font>Font_Info</font>
-                    <textcolor>abFFFFFF</textcolor>
-                    <shadowcolor>black</shadowcolor>
+                  <include>HiddenObject</include>
                 </control>
-                <control type="textbox" id="104">
-                    <posx>840</posx>
-                    <posy>212</posy>
-                    <width>350</width>
-                    <height>208</height>
-                    <font>Font_Info</font>
+            <control type="label">
+              <posx>1260</posx>
+              <posy>685</posy>
+              <height>13</height>
+              <width>1200</width>
+              <font>Font_Reg18</font>
+              <align>right</align>
+              <textcolor>abFFFFFF</textcolor>
+              <label>$INFO[Control.GetLabel(112)]</label>
+            </control>
+            <control type="label">
+              <posx>1260</posx>
+              <posy>710</posy>
+              <height>13</height>
+              <width>500</width>
+              <font>Font_Reg18</font>
+              <align>right</align>
+              <textcolor>abFFFFFF</textcolor>
+              <scroll>true</scroll>
+              <label>$INFO[Control.GetLabel(107)]$INFO[Control.GetLabel(108), | ]$INFO[Control.GetLabel(111), | ]</label>
+            </control>
+            <control type="textbox" id="104">
+                  <posx>840</posx>
+                  <posy>170</posy>
+                  <width>400</width>
+                  <height>230</height>
+                  <font>Font_Reg18</font>
                     <textcolor>d0FFFFFF</textcolor>
-                    <shadowcolor>black</shadowcolor>
                     <visible>true</visible>
                     <autoscroll delay="8000" time="2000" repeat="8000">Skin.HasSetting(AutoScroll)</autoscroll>
                 </control>
@@ -273,177 +293,259 @@
                 </control>
             </control>
         </control>
-        <control type="group">
-            <include>Animation_WidgetZoom</include>
-            <visible>Skin.HasSetting(breadcrumb)</visible>
-            <control type="image">
-                <posx>0</posx>
-                <posy>-36</posy>
-                <width>1280</width>
-                <height>79</height>
-                <texture flipy="true">home/glass_bar.png</texture>
-                <colordiffuse>CCFFFFFF</colordiffuse>
-            </control>
-            <include>Neon_Topbar</include>
-            <control type="grouplist">
-                <visible>true</visible>
-                <posx>0</posx>
-                <posy>0</posy>
-                <width>1255</width>
-                <align>right</align>
-                <aligny>center</aligny>
-                <orientation>horizontal</orientation>
-                <control type="label">
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <height>25</height>
-                    <aligny>center</aligny>
-                    <width min="10" max="1280">auto</width>
-                    <font>Font_Reg17</font>
-                    <textcolor>white2</textcolor>
-                    <label>[COLOR white2]$INFO[System.Date]  |  [/COLOR][COLOR=ffaaaaaa]$INFO[System.Time][/COLOR]       </label>
-                </control>
-            </control>
-            <control type="grouplist">
-                <posx>0</posx>
-                <posy>6</posy>
-                <width>1280</width>
-                <align>center</align>
-                <aligny>center</aligny>
-                <itemgap>10</itemgap>
-                <visible>!IsEmpty(Container(110).NumItems)</visible>
-                <orientation>horizontal</orientation>
-                <animation effect="fade" time="400" delay="400">Visible</animation>
-                <animation effect="fade" time="400">Hidden</animation>
-                <control type="image">
-                    <description>Items Icon</description>
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <width>20</width>
-                    <height>15</height>
-                    <aspectratio>stretch</aspectratio>
-                    <texture>breadcrumbs/items.png</texture>
-                    <colordiffuse>60ffffff</colordiffuse>
-                </control>
-                <control type="label">
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <height>25</height>
-                    <aligny>center</aligny>
-                    <width min="10" max="1280">auto</width>
-                    <font>Font_Reg17</font>
-                    <label>$INFO[Container(110).NumItems] $LOCALIZE[31025]</label>
-                    <textcolor>white2</textcolor>
-                    <scroll>false</scroll>
-                    <animation effect="slide" start="0,0" end="0,-6" time="0" condition="true">Conditional</animation>
-                </control>
-                <control type="image">
-                    <description>Items Icon</description>
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <width>20</width>
-                    <height>15</height>
-                    <aspectratio>stretch</aspectratio>
-                    <texture>breadcrumbs/pages.png</texture>
-                    <colordiffuse>60ffffff</colordiffuse>
-                    <animation effect="fade" time="400" delay="400">Visible</animation>
-                    <animation effect="fade" time="400">Hidden</animation>
-                </control>
-                <control type="label">
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <height>25</height>
-                    <aligny>center</aligny>
-                    <width min="10" max="1280">auto</width>
-                    <font>Font_Reg17</font>
-                    <label>$LOCALIZE[31024] $INFO[Container(110).CurrentPage]/$INFO[Container(110).NumPages]</label>
-                    <textcolor>white2</textcolor>
-                    <scroll>false</scroll>
-                    <align>left</align>
-                    <animation effect="slide" start="0,0" end="0,-6" time="0" condition="true">Conditional</animation>
-                </control>
-            </control>
-            <control type="group">
-                <visible>!Player.HasMedia</visible>
-                <control type="grouplist">
-                    <posx>15</posx>
-                    <posy>0</posy>
-                    <width>500</width>
-                    <align>left</align>
-                    <visible></visible>
-                    <itemgap>10</itemgap>
-                    <orientation>horizontal</orientation>
-                    <control type="image">
-                        <description>Items Icon</description>
-                        <posx>0</posx>
-                        <posy>0</posy>
-                        <width>36</width>
-                        <height>25</height>
-                        <aspectratio>stretch</aspectratio>
-                        <texture>common/logo_movies.png</texture>
-                        <colordiffuse>white2</colordiffuse>
-                    </control>
-                    <control type="label">
-                        <posx>0</posx>
-                        <posy>0</posy>
-                        <height>25</height>
-                        <aligny>center</aligny>
-                        <width min="10" max="1280">auto</width>
-                        <font>Font_Reg17</font>
-                        <label>$LOCALIZE[20342]</label>
-                        <textcolor>white2</textcolor>
-                        <scroll>false</scroll>
-                        <align>left</align>
-                    </control>
-                </control>
-            </control>
-            <control type="group">
-          <!--clock-->
-                <posx>1240</posx>
-                <posy>0</posy>
-                <width>26</width>
-                <height>26</height>
-                <control type="image">
-                    <description>Clock Icon</description>
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <width>26</width>
-                    <height>26</height>
-                    <texture>breadcrumbs/clock/clock_panel.png</texture>
-                </control>
-                <control type="image">
-                    <description>Clock Second</description>
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <width>26</width>
-                    <height>26</height>
-                    <texture>breadcrumbs/clock/seconds/$INFO[System.Time(ss)].png</texture>
-                </control>
-                <control type="image">
-                    <description>Clock Minute</description>
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <width>26</width>
-                    <height>26</height>
-                    <texture>breadcrumbs/clock/minutes/$INFO[System.Time(mm)].png</texture>
-                </control>
-                <control type="image">
-                    <description>Clock Hour</description>
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <width>26</width>
-                    <height>26</height>
-                    <texture>breadcrumbs/clock/hours/$INFO[System.Time(hh)].png</texture>
-                </control>
-                <control type="image">
-                    <description>Clock Cap</description>
-                    <posx>0</posx>
-                    <posy>0</posy>
-                    <width>26</width>
-                    <height>26</height>
-                    <texture>breadcrumbs/clock/clock_cap.png</texture>
-                </control>
-            </control>
+      <!---MEDIA MENU-->
+      <control type="group" id="9000">
+        <enable>!Skin.HasSetting(kioskmode)</enable>
+        <visible>!Skin.HasSetting(kioskmode)</visible>
+        <posy>25</posy>
+        <control type="group" >
+          <description>Second Panel</description>
+          <animation type="Conditional" condition="!Control.HasFocus(9010)">
+            <effect type="fade" start="100" end="0" time="400" reversible="false"/>
+            <effect type="rotatey" start="0" end="-130" time="700" center="-20,0" tween="cubic" easing="in"/>
+          </animation>
+          <control type="image">
+            <posx>0</posx>
+            <posy>190</posy>
+            <width>680</width>
+            <height>300</height>
+            <texture background="true">views/listpanel_black.png</texture>
+            <animation effect="rotate" center="auto" start="0" end="-90" time="100" condition="true">Conditional</animation>
+            <include>Animation_MediaMenuSlide</include>
+          </control>
+          <control type="image">
+            <posx>0</posx>
+            <posy>190</posy>
+            <width>680</width>
+            <height>300</height>
+            <texture background="true">views/listpanel_back_noreflect.png</texture>
+            <animation effect="rotate" center="auto" start="0" end="-90" time="100" condition="true">Conditional</animation>
+            <include>Animation_MediaMenuSlide</include>
+          </control>
         </control>
+
+        <control type="group">
+          <description>First Panel</description>
+          <control type="image">
+            <posx>-215</posx>
+            <posy>190</posy>
+            <width>680</width>
+            <height>300</height>
+            <texture background="true">views/listpanel_black.png</texture>
+            <animation effect="rotate" center="auto" start="0" end="-90" time="100" condition="true">Conditional</animation>
+            <include>Animation_MediaMenuSlide</include>
+          </control>
+          <control type="image">
+            <posx>-215</posx>
+            <posy>190</posy>
+            <width>680</width>
+            <height>300</height>
+            <texture background="true">views/listpanel_back_noreflect.png</texture>
+            <animation effect="rotate" center="auto" start="0" end="-90" time="100" condition="true">Conditional</animation>
+            <include>Animation_MediaMenuSlide</include>
+          </control>
+          <control type="grouplist" id="9003">
+            <posx>0</posx>
+            <posy>15</posy>
+            <width>300</width>
+            <height>650</height>
+            <itemgap>0</itemgap>
+            <orientation>vertical</orientation>
+            <scroll>true</scroll>
+            <onleft>110</onleft>
+            <onright>110</onright>
+            <onup>9003</onup>
+            <ondown>9003</ondown>
+            <onback>110</onback>
+            <include>Animation_MediaMenuSlide2</include>
+           <control type="button" id="1601">
+              <description>Backdrop options label</description>
+              <textcolor>selected</textcolor>
+              <disabledcolor>selected</disabledcolor>
+              <include>Objects_MediaMenuButtonAlt</include>
+              <label>$LOCALIZE[31383] [LOWERCASE]$LOCALIZE[33063][/LOWERCASE]</label>
+              <enable>no</enable>
+            </control>
+            <control type="radiobutton" id="1605">
+              <description>Curtain Backdrop</description>
+              <label>31384</label>
+              <onclick>Skin.ToggleSetting(CurtainBackdrop)</onclick>
+              <selected>Skin.HasSetting(CurtainBackdrop)</selected>
+              <include>Objects_MediaMenuButtonAlt</include>
+            </control>
+            <control type="togglebutton" id="1666">
+              <description>Toggle Overlay</description>
+              <pulseonselect>yes</pulseonselect>
+              <include>Objects_MediaMenuButtonAlt</include>
+              <label>$LOCALIZE[31102] [B]1[/B]</label>
+              <aligny>center</aligny>
+              <altlabel>$LOCALIZE[31102] [B]2[/B]</altlabel>
+              <onclick>Skin.ToggleSetting(altoverlayinfowall)</onclick>
+              <usealttexture>Skin.HasSetting(altoverlayinfowall)</usealttexture>
+              <visible>!Skin.HasSetting(hideoptions)</visible>
+            </control>
+            <control type="button" id="1606">
+              <description>Viewtype options label</description>
+              <textcolor>selected</textcolor>
+              <disabledcolor>selected</disabledcolor>
+              <include>Objects_MediaMenuButtonAlt</include>
+              <label>$LOCALIZE[31185] [LOWERCASE]$LOCALIZE[33063][/LOWERCASE]</label>
+              <enable>no</enable>
+            </control>
+            <control type="radiobutton" id="1642">
+              <description>Cases</description>
+              <include>Objects_MediaMenuButtonAlt</include>
+              <label>$LOCALIZE[31248]</label>
+              <onclick>Skin.ToggleSetting(usecasesinfowall)</onclick>
+              <onclick>Skin.Reset(useclearcasesinfowall)</onclick>
+              <selected>Skin.HasSetting(usecasesinfowall)</selected>
+              <visible>!Skin.HasSetting(hideoptions)</visible>
+            </control>
+            <control type="radiobutton" id="1643">
+              <description>Clear Cases</description>
+              <include>Objects_MediaMenuButtonAlt</include>
+              <label>$LOCALIZE[31282]</label>
+              <onclick>Skin.ToggleSetting(useclearcasesinfowall)</onclick>
+              <onclick>Skin.Reset(usecasesinfowall)</onclick>
+              <selected>Skin.HasSetting(useclearcasesinfowall)</selected>
+              <visible>!Skin.HasSetting(hideoptions)</visible>
+            </control>
+            <control type="button" id="1685">
+              <description>Set topbar color</description>
+              <include>Objects_MediaMenuButtonAlt</include>
+              <label>31389</label>
+              <onclick>ActivateWindow(1128)</onclick>
+              <visible>!Skin.HasSetting(hideoptions)</visible>
+            </control>
+          </control>
+        </control>
+      </control>
+      <control type="button" id="9000">
+        <include>HiddenObject</include>
+        <enable>Skin.HasSetting(kioskmode)</enable>
+        <visible>Skin.HasSetting(kioskmode)</visible>
+        <onfocus>SetFocus(50)</onfocus>
+      </control>
+
+
+      <include condition="Skin.HasSetting(breadcrumb)">Breadcrumbs</include>
+      <control type="grouplist">
+        <posx>15</posx>
+        <posy>0</posy>
+        <width>500</width>
+        <align>left</align>
+        <visible></visible>
+        <itemgap>0</itemgap>
+        <orientation>horizontal</orientation>
+        <include>Animation_HideBreadCrumbs</include>
+        <control type="image">
+          <description>Items Icon</description>
+          <posx>0</posx>
+          <posy>0</posy>
+          <width>36</width>
+          <height>32</height>
+          <aspectratio>keep</aspectratio>
+          <texture>common/tv_icon.png</texture>
+          <colordiffuse>white2</colordiffuse>
+          <animation effect="slide" start="0,0" end="-6,1" time="0" condition="true">Conditional</animation>
+        </control>
+        <control type="label">
+          <posx>0</posx>
+          <posy>0</posy>
+          <height>25</height>
+          <aligny>center</aligny>
+          <width min="10" max="1280">auto</width>
+          <font>Font_Reg17</font>
+          <label>$LOCALIZE[20342]</label>
+          <textcolor>white2</textcolor>
+          <scroll>false</scroll>
+          <align>left</align>
+          <visible>Window.IsVisible(movies.xml)</visible>
+        </control>
+        <control type="label">
+          <posx>0</posx>
+          <posy>0</posy>
+          <height>25</height>
+          <aligny>center</aligny>
+          <width min="10" max="1280">auto</width>
+          <font>Font_Reg17</font>
+          <label>$LOCALIZE[20343]</label>
+          <textcolor>white2</textcolor>
+          <scroll>false</scroll>
+          <align>left</align>
+          <visible>Window.IsVisible(tvshows.xml)</visible>
+        </control>
+      </control>
+      <control type="grouplist">
+        <posx>0</posx>
+        <posy>6</posy>
+        <width>1280</width>
+        <align>center</align>
+        <aligny>center</aligny>
+        <itemgap>10</itemgap>
+        <visible>!IsEmpty(Container(110).NumItems)</visible>
+        <orientation>horizontal</orientation>
+        <include>Animation_HideBreadCrumbs</include>
+        <animation effect="fade" time="400" delay="400">Visible</animation>
+        <animation effect="fade" time="400">Hidden</animation>
+        <control type="image">
+          <description>Items Icon</description>
+          <posx>0</posx>
+          <posy>0</posy>
+          <width>20</width>
+          <height>15</height>
+          <aspectratio>stretch</aspectratio>
+          <texture>breadcrumbs/items.png</texture>
+          <colordiffuse>60ffffff</colordiffuse>
+        </control>
+        <control type="label">
+          <posx>0</posx>
+          <posy>0</posy>
+          <height>25</height>
+          <aligny>center</aligny>
+          <width min="10" max="1280">auto</width>
+          <font>Font_Reg17</font>
+          <label>$INFO[Container(110).NumItems] $LOCALIZE[31025]</label>
+          <textcolor>white2</textcolor>
+          <scroll>false</scroll>
+          <animation effect="slide" start="0,0" end="0,-6" time="0" condition="true">Conditional</animation>
+        </control>
+        <control type="image">
+          <description>Items Icon</description>
+          <posx>0</posx>
+          <posy>0</posy>
+          <width>20</width>
+          <height>15</height>
+          <aspectratio>stretch</aspectratio>
+          <texture>breadcrumbs/pages.png</texture>
+          <colordiffuse>60ffffff</colordiffuse>
+          <animation effect="fade" time="400" delay="400">Visible</animation>
+          <animation effect="fade" time="400">Hidden</animation>
+        </control>
+        <control type="label">
+          <posx>0</posx>
+          <posy>0</posy>
+          <height>25</height>
+          <aligny>center</aligny>
+          <width min="10" max="1280">auto</width>
+          <font>Font_Reg17</font>
+          <label>$LOCALIZE[31024] $INFO[Container(110).CurrentPage]/$INFO[Container(110).NumPages]</label>
+          <textcolor>white2</textcolor>
+          <scroll>false</scroll>
+          <align>left</align>
+          <animation effect="slide" start="0,0" end="0,-6" time="0" condition="true">Conditional</animation>
+        </control>
+      </control>
+      <include>Furniture_NowPlayingWidget</include>
+      <include condition="Skin.HasSetting(globaltime)">Furniture_Clock</include>
+      <control type="image">
+        <description>Items Icon</description>
+        <posx>35</posx>
+        <posy>668</posy>
+        <width>45</width>
+        <height>45</height>
+        <aspectratio>keep</aspectratio>
+        <texture>icon.png</texture>
+      </control>
     </controls>
 </window>
