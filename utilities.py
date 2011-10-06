@@ -146,7 +146,9 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
             if passVersions:
                 args['plugin_version'] = __settings__.getAddonInfo("version")
                 args['media_center'] = 'xbmc'
-                args['media_center_version'] = xbmc.getInfoLabel("system.buildversion")
+                #This is currently broken seems to return corrupt buildversions
+                #args['media_center_version'] = xbmc.getInfoLabel("system.buildversion")
+                Debug("[~] "+xbmc.getInfoLabel("system.buildversion")) # Remove when the value is no longer corrupt
                 args['media_center_date'] = xbmc.getInfoLabel("system.builddate")
             jdata = json.dumps(args)
             conn.request('POST', req, jdata)
@@ -157,7 +159,12 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
         Debug("trakt json url: "+req)
     except socket.error:
         Debug("traktQuery: can't connect to trakt")
-        if not daemon: notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        if not silent: notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
+        if returnStatus:
+            data = {}
+            data['status'] = 'failure'
+            data['error'] = 'Socket error, unable to connect to trakt'
+            return data;
         return None
      
     conn.go()
@@ -325,7 +332,7 @@ def removeEpisodesFromTraktCollection(tvdb_id, title, year, imdb_id=None, *args,
 
 # get tvshows from XBMC
 def getTVShowsFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShows','params':{'fields': ['title', 'year', 'imdbnumber', 'playcount']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShows','params':{'properties': ['title', 'year', 'imdbnumber', 'playcount']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -368,7 +375,7 @@ def getSeasonsFromXBMC(tvshow):
     
 # get episodes for a given tvshow / season from XBMC
 def getEpisodesFromXBMC(tvshow, season):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes','params':{'tvshowid': tvshow['tvshowid'], 'season': season, 'fields': ['playcount', 'episode']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes','params':{'tvshowid': tvshow['tvshowid'], 'season': season, 'properties': ['playcount', 'episode']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -389,7 +396,7 @@ def getEpisodesFromXBMC(tvshow, season):
 
 # get a single episode from xbmc given the id
 def getEpisodeDetailsFromXbmc(libraryId, fields):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodeDetails','params':{'episodeid': libraryId, 'fields': fields}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodeDetails','params':{'episodeid': libraryId, 'properties': fields}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -410,7 +417,7 @@ def getEpisodeDetailsFromXbmc(libraryId, fields):
 
 # get movies from XBMC
 def getMoviesFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'fields': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'properties': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
 
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -431,7 +438,7 @@ def getMoviesFromXBMC():
 
 # get a single movie from xbmc given the id
 def getMovieDetailsFromXbmc(libraryId, fields):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails','params':{'movieid': libraryId, 'fields': fields}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails','params':{'movieid': libraryId, 'properties': fields}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -508,51 +515,83 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     
 # get current video being played from XBMC
 def getCurrentPlayingVideoFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.GetItems','params':{}, 'id': 1})
-    
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Player.GetActivePlayers','params':{}, 'id': 1})
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
-    
     # check for error
     try:
         error = result['error']
-        Debug("getCurrentPlayingVideoFromXBMC: " + str(error))
+        Debug("[Util] getCurrentPlayingVideoFromXBMC: " + str(error))
         return None
     except KeyError:
         pass # no error
     
     try:
-        Debug("Current playlist: "+str(result['result']))
-        current = result['result']['state']['current']
-        typ = result['result']['items'][current]['type']
-        if typ in ("movie","episode"):
-            return result['result']['items'][current]
+        for player in result['result']:
+            if player['type'] == 'video':
+                rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Player.GetProperties','params':{'playerid': player['playerid'], 'properties':['playlistid', 'position']}, 'id': 1})
+                result2 = xbmc.executeJSONRPC(rpccmd)
+                result2 = json.loads(result2)
+                # check for error
+                try:
+                    error = result2['error']
+                    Debug("[Util] getCurrentPlayingVideoFromXBMC, Player.GetProperties: " + str(error))
+                    return None
+                except KeyError:
+                    pass # no error
+                playlistid = result2['result']['playlistid']
+                position = result2['result']['position']
+                
+                rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Playlist.GetItems','params':{'playlistid': playlistid}, 'id': 1})
+                result2 = xbmc.executeJSONRPC(rpccmd)
+                result2 = json.loads(result2)
+                # check for error
+                try:
+                    error = result2['error']
+                    Debug("[Util] getCurrentPlayingVideoFromXBMC, Playlist.GetItems: " + str(error))
+                    return None
+                except KeyError:
+                    pass # no error
+                Debug("Current playlist: "+str(result2['result']))
+                
+                return result2['result'][position]
+        Debug("[Util] getCurrentPlayingVideoFromXBMC: No current video player")
         return None
     except KeyError:
-        Debug("getCurrentPlayingVideoFromXBMC: KeyError")
+        Debug("[Util] getCurrentPlayingVideoFromXBMC: KeyError")
         return None
         
 # get the length of the current video playlist being played from XBMC
-def getCurrentPlaylistLengthFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.GetItems','params':{}, 'id': 1})
-    
+def getPlaylistLengthFromXBMCPlayer(playerid):
+    if playerid == -1:
+        return 1 #Default player (-1) can't be checked properly
+    if playerid < 0 or playerid > 2:
+        Debug("[Util] getPlaylistLengthFromXBMCPlayer, invalid playerid: "+str(playerid))
+        return 0
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Player.GetProperties','params':{'playerid': playerid, 'properties':['playlistid']}, 'id': 1})
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
-    
     # check for error
     try:
         error = result['error']
-        Debug("getCurrentPlaylistLengthFromXBMC: " + str(error))
-        return None
+        Debug("[Util] getPlaylistLengthFromXBMCPlayer, Player.GetProperties: " + str(error))
+        return 0
+    except KeyError:
+        pass # no error
+    playlistid = result['result']['playlistid']
+    
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Playlist.GetProperties','params':{'playlistid': playlistid, 'properties': ['size']}, 'id': 1})
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
+    # check for error
+    try:
+        error = result['error']
+        Debug("[Util] getPlaylistLengthFromXBMCPlayer, Playlist.GetProperties: " + str(error))
+        return 0
     except KeyError:
         pass # no error
     
-    try:
-        Debug("Current playlist: "+str(result['result']))
-        return result['result']['limits']['total']
-    except KeyError:
-        Debug("getCurrentPlaylistLengthFromXBMC: KeyError")
-        return None
+    return result['result']['size']
 
 def getMovieIdFromXBMC(imdb_id, title):
     # httpapi till jsonrpc supports searching for a single movie
@@ -837,43 +876,20 @@ def playMovieById(idMovie):
     if idMovie == -1:
         return # invalid movie id
     else:
-        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.Clear', 'params':{}, 'id': 1})
+        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'Player.Open', 'params': {'item': {'movieid': int(idMovie)}}, 'id': 1})
         result = xbmc.executeJSONRPC(rpccmd)
         result = json.loads(result)
         
         # check for error
         try:
             error = result['error']
-            Debug("playMovieById, VideoPlaylist.Clear: " + str(error))
+            Debug("playMovieById, Player.Open: " + str(error))
             return None
         except KeyError:
             pass # no error
-        
-        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.Add', 'params': {'item': {'movieid': int(idMovie)}}, 'id': 1})
-        result = xbmc.executeJSONRPC(rpccmd)
-        result = json.loads(result)
             
-        # check for error
         try:
-            error = result['error']
-            Debug("playMovieById, VideoPlaylist.Add: " + str(error))
-            return None
-        except KeyError:
-            pass # no error
-        
-        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoPlaylist.Play', 'params': {}, 'id': 1})
-        result = xbmc.executeJSONRPC(rpccmd)
-        result = json.loads(result)
-            
-        # check for error
-        try:
-            error = result['error']
-            Debug("playMovieById, VideoPlaylist.Play: " + str(error))
-            return None
-        except KeyError:
-            pass # no error    
-        try:
-            if result['result']['success']:
+            if result['result'] == "OK":
                 if xbmc.Player().isPlayingVideo():
                     return True
             notification("Trakt Utilities", __language__(1302).encode( "utf-8", "ignore" )) # Unable to play movie
