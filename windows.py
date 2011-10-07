@@ -60,15 +60,12 @@ class MoviesWindow(xbmcgui.WindowXML):
         self.getControl(MOVIE_LIST).reset()
         if self.movies != None:
             for movie in self.movies:
-                li = xbmcgui.ListItem(str(movie._title), '', movie['images']['poster'])
-                if not ('idMovie' in movie):
-                    movie['idMovie'] = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
-                if movie['idMovie'] != -1:
+                li = xbmcgui.ListItem(str(movie.title), '', movie.poster)
+                if movie.libraryStatus:
                     li.setProperty('Available','true')
                 if self.type <> 'watchlist':
-                    if 'watchlist' in movie:
-                        if movie['watchlist']:
-                            li.setProperty('Watchlist','true')
+                    if movie.watchlistStatus:
+                        li.setProperty('Watchlist','true')
                 self.lis.append(li)
                 self.getControl(MOVIE_LIST).addItem(li)
             self.setFocus(self.getControl(MOVIE_LIST))
@@ -84,64 +81,65 @@ class MoviesWindow(xbmcgui.WindowXML):
             return # ToDo: error output
         
         try:
-            self.getControl(BACKGROUND).setImage(self.movies[current]['images']['fanart'])
-        except KeyError:
-            Debug("KeyError for Backround")
+            self.getControl(BACKGROUND).setImage(self.movies[current].fanart)
         except TypeError:
             Debug("TypeError for Backround")
+            
         try:
-            self.getControl(TITLE).setLabel(self.movies[current]['title'])
-        except KeyError:
-            Debug("KeyError for Title")
-            self.getControl(TITLE).setLabel("")
+            if self.movies[current].title is not None:
+                self.getControl(TITLE).setLabel(self.movies[current].title)
+            else:
+                self.getControl(TITLE).setLabel("")
         except TypeError:
             Debug("TypeError for Title")
+            
         try:
-            self.getControl(OVERVIEW).setText(self.movies[current]['overview'])
-        except KeyError:
-            Debug("KeyError for Overview")
-            self.getControl(OVERVIEW).setText("")
+            if self.movies[current].overview is not None:
+                self.getControl(OVERVIEW).setText(self.movies[current].overview)
+            else:
+                self.getControl(OVERVIEW).setText("")
         except TypeError:
             Debug("TypeError for Overview")
+            
         try:
-            self.getControl(YEAR).setLabel("Year: " + str(self.movies[current]['year']))
-        except KeyError:
-            Debug("KeyError for Year")
-            self.getControl(YEAR).setLabel("")
+            if self.movies[current].year is not None:
+                self.getControl(YEAR).setLabel("Year: " + str(self.movies[current].year))
+            else:
+                self.getControl(YEAR).setLabel("")
         except TypeError:
             Debug("TypeError for Year")
         try:
-            self.getControl(RUNTIME).setLabel("Runtime: " + str(self.movies[current]['runtime']) + " Minutes")
-        except KeyError:
-            Debug("KeyError for Runtime")
-            self.getControl(RUNTIME).setLabel("")
+            if self.movies[current].year is not None:
+                self.getControl(RUNTIME).setLabel("Runtime: " + str(self.movies[current].runtime) + " Minutes")
+            else:
+                self.getControl(RUNTIME).setLabel("")
         except TypeError:
             Debug("TypeError for Runtime")
+            
         try:
-            if self.movies[current]['tagline'] <> "":
-                self.getControl(TAGLINE).setLabel("\""+self.movies[current]['tagline']+"\"")
+            if self.movies[current].tagline is not None and self.movies[current].tagline <> "":
+                self.getControl(TAGLINE).setLabel("\""+self.movies[current].tagline+"\"")
             else:
                 self.getControl(TAGLINE).setLabel("")
-        except KeyError:
-            Debug("KeyError for Tagline")
-            self.getControl(TAGLINE).setLabel("")
         except TypeError:
             Debug("TypeError for Tagline")
+            
         try:
-            self.getControl(RATING).setLabel("Rating: " + self.movies[current]['certification'])
-        except KeyError:
-            Debug("KeyError for Rating")
-            self.getControl(RATING).setLabel("")
+            if self.movies[current].certification is not None:
+                self.getControl(RATING).setLabel("Certification: " + self.movies[current].certification)
+            else:
+                self.getControl(RATING).setLabel("")
         except TypeError:
             Debug("TypeError for Rating")
-        if 'watchers' in self.movies[current]:
-            try:
-                self.getControl(WATCHERS).setLabel(str(self.movies[current]['watchers']) + " people watching")
-            except KeyError:
-                Debug("KeyError for Watchers")
-                self.getControl(WATCHERS).setLabel("")
-            except TypeError:
-                Debug("TypeError for Watchers")
+            
+        #if 'watchers' in self.movies[current]:
+        #    try:
+        #        self.getControl(WATCHERS).setLabel(str(self.movies[current]['watchers']) + " people watching")
+        #    except KeyError:
+        #        Debug("KeyError for Watchers")
+        #        self.getControl(WATCHERS).setLabel("")
+        #    except TypeError:
+        #        Debug("TypeError for Watchers")
         
     def onFocus( self, controlId ):
         self.controlId = controlId

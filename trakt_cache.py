@@ -30,8 +30,7 @@ def init(location=None):
     trakt_cache._location = xbmc.translatePath(location)
     if trakt_cache._location is not None:
         trakt_cache._fill()
-        #if 'all' not in trakt_cache._expire or trakt_cache._expire['all'] < time.time():
-        trakt_cache._sync()
+        needSyncAtLeast(['library'],force=True)
     
 
 def _fill():
@@ -41,19 +40,20 @@ def _fill():
     trakt_cache._expire = shelve.open(trakt_cache._location+".ttl")
     
 
-def _sync():
+def _sync(xbmcData = {}, traktData = {}):
     Debug("[TraktCache] Syncronising")
-    # Send changes to trakt
-    trakt_cache._updateTrakt()
     
-    # Receive latest according to trakt
-    traktData = trakt_cache._copyTrakt()
-    # Get latest xbmc
-    xbmcData = trakt_cache._copyXbmc()
+    if 'movies' not in xbmcData: xbmcData['movies'] = []
+    if 'movies' not in traktData: traktData['movies'] = []
+    if 'shows' not in xbmcData: xbmcData['shows'] = []
+    if 'shows' not in traktData: traktData['shows'] = []
+    if 'episodes' not in xbmcData: xbmcData['episodes'] = []
+    if 'episodes' not in traktData: traktData['episodes'] = []
+    
     # Find and list all changes
     xbmcChanges = trakt_cache._syncCompare(traktData)
     traktChanges = trakt_cache._syncCompare(xbmcData, xbmc = True)
-    
+        
     # Find unanimous changes and direct them to the cache
     cacheChanges = {}
     cacheChanges['movies'] = []
@@ -61,24 +61,36 @@ def _sync():
     cacheChanges['episodes'] = []
     
     for type in ['movies', 'shows', 'episodes']:
-        for change in xbmcChanges[type]:
-            if change in traktChanges[type]: # I think this works, but my concern is that it wont compare the values
-                traktChanges[type].remove(change)
-                xbmcChanges[type].remove(change)
-                cacheChanges[type].append(change)
-    
+        for xbmcChange in xbmcChanges[type]:
+            for traktChange in traktChanges[type]: # I think this works, but my concern is that it wont compare the values
+                if (xbmcChange['remoteId'] == traktChange['remoteId'] and xbmcChange['subject'] == traktChange['subject']):
+                    traktChanges[type].remove(traktChange)
+                    xbmcChanges[type].remove(xbmcChange)
+                    cacheChanges[type].append(traktChange)
+    Debug("[~] "+repr(cacheChanges))
+                    
     # Perform cache only changes
     Debug("[TraktCache] Updating cache")
     trakt_cache._updateCache(cacheChanges, traktData)
     # Perform local (ie to xbmc) changes
     Debug("[TraktCache] Updating xbmc")
-    trakt_cache._updateXbmc(xbmcChanges)
+    trakt_cache._updateXbmc(xbmcChanges, traktData)
     # Log remote (ie to trakt) changes into queue and send to trakt
     Debug("[TraktCache] Updateing trakt")
-    trakt_cache._updateTrakt(traktChanges)
+    trakt_cache._updateTrakt(traktChanges, traktData)
     # Update next sync times
-    trakt_cache.updateSyncTimes(['movielibrary'], _movies.keys())
+    trakt_cache.updateSyncTimes(['library'], _movies.keys())
 
+def refreshLibrary():
+    # Send changes to trakt
+    trakt_cache._updateTrakt()
+    
+    # Receive latest according to trakt
+    traktData = trakt_cache._copyTrakt()
+    # Get latest xbmc
+    xbmcData = trakt_cache._copyXbmc()
+    
+    _sync(xbmcData, traktData)
 
 def _updateCache(changes, traktData = {}):
     if 'movies' in changes:
@@ -88,7 +100,7 @@ def _updateCache(changes, traktData = {}):
                 if change['subject'] in ('playcount', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus'):
                     if change['remoteId'] in _movies:
                         movie = _movies[change['remoteId']]
-                        Debug("[TraktCache] Updating "+str(movie)+", setting "+str(change['subject'])+" to "+str(change['value']))
+                        Debug("[TraktCache] Updating "+unicode(movie)+", setting "+str(change['subject'])+" to "+str(change['value']))
                         movie['_'+change['subject']] = change['value']
                         _movies[change['remoteId']] = movie
                     else:
@@ -99,7 +111,7 @@ def _updateCache(changes, traktData = {}):
                             Debug("[TraktCache] Inserting into cache from remote trakt data")
                             _movies[change['remoteId']] = Movie.download(change['remoteId'])
 
-def _updateXbmc(changes):
+def _updateXbmc(changes, traktData = {}):
     cacheChanges = {}
     
     if 'movies' in changes:
@@ -119,9 +131,9 @@ def _updateXbmc(changes):
                     continue
                 # succeeded
                 cacheChanges['movies'].append(change)
-    _updateCache(cacheChanges)        
+    _updateCache(cacheChanges, traktData)        
 
-def _updateTrakt(newChanges = None):
+def _updateTrakt(newChanges = None, traktData = {}):
     changeQueue = {}
     if '_queue' in trakt_cache._movies:
         changeQueue['movies'] = trakt_cache._movies['_queue']
@@ -196,7 +208,7 @@ def _updateTrakt(newChanges = None):
             queue = trakt_cache._movies['_queue']
             queue.remove(change)
             trakt_cache._movies['_queue'] = queue
-    trakt_cache._updateCache(cacheChanges)
+    trakt_cache._updateCache(cacheChanges, traktData)
 
 def _copyTrakt():
     traktData = {}
@@ -260,7 +272,7 @@ def _syncCompare(data, xbmc = False):
         showAttributes = []
         episodeAttributes = ['playcount']
     else:
-        movieAttributes = ['playcount', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus']
+        movieAttributes = ['title', 'year', 'runtime', 'released', 'tagline', 'overview', 'certification', 'playcount', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus', 'trailer', 'poster', 'fanart']
         showAttributes = ['rating', 'watchlistStatus', 'recommendedStatus']
         episodeAttributes = ['playcount', 'rating', 'watchlistStatus', 'libraryStatus']
     
@@ -315,22 +327,26 @@ def getMovieId(localId):
         return trakt_cache._movies['_byLocalId'][localId]
     return None
 
-def updateSyncTimes(?sets = [], ?remoteIds = []):
-    updated = dict.fromkeys(sets)
+def updateSyncTimes(sets = [], remoteIds = []):
+    updated = {}
+    for set in sets: updated[str(set)] = None
     if 'all' in updated:
-        updated['all'] = true
-        updated['movieall'] = true
+        updated['all'] = True
+        updated['movieall'] = True
     if 'movieall' in updated:
-        updated['movielibrary'] = true
-        updated['movierecommended'] = true
-        updated['moviewatchlist'] = true
-        updated['movieimages'] = true
+        updated['movielibrary'] = True
+        updated['movierecommended'] = True
+        updated['moviewatchlist'] = True
+        updated['movieimages'] = True
+    if 'library' in updated:
+        updated['movielibrary'] = True
     
     syncTimes = {'moviewatchlist': 10*60,
                  'movierecommended': 30*60,
                  'movielibrary': 6*60*60,
                  'movieimages': 6*60*60,
-                 'movieall': 6*60*60,
+                 'movieall': 24*60*60,
+                 'library': 60*60,
                  'all': 24*60*60}
     for set in updated:
         if set not in syncTimes:
@@ -340,25 +356,29 @@ def updateSyncTimes(?sets = [], ?remoteIds = []):
     for remoteId in remoteIds:
         trakt_cache._expire[remoteId] = time.time() + 10*60 # +10mins
 
-def needSyncAtleast(?sets = [], ?remoteIds = []):
+def needSyncAtLeast(sets = [], remoteIds = [], force = False):
     # This function should block untill all syncs have been satisfied
-    staleSets = []
+    staleSets = {}
     for set in sets:
-        if 'all' in trakt_cache._expire and trakt_cache._expire['all'] > time.time():
-            break
-        if set == 'all':
-            staleSets.append('all')
-            break
-        if set == 'movieall':
-            
+        Debug("[~] "+repr(set))
+        staleSets[str(set)] = None
+    if 'library' in  staleSets:
+        if 'movielibrary' in staleSets: del staleSets['movielibrary']
+    if 'movieall' in staleSets:
+        if 'movielibrary' in staleSets: del staleSets['movielibrary']
+        if 'movierecommended' in staleSets: del staleSets['movierecommended']
+        if 'moviewatchlist' in staleSets: del staleSets['moviewatchlist']
+        if 'movieimages' in staleSets: del staleSets['movieimages']
+    if 'all' in staleSets:
+        if 'movieall' in staleSets: del staleSets['movieall']
     for set in staleSets:
-        if set not in trakt_cache._expire or trakt_cache._expire[set] < time.time():
+        if set not in trakt_cache._expire or trakt_cache._expire[set] < time.time() or force:
             refreshSet(set)
     for remoteId in remoteIds:
         if remoteId not in trakt_cache._expire or trakt_cache._expire[remoteId] < time.time():
             refreshItem(remoteId)
     return
-
+    
 def getMovie(remoteId = None, localId = None):
     if remoteId is None and localId is None:
         raise ValueError("Must provide at least one form of id")
@@ -372,7 +392,18 @@ def getMovie(remoteId = None, localId = None):
         raise "Bad, logic bomb"
     return trakt_cache._movies[remoteId]
 
+def refreshSet(set):
+    try:
+        _refresh[set]()
+    except KeyError:
+        Debug("[TraktCache] No method specified to refresh the set: "+str(set))
 
+def refreshItem(remoteId):
+    if remoteId.partition("=") in ('imdb', 'tmdb'):
+        refreshMovie(remoteId)
+    else:
+        Debug("[TraktCache] No method yet to refresh non-movie items")
+        
 def refreshMovie(remoteId):
     if remoteId in _movies:
         changes = _listChanges([Movie.download(remoteId)],[_movies[remoteId]], ['playcount', 'rating', 'watchlistStatus', 'libraryStatus'])
@@ -389,8 +420,7 @@ def saveMovie(movie):
 
 
 def getMovieWatchList():
-    if 'moviewatchlist' not in trakt_cache._expire or trakt_cache._expire['moviewatchlist'] < time.time():
-        trakt_cache.refreshMovieWatchlist()
+    needSyncAtLeast(['moviewatchlist'])
     watchlist = []
     for remoteId in trakt_cache._movies:
         if remoteId[0] == '_': continue
@@ -407,11 +437,13 @@ def refreshMovieWatchlist():
     Debug("[TraktCache] Refreshing watchlist")
     traktWatchlist = getWatchlistMoviesFromTrakt()
     watchlist = {}
+    traktData = {}
+    traktData['movies'] = []
     for movie in traktWatchlist:
-        remoteId = Movie.evolveId(movie['imdb_id'])
-        watchlist[remoteId] = None
-        if remoteId not in trakt_cache._movies:
-            trakt_cache._movies[remoteId] = Movie.fromTrakt(movie)
+        localMovie = Movie.fromTrakt(movie)
+        watchlist[localMovie['_remoteId']] = localMovie
+    traktData['movies'] = watchlist
+    _sync(traktData = traktData)
     for remoteId in trakt_cache._movies:
         if remoteId[0] == '_': continue
         movie = trakt_cache._movies[remoteId]
@@ -421,6 +453,9 @@ def refreshMovieWatchlist():
         if movie['_watchlistStatus'] <> (remoteId in watchlist):
             movie['_watchlistStatus'] = not movie['_watchlistStatus']
             trakt_cache._movies[movie['_remoteId']] = movie
-    trakt_cache._expire['moviewatchlist'] = time.time() + 10*60 # +10mins
+            
+    updateSyncTimes(['moviewatchlist'], watchlist.keys())
     
-    
+_refresh = {}
+_refresh['library'] = refreshLibrary
+_refresh['moviewatchlist'] = refreshMovieWatchlist

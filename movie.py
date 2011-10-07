@@ -20,12 +20,19 @@ class Movie():
     _remoteId = None
     _title = None
     _year = None
+    _runtime = None
+    _released = None
+    _tagline = None
+    _overview = None
+    _certification = None
     _playcount = 0
     _rating = None
     _watchlistStatus = False
     _recommendedStatus = False
     _libraryStatus = False
     _traktDbStatus = True
+    
+    _trailer = None
     
     _poster = None
     _fanart = None
@@ -36,39 +43,115 @@ class Movie():
         self._remoteId = str(remoteId)
         
     def __repr__(self):
-        return "<"+str(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+">"
+        return "<"+repr(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._poster)+","+str(self._runtime)+","+str(self._tagline)+">"
         
     def __str__(self):
-        return str(self._title)+" ("+str(self._year)+")"
+        return unicode(self._title)+" ("+str(self._year)+")"
     
     def __getitem__(self, index):
         if index is "_remoteId": return self._remoteId
         if index is "_title": return self._title
         if index is "_year": return self._year
+        if index is "_runtime": return self._runtime
+        if index is "_released": return self._released
+        if index is "_tagline": return self._tagline
+        if index is "_overview": return self._overview
+        if index is "_certification": return self._certification
         if index is "_playcount": return self._playcount
         if index is "_rating": return self._rating
         if index is "_watchlistStatus": return self._watchlistStatus
         if index is "_recommendedStatus": return self._recommendedStatus
         if index is "_libraryStatus": return self._libraryStatus
+        if index is "_trailer": return self._trailer
+        if index is "_poster": return self._poster
+        if index is "_fanart": return self._fanart
     
     def __setitem__(self, index, value):
         if index is "_remoteId": self._remoteId = value
         if index is "_title": self._title = value
         if index is "_year": self._year = value
+        if index is "_runtime": self._runtime = value
+        if index is "_released": self._released = value
+        if index is "_tagline": self._tagline = value
+        if index is "_overview": self._overview = value
+        if index is "_certification": self._certification = value
         if index is "_playcount": self._playcount = value
         if index is "_rating": self._rating = value
         if index is "_watchlistStatus": self._watchlistStatus = value
         if index is "_recommendedStatus": self._recommendedStatus = value
         if index is "_libraryStatus": self._libraryStatus = value
+        if index is "_trailer": self._trailer = value
+        if index is "_poster": self._poster = value
+        if index is "_fanart": self._fanart = value
+    
     
     def save(self):
         trakt_cache.saveMovie(self)
         
     @property
+    def remoteId(self):
+        """A unique identifier for the movie."""
+        return self._remoteId
+        
+    @property
+    def title(self):
+        """The title of the movie."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._title
+        
+    @property
+    def year(self):
+        """The year the movie was released."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._year
+        
+    @property
+    def runtime(self):
+        """The number of minutes the movie runs for."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._runtime
+        
+    @property
+    def released(self):
+        """The date the movie was released."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._released
+        
+    @property
+    def tagline(self):
+        """A tag-line about the movie (like a catch phrase)."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._tagline
+        
+    @property
+    def overview(self):
+        """AN overview of the movie (like a plot)."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._overview
+        
+    @property
+    def certification(self):
+        """The content certification indicating the suitible audience."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._certification
+        
+    @property
+    def trailer(self):
+        """The movies trailer."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._trailer
+        
+    @property
     def poster(self):
-        """Get the movies poster image."""
-        needSyncAtleast(['movieimages'], [_remoteId])
+        """The movies poster image."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
         return self._poster
+        
+    @property
+    def fanart(self):
+        """The movies fanart image."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._fanart
         
     def scrobble(self):
         raise NotImplementedError("This function has not been written")
@@ -77,45 +160,55 @@ class Movie():
     def shout(self, text):
         raise NotImplementedError("This function has not been written")
         
-    def setRating(self, value):
-        raise NotImplementedError("This function has not been written")
-    def getRating(self):
-        self._expireCheck()
-        return _rating
-        
-    def setPlaycount(self, value):
-        raise NotImplementedError("This function has not been written")
-    def getPlaycount(self):
-        self._expireCheck()
-        return _playcount
-        
-    def setLibraryStatus(self, value):
-        raise NotImplementedError("This function has not been written")
-    def getLibraryStatus(self):
-        self._expireCheck('movielibrary')
-        return _libraryStatus
-        
-    def setWatchingStatus(self, value):
-        raise NotImplementedError("This function has not been written")
-    def getWatchingStatus(self):
+    @property
+    def rating(self):
+        """The users rating for the movie."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._rating
+    @rating.setter
+    def rating(self, value):
         raise NotImplementedError("This function has not been written")
         
-    def setWatchlistStatus(self, value):
+    @property
+    def playcount(self):
+        """How many time the user has watched the movie."""
+        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        return self._playcount
+    @playcount.setter
+    def playcount(self, value):
         raise NotImplementedError("This function has not been written")
-    def getWatchlistStatus(self):
-        self._expireCheck('moviewatchlist')
-        return _watchlistStatus
         
-    def getRecommendedStatus(self):
-        self._expireCheck('movierecommended')
-        return _recommendedStatus
-    
-    def _expireCheck(self, state=None):
-        if state is not None:
-            if state in _expire and _expire[state] >= time.time():
-                return
-        if self._remoteId not in _expire or _expire[_remoteId] < time.time():
-            refreshMovie(_remoteId)
+    @property
+    def libraryStatus(self):
+        """Whether the movie is in the users library."""
+        trakt_cache.needSyncAtLeast(['movielibrary'], [self._remoteId])
+        return self._libraryStatus
+    @libraryStatus.setter
+    def libraryStatus(self, value):
+        raise NotImplementedError("This function has not been written")
+        
+    @property
+    def watchingStatus(self):
+        """Whether the user is currently watching the movie."""
+        raise NotImplementedError("This function has not been written")
+    @watchingStatus.setter
+    def watchingStatus(self, value):
+        raise NotImplementedError("This function has not been written")
+        
+    @property
+    def watchlistStatus(self):
+        """Whether the movie is in the users watchlist."""
+        trakt_cache.needSyncAtLeast(['moviewatchlist'], [self._remoteId])
+        return self._watchlistStatus
+    @watchlistStatus.setter
+    def watchlistStatus(self, value):
+        raise NotImplementedError("This function has not been written")
+        
+    @property
+    def recommendedStatus(self):
+        """Whether the movie is recommended to the user by trakt."""
+        trakt_cache.needSyncAtLeast(['movierecommended'], [self._remoteId])
+        returnself._recommendedStatus
     
     @staticmethod
     def download(remoteId):
@@ -134,6 +227,7 @@ class Movie():
         movie['plays'] = _playcount
         movie['in_watchlist'] = _watchlistStatus
         movie['in_collection'] = _libraryStatus
+        
         if str(_remoteId).find('imbd=') == 0:
             movie['imdb_id'] = _remoteId[5:]
         if str(_remoteId).find('tmbd=') == 0:
@@ -155,6 +249,23 @@ class Movie():
             local._watchlistStatus = movie['in_watchlist']
         if 'in_collection' in movie:
             local._libraryStatus = movie['in_collection']
+        if 'images' in movie and 'poster' in movie['images']:
+            local._poster = movie['images']['poster']
+        if 'images' in movie and 'fanart' in movie['images']:
+            local._fanart = movie['images']['fanart']
+        if 'runtime' in movie:
+            local._runtime = movie['runtime']
+        if 'released' in movie:
+            local._released = movie['released']
+        if 'tagline' in movie:
+            local._tagline = movie['tagline']
+        if 'overview' in movie:
+            local._overview = movie['overview']
+        if 'certification' in movie:
+            local._certification = movie['certification']
+        if 'trailer' in movie:
+            local._trailer = movie['trailer']
+            
         return local
      
     @staticmethod
