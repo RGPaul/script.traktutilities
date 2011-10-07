@@ -60,7 +60,7 @@ class MoviesWindow(xbmcgui.WindowXML):
         self.getControl(MOVIE_LIST).reset()
         if self.movies != None:
             for movie in self.movies:
-                li = xbmcgui.ListItem(movie['title'], '', movie['images']['poster'])
+                li = xbmcgui.ListItem(str(movie._title), '', movie['images']['poster'])
                 if not ('idMovie' in movie):
                     movie['idMovie'] = getMovieIdFromXBMC(movie['imdb_id'], movie['title'])
                 if movie['idMovie'] != -1:

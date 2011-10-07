@@ -27,6 +27,9 @@ class Movie():
     _libraryStatus = False
     _traktDbStatus = True
     
+    _poster = None
+    _fanart = None
+    
     def __init__(self, remoteId):
         if remoteId is None:
             raise ValueError("Must provide the id for the movie")
@@ -60,6 +63,12 @@ class Movie():
     
     def save(self):
         trakt_cache.saveMovie(self)
+        
+    @property
+    def poster(self):
+        """Get the movies poster image."""
+        needSyncAtleast(['movieimages'], [_remoteId])
+        return self._poster
         
     def scrobble(self):
         raise NotImplementedError("This function has not been written")

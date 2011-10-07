@@ -31,7 +31,9 @@ def menu():
     # check if needed settings are set
     if checkSettings() == False:
         return
-
+    
+    trakt_cache.init("special://profile/addon_data/script.TraktUtilities/trakt_cache")
+    
     options = [__language__(1210).encode( "utf-8", "ignore" ), __language__(1211).encode( "utf-8", "ignore" ), __language__(1212).encode( "utf-8", "ignore" ), __language__(1213).encode( "utf-8", "ignore" ), __language__(1214).encode( "utf-8", "ignore" )]
     
     if __settings__.getSetting("debug"):
@@ -127,7 +129,6 @@ def submenuRecommendations():
             showRecommendedTVShows()
 
 def testing():
-    trakt_cache.init("special://profile/addon_data/script.TraktUtilities/trakt_cache")
     Debug(str(trakt_cache.getMovieWatchList()))
     xbmcgui.Dialog().ok("Trakt Utilities, TESTS", "Success")
 

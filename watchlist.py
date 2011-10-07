@@ -9,6 +9,7 @@ try: import simplejson as json
 except ImportError: import json
 
 from utilities import *
+from trakt_cache import *
 
 try:
     # Python 3.0 +
@@ -46,7 +47,7 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 # list watchlist movies
 def showWatchlistMovies():
     
-    movies = getWatchlistMoviesFromTrakt()
+    movies = getMovieWatchList()
     
     if movies == None: # movies = None => there was an error
         return # error already displayed in utilities.py

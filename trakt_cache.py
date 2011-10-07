@@ -315,7 +315,7 @@ def getMovieId(localId):
         return trakt_cache._movies['_byLocalId'][localId]
     return None
 
-def updateSyncTimes(sets, remoteIds):
+def updateSyncTimes(?sets = [], ?remoteIds = []):
     updated = dict.fromkeys(sets)
     if 'all' in updated:
         updated['all'] = true
@@ -324,21 +324,40 @@ def updateSyncTimes(sets, remoteIds):
         updated['movielibrary'] = true
         updated['movierecommended'] = true
         updated['moviewatchlist'] = true
-            
-    times = {'moviewatchlist': 10*60,
-             'movierecommended': 30*60,
-             'movielibrary': 6*60*60,
-             'movieall': 6*60*60,
-             'all': 24*60*60}
-             
+        updated['movieimages'] = true
+    
+    syncTimes = {'moviewatchlist': 10*60,
+                 'movierecommended': 30*60,
+                 'movielibrary': 6*60*60,
+                 'movieimages': 6*60*60,
+                 'movieall': 6*60*60,
+                 'all': 24*60*60}
     for set in updated:
-        if set not in times:
+        if set not in syncTimes:
             Debug("[TraktCache] Tried to bump update time of unknown update set:" +set)
             continue
-        trakt_cache._expire[set] = time.time() + times[set]
+        trakt_cache._expire[set] = time.time() + syncTimes[set]
     for remoteId in remoteIds:
         trakt_cache._expire[remoteId] = time.time() + 10*60 # +10mins
 
+def needSyncAtleast(?sets = [], ?remoteIds = []):
+    # This function should block untill all syncs have been satisfied
+    staleSets = []
+    for set in sets:
+        if 'all' in trakt_cache._expire and trakt_cache._expire['all'] > time.time():
+            break
+        if set == 'all':
+            staleSets.append('all')
+            break
+        if set == 'movieall':
+            
+    for set in staleSets:
+        if set not in trakt_cache._expire or trakt_cache._expire[set] < time.time():
+            refreshSet(set)
+    for remoteId in remoteIds:
+        if remoteId not in trakt_cache._expire or trakt_cache._expire[remoteId] < time.time():
+            refreshItem(remoteId)
+    return
 
 def getMovie(remoteId = None, localId = None):
     if remoteId is None and localId is None:
