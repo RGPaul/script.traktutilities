@@ -1,3 +1,6 @@
+Version 0.6.4:
+    - Fixed broken syncing and scrobbling due to changes in xbmc json-rpc schema
+
 Version 0.6.3:
     - Repository hotfix
 
