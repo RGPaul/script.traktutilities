@@ -33,10 +33,10 @@ class Movie():
         self._remoteId = str(remoteId)
         
     def __repr__(self):
-        return "<"+self._title+" ("+str(self._year)+") - "+self._remoteId+">"
+        return "<"+str(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+">"
         
     def __str__(self):
-        return self._title+" ("+str(self._year)+")"
+        return str(self._title)+" ("+str(self._year)+")"
     
     def __getitem__(self, index):
         if index is "_remoteId": return self._remoteId
