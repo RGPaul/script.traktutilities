@@ -127,9 +127,8 @@ def _updateXbmc(changes, traktData = {}):
             Debug("[TraktCache] XBMC update: "+repr(change))
             if 'remoteId' in change and 'subject' in change and 'value' in change:
                 if change['subject'] == 'playcount':
-                    if change['remoteId'] in _movies and '_playcount' in _movies[change['remoteId']]:
-                        if setXBMCMoviePlaycount(Movie.devolveId(change['remoteId']), change['value']) is None:
-                            continue # failed, skip
+                    if setXBMCMoviePlaycount(Movie.devolveId(change['remoteId']), change['value']) is None:
+                        continue # failed, skip
                 elif change['subject'] in ('watchlistStatus', 'watchingStatus', 'libraryStatus', 'rating'):
                     # ignore, irrelevant (suppost to be impossible to get here)
                     continue
@@ -183,11 +182,15 @@ def _updateTrakt(newChanges = None, traktData = {}):
                             if removeMoviesFromWatchlist([movie.traktise()]) is None:
                                 continue # failed, leave in queue for next time
                 elif change['subject'] == 'playcount':
-                    if change['remoteId'] in trakt_cache._movies and '_playcount' in trakt_cache._movies[change['remoteId']]:
-                        movie = trakt_cache._movies[change['remoteId']]
-                        movie._playcount = change['value']
-                        if setMoviesPlaycountOnTrakt([movie.traktise()]) is None:
-                            continue # failed, leave in queue for next time
+                    movie = Movie(change['remoteId'])
+                    movie._playcount = change['value']
+                    if (movie._playcount >= 0):
+                        if (movie._playcount == 0):
+                            if setMoviesUnseenOnTrakt([movie.traktise()]) is None:
+                                continue # failed, leave in queue for next time
+                        else:
+                            if setMoviesSeenOnTrakt([movie.traktise()]) is None:
+                                continue # failed, leave in queue for next time
                 elif change['subject'] == 'watchingStatus':
                     if change['remoteId'] in trakt_cache._movies and '_watchingStatus' in trakt_cache._movies[change['remoteId']]:
                         movie = trakt_cache._movies[change['remoteId']]

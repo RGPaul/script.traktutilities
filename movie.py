@@ -124,7 +124,7 @@ class Movie():
         
     @property
     def overview(self):
-        """AN overview of the movie (like a plot)."""
+        """An overview of the movie (like a plot)."""
         trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
         return self._overview
         
