@@ -965,8 +965,8 @@ def playMovieById(idMovie):
 ###############################
 
 #tell trakt that the user is watching a movie
-def watchingMovieOnTrakt(imdb_id, title, year, duration, percent):
-    responce = traktJsonRequest('POST', '/movie/watching/%%API_KEY%%', {'imdb_id': imdb_id, 'title': title, 'year': year, 'duration': duration, 'progress': percent}, passVersions=True)
+def watchingMovieOnTrakt(movie):
+    responce = traktJsonRequest('POST', '/movie/watching/%%API_KEY%%', movie, passVersions=True)
     if responce == None:
         Debug("Error in request from 'watchingMovieOnTrakt()'")
     return responce

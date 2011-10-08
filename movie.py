@@ -17,30 +17,29 @@ __language__ = __settings__.getLocalizedString
 
 # Caches all information between the add-on and the web based trakt api
 class Movie():
-    _remoteId = None
-    _title = None
-    _year = None
-    _runtime = None
-    _released = None
-    _tagline = None
-    _overview = None
-    _certification = None
-    _playcount = 0
-    _rating = None
-    _watchlistStatus = False
-    _recommendedStatus = False
-    _libraryStatus = False
-    _traktDbStatus = True
-    
-    _trailer = None
-    
-    _poster = None
-    _fanart = None
     
     def __init__(self, remoteId):
         if remoteId is None:
             raise ValueError("Must provide the id for the movie")
         self._remoteId = str(remoteId)
+        self._title = None
+        self._year = None
+        self._runtime = None
+        self._released = None
+        self._tagline = None
+        self._overview = None
+        self._certification = None
+        self._playcount = 0
+        self._rating = None
+        self._watchlistStatus = False
+        self._recommendedStatus = False
+        self._libraryStatus = False
+        self._traktDbStatus = True
+    
+    _trailer = None
+    
+    _poster = None
+    _fanart = None
         
     def __repr__(self):
         return "<"+repr(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._poster)+","+str(self._runtime)+","+str(self._tagline)+">"
@@ -222,16 +221,16 @@ class Movie():
     
     def traktise(self):
         movie = {}
-        movie['title'] = _title
-        movie['year'] = _year
-        movie['plays'] = _playcount
-        movie['in_watchlist'] = _watchlistStatus
-        movie['in_collection'] = _libraryStatus
+        movie['title'] = self._title
+        movie['year'] = self._year
+        movie['plays'] = self._playcount
+        movie['in_watchlist'] = self._watchlistStatus
+        movie['in_collection'] = self._libraryStatus
         
-        if str(_remoteId).find('imbd=') == 0:
-            movie['imdb_id'] = _remoteId[5:]
-        if str(_remoteId).find('tmbd=') == 0:
-            movie['tmdb_id'] = _remoteId[5:]
+        if str(self._remoteId).find('imbd=') == 0:
+            movie['imdb_id'] = self._remoteId[5:]
+        if str(self._remoteId).find('tmbd=') == 0:
+            movie['tmdb_id'] = self._remoteId[5:]
         return movie
         
     @staticmethod

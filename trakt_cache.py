@@ -25,7 +25,6 @@ _shows = None
 _episodes = None
 _expire = None
 
-
 def init(location=None):
     trakt_cache._location = xbmc.translatePath(location)
     if trakt_cache._location is not None:
@@ -40,19 +39,25 @@ def _fill():
     trakt_cache._expire = shelve.open(trakt_cache._location+".ttl")
     
 
-def _sync(xbmcData = {}, traktData = {}):
+def _sync(xbmcData = None, traktData = None):
     Debug("[TraktCache] Syncronising")
     
-    if 'movies' not in xbmcData: xbmcData['movies'] = []
-    if 'movies' not in traktData: traktData['movies'] = []
-    if 'shows' not in xbmcData: xbmcData['shows'] = []
-    if 'shows' not in traktData: traktData['shows'] = []
-    if 'episodes' not in xbmcData: xbmcData['episodes'] = []
-    if 'episodes' not in traktData: traktData['episodes'] = []
+    if xbmcData is not None and 'movies' not in xbmcData: xbmcData['movies'] = []
+    if traktData is not None and 'movies' not in traktData: traktData['movies'] = []
+    if xbmcData is not None and 'shows' not in xbmcData: xbmcData['shows'] = []
+    if traktData is not None and 'shows' not in traktData: traktData['shows'] = []
+    if xbmcData is not None and 'episodes' not in xbmcData: xbmcData['episodes'] = []
+    if traktData is not None and 'episodes' not in traktData: traktData['episodes'] = []
     
     # Find and list all changes
-    xbmcChanges = trakt_cache._syncCompare(traktData)
-    traktChanges = trakt_cache._syncCompare(xbmcData, xbmc = True)
+    if traktData is not None:
+        xbmcChanges = trakt_cache._syncCompare(traktData)
+        Debug("[~] X"+repr(xbmcChanges))
+    #Debug("[~] xD"+repr(xbmcData))
+    #Debug("[~] cD"+str(_movies))
+    if xbmcData is not None:
+        traktChanges = trakt_cache._syncCompare(xbmcData, xbmc = True)
+        Debug("[~] T"+repr(traktChanges))
         
     # Find unanimous changes and direct them to the cache
     cacheChanges = {}
@@ -60,24 +65,26 @@ def _sync(xbmcData = {}, traktData = {}):
     cacheChanges['shows'] = []
     cacheChanges['episodes'] = []
     
-    for type in ['movies', 'shows', 'episodes']:
-        for xbmcChange in xbmcChanges[type]:
-            for traktChange in traktChanges[type]: # I think this works, but my concern is that it wont compare the values
-                if (xbmcChange['remoteId'] == traktChange['remoteId'] and xbmcChange['subject'] == traktChange['subject']):
-                    traktChanges[type].remove(traktChange)
-                    xbmcChanges[type].remove(xbmcChange)
-                    cacheChanges[type].append(traktChange)
-    Debug("[~] "+repr(cacheChanges))
-                    
+    if traktData is not None and xbmcData is not None:
+        for type in ['movies', 'shows', 'episodes']:
+            for xbmcChange in xbmcChanges[type]:
+                for traktChange in traktChanges[type]: # I think this works, but my concern is that it wont compare the values
+                    if (xbmcChange['remoteId'] == traktChange['remoteId'] and xbmcChange['subject'] == traktChange['subject']):
+                        traktChanges[type].remove(traktChange)
+                        xbmcChanges[type].remove(xbmcChange)
+                        cacheChanges[type].append(traktChange)
+                        
     # Perform cache only changes
     Debug("[TraktCache] Updating cache")
     trakt_cache._updateCache(cacheChanges, traktData)
-    # Perform local (ie to xbmc) changes
-    Debug("[TraktCache] Updating xbmc")
-    trakt_cache._updateXbmc(xbmcChanges, traktData)
-    # Log remote (ie to trakt) changes into queue and send to trakt
-    Debug("[TraktCache] Updateing trakt")
-    trakt_cache._updateTrakt(traktChanges, traktData)
+    if traktData is not None:
+        # Perform local (ie to xbmc) changes
+        Debug("[TraktCache] Updating xbmc")
+        trakt_cache._updateXbmc(xbmcChanges, traktData)
+    if xbmcData is not None:
+        # Log remote (ie to trakt) changes into queue and send to trakt
+        Debug("[TraktCache] Updateing trakt")
+        trakt_cache._updateTrakt(traktChanges, traktData)
     # Update next sync times
     trakt_cache.updateSyncTimes(['library'], _movies.keys())
 
@@ -105,7 +112,7 @@ def _updateCache(changes, traktData = {}):
                         _movies[change['remoteId']] = movie
                     else:
                         if 'movies' in traktData and change['remoteId'] in traktData['movies']:
-                            Debug("[TraktCache] Inserting into cache from local trakt data")
+                            Debug("[TraktCache] Inserting into cache from local trakt data: "+repr(traktData['movies'][change['remoteId']]))
                             _movies[change['remoteId']] = traktData['movies'][change['remoteId']]
                         else:
                             Debug("[TraktCache] Inserting into cache from remote trakt data")
@@ -182,16 +189,23 @@ def _updateTrakt(newChanges = None, traktData = {}):
                         if setMoviesPlaycountOnTrakt([movie.traktise()]) is None:
                             continue # failed, leave in queue for next time
                 elif change['subject'] == 'watchingStatus':
-                    if change['remoteId'] in _movies and '_watchingStatus' in _movies[change['remoteId']]:
+                    if change['remoteId'] in trakt_cache._movies and '_watchingStatus' in trakt_cache._movies[change['remoteId']]:
                         movie = trakt_cache._movies[change['remoteId']]
                         if change['value'] == True:
-                            if watchingMovieOnTrakt() is None:
+                            if watchingMovieOnTrakt(movie.traktise()) is None:
                                 continue # failed, leave in queue for next time
                         else:
-                            if cancelWatchingMovieOnTrakt([movie.traktise()]) is None:
+                            if cancelWatchingMovieOnTrakt() is None:
                                 continue # failed, leave in queue for next time
                 elif change['subject'] == 'libraryStatus':
-                    continue
+                    if change['value'] == True:
+                        if addMoviesToTraktCollection([Movie(change['remoteId']).traktise()]) is None:
+                            continue # failed, leave in queue for next time
+                    else:
+                        result = removeMoviesFromTraktCollection([Movie(change['remoteId']).traktise()], returnStatus = True)
+                        Debug('[TraktCache] _updateTrakt, libraryStatus, unlibrary, responce: '+str(result))
+                        if 'error' in result: continue # failed, leave in queue for next time
+                        
                 elif change['subject'] == 'rating':
                     continue
                 elif change['subject'] == 'scrobble':
@@ -290,11 +304,13 @@ def _listChanges(newer, older, attributes, xbmc = False):
     changes = []
     # Find new items
     for remoteId in newer:
+        if remoteId is None: continue
         if remoteId[0] == '_': continue
         newItem = newer[remoteId]
         if newItem['_remoteId'] not in older:
+            if xbmc: changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':True})
             for attribute in attributes:
-                changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute]})
+                if newItem['_'+attribute] is not None: changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute]})
     
     for remoteId in older:
         if remoteId[0] == '_': continue
@@ -302,8 +318,10 @@ def _listChanges(newer, older, attributes, xbmc = False):
         if oldItem is None:
             del older[remoteId]
             continue
-        if remoteId not in newer: #If item removed from library
-            changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':False})
+        if remoteId not in newer: #If item not in library
+            if xbmc:
+                if oldItem._libraryStatus: #If item had been in library
+                    changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':False})
         else:
             newItem = newer[remoteId]
             if newItem is None:
@@ -311,7 +329,7 @@ def _listChanges(newer, older, attributes, xbmc = False):
                 continue
             for attribute in attributes:
                 if newItem['_'+attribute] <> oldItem['_'+attribute]: # If the non cached data is different from the old data cached locally
-                    changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute]})
+                    if newItem['_'+attribute] is not None: changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute]})
     return changes
 
 def relateMovieId(localId, remoteId):
