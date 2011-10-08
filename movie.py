@@ -29,12 +29,12 @@ class Movie():
         self._tagline = None
         self._overview = None
         self._certification = None
-        self._playcount = 0
+        self._playcount = None
         self._rating = None
-        self._watchlistStatus = False
-        self._recommendedStatus = False
-        self._libraryStatus = False
-        self._traktDbStatus = True
+        self._watchlistStatus = None
+        self._recommendedStatus = None
+        self._libraryStatus = None
+        self._traktDbStatus = None
     
     _trailer = None
     
@@ -48,40 +48,40 @@ class Movie():
         return unicode(self._title)+" ("+str(self._year)+")"
     
     def __getitem__(self, index):
-        if index is "_remoteId": return self._remoteId
-        if index is "_title": return self._title
-        if index is "_year": return self._year
-        if index is "_runtime": return self._runtime
-        if index is "_released": return self._released
-        if index is "_tagline": return self._tagline
-        if index is "_overview": return self._overview
-        if index is "_certification": return self._certification
-        if index is "_playcount": return self._playcount
-        if index is "_rating": return self._rating
-        if index is "_watchlistStatus": return self._watchlistStatus
-        if index is "_recommendedStatus": return self._recommendedStatus
-        if index is "_libraryStatus": return self._libraryStatus
-        if index is "_trailer": return self._trailer
-        if index is "_poster": return self._poster
-        if index is "_fanart": return self._fanart
+        if index == "_remoteId": return self._remoteId
+        if index == "_title": return self._title
+        if index == "_year": return self._year
+        if index == "_runtime": return self._runtime
+        if index == "_released": return self._released
+        if index == "_tagline": return self._tagline
+        if index == "_overview": return self._overview
+        if index == "_certification": return self._certification
+        if index == "_playcount": return self._playcount
+        if index == "_rating": return self._rating
+        if index == "_watchlistStatus": return self._watchlistStatus
+        if index == "_recommendedStatus": return self._recommendedStatus
+        if index == "_libraryStatus": return self._libraryStatus
+        if index == "_trailer": return self._trailer
+        if index == "_poster": return self._poster
+        if index == "_fanart": return self._fanart
     
     def __setitem__(self, index, value):
-        if index is "_remoteId": self._remoteId = value
-        if index is "_title": self._title = value
-        if index is "_year": self._year = value
-        if index is "_runtime": self._runtime = value
-        if index is "_released": self._released = value
-        if index is "_tagline": self._tagline = value
-        if index is "_overview": self._overview = value
-        if index is "_certification": self._certification = value
-        if index is "_playcount": self._playcount = value
-        if index is "_rating": self._rating = value
-        if index is "_watchlistStatus": self._watchlistStatus = value
-        if index is "_recommendedStatus": self._recommendedStatus = value
-        if index is "_libraryStatus": self._libraryStatus = value
-        if index is "_trailer": self._trailer = value
-        if index is "_poster": self._poster = value
-        if index is "_fanart": self._fanart = value
+        if index == "_remoteId": self._remoteId = value
+        if index == "_title": self._title = value
+        if index == "_year": self._year = value
+        if index == "_runtime": self._runtime = value
+        if index == "_released": self._released = value
+        if index == "_tagline": self._tagline = value
+        if index == "_overview": self._overview = value
+        if index == "_certification": self._certification = value
+        if index == "_playcount": self._playcount = value
+        if index == "_rating": self._rating = value
+        if index == "_watchlistStatus": self._watchlistStatus = value
+        if index == "_recommendedStatus": self._recommendedStatus = value
+        if index == "_libraryStatus": self._libraryStatus = value
+        if index == "_trailer": self._trailer = value
+        if index == "_poster": self._poster = value
+        if index == "_fanart": self._fanart = value
     
     
     def save(self):
