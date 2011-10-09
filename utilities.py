@@ -480,7 +480,7 @@ def getEpisodeDetailsFromXbmc(libraryId, fields):
 
 # get movies from XBMC
 def getMoviesFromXBMC():
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'properties': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovies','params':{'properties': ['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed', 'runtime']}, 'id': 1})
 
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -525,20 +525,20 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    match = xbmcHttpapiQuery(
+    matches = xbmcHttpapiQuery(
     "SELECT movie.idFile FROM movie"+
     " WHERE movie.c09='%(imdb_id)s'" % {'imdb_id':xcp(imdb_id)})
     
-    if not match:
+    if not matches:
         #add error message here
         return
-    
-    result = xbmcHttpapiExec(
-    "UPDATE files"+
-    " SET playcount=%(playcount)d" % {'playcount':int(playcount)}+
-    " WHERE idFile=%(idFile)s" % {'idFile':xcp(match[0])})
-    
-    Debug("xml answer: " + str(result))
+    for match in matches:
+        result = xbmcHttpapiExec(
+        "UPDATE files"+
+        " SET playcount=%(playcount)d" % {'playcount':int(playcount)}+
+        " WHERE idFile=%(idFile)s" % {'idFile':xcp(match)})
+        
+        Debug("xml answer: " + str(result))
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
@@ -790,15 +790,18 @@ def removeTVShowsFromWatchlist(data):
     return data
 
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
-def rateMovieOnTrakt(imdbid, title, year, rating):
+def rateMovieOnTrakt(movie, rating):
     if not (rating in ("love", "hate", "unrate")):
         #add error message
         return
     
-    Debug("Rating movie:" + rating)
+    Debug("[Util] rateMovieOnTrakt, Rating movie:" + rating)
     
-    data = traktJsonRequest('POST', '/rate/movie/%%API_KEY%%', {'imdb_id': imdbid, 'title': title, 'year': year, 'rating': rating})
-    if data == None:
+    data = movie
+    data['rating'] = rating
+    
+    responce = traktJsonRequest('POST', '/rate/movie/%%API_KEY%%', data)
+    if responce == None:
         Debug("Error in request from 'rateMovieOnTrakt()'")
     
     if (rating == "unrate"):
@@ -965,8 +968,11 @@ def playMovieById(idMovie):
 ###############################
 
 #tell trakt that the user is watching a movie
-def watchingMovieOnTrakt(movie):
-    responce = traktJsonRequest('POST', '/movie/watching/%%API_KEY%%', movie, passVersions=True)
+def watchingMovieOnTrakt(movie, progress):
+    data = movie
+    if 'runtime' in data: data['duration'] = data['runtime']
+    data['progress'] = progress
+    responce = traktJsonRequest('POST', '/movie/watching/%%API_KEY%%', data, passVersions=True)
     if responce == None:
         Debug("Error in request from 'watchingMovieOnTrakt()'")
     return responce
@@ -993,8 +999,11 @@ def cancelWatchingEpisodeOnTrakt():
     return responce
 
 #tell trakt that the user has finished watching an movie
-def scrobbleMovieOnTrakt(imdb_id, title, year, duration, percent):
-    responce = traktJsonRequest('POST', '/movie/scrobble/%%API_KEY%%', {'imdb_id': imdb_id, 'title': title, 'year': year, 'duration': duration, 'progress': percent}, passVersions=True)
+def scrobbleMovieOnTrakt(movie, progress):
+    data = movie
+    if 'runtime' in data: data['duration'] = data['runtime']
+    data['progress'] = progress
+    responce = traktJsonRequest('POST', '/movie/scrobble/%%API_KEY%%', data, passVersions=True)
     if responce == None:
         Debug("Error in request from 'scrobbleMovieOnTrakt()'")
     return responce

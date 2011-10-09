@@ -16,7 +16,7 @@ __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
 # Caches all information between the add-on and the web based trakt api
-class Movie():
+class Movie(object):
     
     def __init__(self, remoteId):
         if remoteId is None:
@@ -28,7 +28,7 @@ class Movie():
         self._released = None
         self._tagline = None
         self._overview = None
-        self._certification = None
+        self._classification = None
         self._playcount = None
         self._rating = None
         self._watchlistStatus = None
@@ -55,7 +55,7 @@ class Movie():
         if index == "_released": return self._released
         if index == "_tagline": return self._tagline
         if index == "_overview": return self._overview
-        if index == "_certification": return self._certification
+        if index == "_classification": return self._classification
         if index == "_playcount": return self._playcount
         if index == "_rating": return self._rating
         if index == "_watchlistStatus": return self._watchlistStatus
@@ -73,7 +73,7 @@ class Movie():
         if index == "_released": self._released = value
         if index == "_tagline": self._tagline = value
         if index == "_overview": self._overview = value
-        if index == "_certification": self._certification = value
+        if index == "_classification": self._classification = value
         if index == "_playcount": self._playcount = value
         if index == "_rating": self._rating = value
         if index == "_watchlistStatus": self._watchlistStatus = value
@@ -129,10 +129,10 @@ class Movie():
         return self._overview
         
     @property
-    def certification(self):
-        """The content certification indicating the suitible audience."""
+    def classification(self):
+        """The content classification indicating the suitible audience."""
         trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
-        return self._certification
+        return self._classification
         
     @property
     def trailer(self):
@@ -152,21 +152,26 @@ class Movie():
         trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
         return self._fanart
         
-    def scrobble(self):
-        raise NotImplementedError("This function has not been written")
-    def rate(self, rating):
-        raise NotImplementedError("This function has not been written")
+    def scrobble(self, progress):
+        scrobbleMovieOnTrakt(self.traktise(), progress)
     def shout(self, text):
         raise NotImplementedError("This function has not been written")
-        
+    def watching(self, progress):
+        watchingMovieOnTrakt(self.traktise(), progress)
+    @staticmethod
+    def cancelWatching():
+        cancelWatchingMovieOnTrakt()
+    
+    def Property(func):
+        return property(**func()) 
+    
     @property
     def rating(self):
-        """The users rating for the movie."""
         trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
         return self._rating
     @rating.setter
     def rating(self, value):
-        raise NotImplementedError("This function has not been written")
+        trakt_cache.makeChanges({'movies': [{'remoteId': self.remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
         
     @property
     def playcount(self):
@@ -182,16 +187,10 @@ class Movie():
         """Whether the movie is in the users library."""
         trakt_cache.needSyncAtLeast(['movielibrary'], [self._remoteId])
         return self._libraryStatus
-    @libraryStatus.setter
-    def libraryStatus(self, value):
-        raise NotImplementedError("This function has not been written")
         
     @property
     def watchingStatus(self):
         """Whether the user is currently watching the movie."""
-        raise NotImplementedError("This function has not been written")
-    @watchingStatus.setter
-    def watchingStatus(self, value):
         raise NotImplementedError("This function has not been written")
         
     @property
@@ -226,10 +225,11 @@ class Movie():
         movie['plays'] = self._playcount
         movie['in_watchlist'] = self._watchlistStatus
         movie['in_collection'] = self._libraryStatus
+        movie['runtime'] = self._runtime
         
-        if str(self._remoteId).find('imbd=') == 0:
+        if str(self._remoteId).find('imdb=') == 0:
             movie['imdb_id'] = self._remoteId[5:]
-        if str(self._remoteId).find('tmbd=') == 0:
+        if str(self._remoteId).find('tmdb=') == 0:
             movie['tmdb_id'] = self._remoteId[5:]
         return movie
         
@@ -261,7 +261,7 @@ class Movie():
         if 'overview' in movie:
             local._overview = movie['overview']
         if 'certification' in movie:
-            local._certification = movie['certification']
+            local._classification = movie['certification']
         if 'trailer' in movie:
             local._trailer = movie['trailer']
             
@@ -271,32 +271,35 @@ class Movie():
     def fromXbmc(movie):
         #Debug("[Movie] Creating from: "+str(movie))
         if 'imdbnumber' not in movie or movie['imdbnumber'].strip() == "":
-            remoteId = trakt_cache.getMovieId(movie['movieid'])
+            remoteId = trakt_cache.getMovieRemoteId(movie['movieid'])
             if remoteId is not None:
                 local = Movie(remoteId)
             else:
                 imdb_id = searchGoogleForImdbId(unicode(movie['title'])+"+"+unicode(movie['year']))
-                if imdb_id is None:
+                if imdb_id is None or imdb_id == "":
                     traktMovie = searchTraktForMovie(movie['title'], movie['year'])
                     if traktMovie is None:
                          Debug("[Movie] Unable to find movie '"+unicode(movie['title'])+"' ["+unicode(movie['year'])+"]")
                     else:
-                        if 'imdb_id' in traktMovie:
+                        if 'imdb_id' in traktMovie and traktMovie['imdb_id'] <> "":
                             local = Movie("imdb="+traktMovie['imdb_id'])
-                        elif 'tmdb_id' in traktMovie:
+                        elif 'tmdb_id' in traktMovie and traktMovie['tmdb_id'] <> "":
                             local = Movie("tmdb="+traktMovie['tmdb_id'])
                         else:
                             return None
                     return None
                 else:
                     local = Movie("imdb="+imdb_id)
-                # Related movieid to remoteId, now store the relationship
-                trakt_cache.relateMovieId(movie['movieid'], local['_remoteId'])
         else:
             local = Movie(Movie.evolveId(movie['imdbnumber']))
+        trakt_cache.relateMovieId(movie['movieid'], local._remoteId)
+        if local._remoteId == 'imdb=' or local._remoteId == 'tmdb=':
+            Debug("[Movie] Fail tried to use blank remote id for "+repr(movie))
+            return None
         local._title = movie['title']
         local._year = movie['year']
         local._playcount = movie['playcount']
+        local._runtime = movie['runtime']
         return local
     
     @staticmethod

@@ -60,7 +60,7 @@ class MoviesWindow(xbmcgui.WindowXML):
         self.getControl(MOVIE_LIST).reset()
         if self.movies != None:
             for movie in self.movies:
-                li = xbmcgui.ListItem(str(movie.title), '', movie.poster)
+                li = xbmcgui.ListItem(unicode(movie.title), '', unicode(movie.poster))
                 if movie.libraryStatus:
                     li.setProperty('Available','true')
                 if self.type <> 'watchlist':
@@ -81,13 +81,13 @@ class MoviesWindow(xbmcgui.WindowXML):
             return # ToDo: error output
         
         try:
-            self.getControl(BACKGROUND).setImage(self.movies[current].fanart)
+            self.getControl(BACKGROUND).setImage(unicode(self.movies[current].fanart))
         except TypeError:
             Debug("TypeError for Backround")
             
         try:
             if self.movies[current].title is not None:
-                self.getControl(TITLE).setLabel(self.movies[current].title)
+                self.getControl(TITLE).setLabel(unicode(self.movies[current].title))
             else:
                 self.getControl(TITLE).setLabel("")
         except TypeError:
@@ -95,9 +95,9 @@ class MoviesWindow(xbmcgui.WindowXML):
             
         try:
             if self.movies[current].overview is not None:
-                self.getControl(OVERVIEW).setText(self.movies[current].overview)
+                self.getControl(OVERVIEW).setText(unicode(self.movies[current].overview))
             else:
-                self.getControl(OVERVIEW).setText("")
+                self.getControl(OVERVIEW).setText("*")
         except TypeError:
             Debug("TypeError for Overview")
             
@@ -118,15 +118,15 @@ class MoviesWindow(xbmcgui.WindowXML):
             
         try:
             if self.movies[current].tagline is not None and self.movies[current].tagline <> "":
-                self.getControl(TAGLINE).setLabel("\""+self.movies[current].tagline+"\"")
+                self.getControl(TAGLINE).setLabel("\""+unicode(self.movies[current].tagline)+"\"")
             else:
                 self.getControl(TAGLINE).setLabel("")
         except TypeError:
             Debug("TypeError for Tagline")
             
         try:
-            if self.movies[current].certification is not None:
-                self.getControl(RATING).setLabel("Certification: " + self.movies[current].certification)
+            if self.movies[current].classification is not None:
+                self.getControl(RATING).setLabel("Classification: " + unicode(self.movies[current].classification))
             else:
                 self.getControl(RATING).setLabel("")
         except TypeError:
@@ -468,12 +468,10 @@ class TVShowsWindow(xbmcgui.WindowXML):
 
 class RateMovieDialog(xbmcgui.WindowXMLDialog):
 
-    def initDialog(self, imdbid, title, year, curRating):
-        self.imdbid = imdbid
-        self.title = title
-        self.year = year
-        self.curRating = curRating
-        if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
+    def initDialog(self, movie):
+        self.movie = movie
+        self.curRating = movie.rating
+        if self.curRating <> 'love' and self.curRating <> 'hate': self.curRating = None
         
     def onInit(self):
         self.getControl(RATE_TITLE).setLabel(__language__(1303).encode( "utf-8", "ignore" )) # How would you rate that movie?
@@ -489,15 +487,16 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         
     def onClick(self, controlId):
         if controlId == RATE_LOVE_BTN:
-            self.curRating = "love"
+            Debug("[~] love")
+            self.curRating = 'love'
             self.updateRatedButton()
-            rateMovieOnTrakt(self.imdbid, self.title, self.year, "love")
+            self.movie.rating = 'love'
             self.close()
             return
         elif controlId == RATE_HATE_BTN:
-            self.curRating = "hate"
+            self.curRating = 'hate'
             self.updateRatedButton()
-            rateMovieOnTrakt(self.imdbid, self.title, self.year, "hate")
+            self.movie.rating = 'hate'
             self.close()
             return
         elif controlId == RATE_SKIP_RATING:
@@ -506,7 +505,7 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
             self.curRating = None
             self.updateRatedButton()
-            rateMovieOnTrakt(self.imdbid, self.title, self.year, "unrate")
+            self.movie.rating = 'unrate'
             return
         else:
             Debug("Uncaught click (rate movie dialog): "+str(controlId))
@@ -525,8 +524,8 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
             
     def updateRatedButton(self):
         self.getControl(RATE_CUR_NO_RATING).setVisible(False if self.curRating <> None else True)
-        self.getControl(RATE_CUR_LOVE).setVisible(False if self.curRating <> "love" else True)
-        self.getControl(RATE_CUR_HATE).setVisible(False if self.curRating <> "hate" else True)
+        self.getControl(RATE_CUR_LOVE).setVisible(False if self.curRating <> 'love' else True)
+        self.getControl(RATE_CUR_HATE).setVisible(False if self.curRating <> 'hate' else True)
 
 class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
 

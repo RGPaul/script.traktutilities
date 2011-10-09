@@ -12,6 +12,7 @@ from utilities import *
 from rating import *
 from sync_update import *
 from instant_sync import *
+import main_menu
 from scrobbler import Scrobbler
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
@@ -92,6 +93,9 @@ class NotificationService(threading.Thread):
                     elif data['method'] == 'System.OnQuit':
                         self.abortRequested = True
                 
+                if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'TraktUtilities':
+                    if data['method'] == 'Other.TraktUtilities.ShowMenu':
+                        main_menu.menu()
             time.sleep(1)
         tn.close()
         scrobbler.abortRequested = True

@@ -4,6 +4,7 @@
 import os
 import xbmc,xbmcaddon,xbmcgui
 from utilities import *
+import trakt_cache
   
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -34,26 +35,16 @@ def ratingCheck(curVideo, watchedTime, totalTime, playlistLength):
     if (watchedTime/totalTime)*100>=float(rateMinViewTimeOption):
         if (playlistLength <= 1) or (rateEachInPlaylistOption == 'true'):
             if curVideo['type'] == 'movie' and rateMovieOption == 'true':
-                doRateMovie(curVideo['id'])
+                doRateMovie(trakt_cache.getMovie(localId = curVideo['id']))
             if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
                 doRateEpisode(curVideo['id'])
 
 # ask user if they liked the movie
-def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
-    if (movieid <> None) :
-        match = getMovieDetailsFromXbmc(movieid, ['imdbnumber','title','year'])
-        if not match:
-            #add error message here
-            return
-        
-        imdbid = match['imdbnumber']
-        title = match['title']
-        year = match['year']
-        
+def doRateMovie(movie):
     # display rate dialog
     import windows
     ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initDialog(imdbid, title, year, getMovieRatingFromTrakt(imdbid, title, year))
+    ui.initDialog(movie)
     ui.doModal()
     del ui
 

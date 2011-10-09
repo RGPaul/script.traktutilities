@@ -6,6 +6,9 @@ import xbmc,xbmcaddon,xbmcgui
 import threading
 from utilities import *
 from rating import *
+
+import trakt_cache
+from movie import Movie
   
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -105,12 +108,10 @@ class Scrobbler(threading.Thread):
         scrobbleEpisodeOption = __settings__.getSetting("scrobble_episode")
         
         if self.curVideo['type'] == 'movie' and scrobbleMovieOption == 'true':
-            match = getMovieDetailsFromXbmc(self.curVideo['id'], ['imdbnumber','title','year'])
-            if match == None:
+            movie = trakt_cache.getMovie(localId = self.curVideo['id'])
+            if movie is None:
                 return
-            responce = watchingMovieOnTrakt(match['imdbnumber'], match['title'], match['year'], self.totalTime/60, int(100*self.watchedTime/self.totalTime))
-            if responce != None:
-                Debug("[Scrobbler] Watch responce: "+str(responce));
+            movie.watching(int(100*self.watchedTime/self.totalTime))
         elif self.curVideo['type'] == 'episode' and scrobbleEpisodeOption == 'true':
             match = getEpisodeDetailsFromXbmc(self.curVideo['id'], ['showtitle', 'season', 'episode'])
             if match == None:
@@ -124,25 +125,21 @@ class Scrobbler(threading.Thread):
         scrobbleEpisodeOption = __settings__.getSetting("scrobble_episode")
         
         if self.curVideo['type'] == 'movie' and scrobbleMovieOption == 'true':
-            responce = cancelWatchingMovieOnTrakt()
-            if responce != None:
-                Debug("[Scrobbler] Cancel watch responce: "+str(responce));
+            Movie.cancelWatching()
         elif self.curVideo['type'] == 'episode' and scrobbleEpisodeOption == 'true':
             responce = cancelWatchingEpisodeOnTrakt()
             if responce != None:
                 Debug("[Scrobbler] Cancel watch responce: "+str(responce));
             
-    def scrobble(self):
+    def scrobble(self, progress):
         scrobbleMovieOption = __settings__.getSetting("scrobble_movie")
         scrobbleEpisodeOption = __settings__.getSetting("scrobble_episode")
         
         if self.curVideo['type'] == 'movie' and scrobbleMovieOption == 'true':
-            match = getMovieDetailsFromXbmc(self.curVideo['id'], ['imdbnumber','title','year'])
-            if match == None:
+            movie = trakt_cache.getMovie(localId = self.curVideo['id'])
+            if movie is None:
                 return
-            responce = scrobbleMovieOnTrakt(match['imdbnumber'], match['title'], match['year'], self.totalTime/60, int(100*self.watchedTime/self.totalTime))
-            if responce != None:
-                Debug("[Scrobbler] Scrobble responce: "+str(responce));
+            movie.scrobble(progress)
         elif self.curVideo['type'] == 'episode' and scrobbleEpisodeOption == 'true':
             match = getEpisodeDetailsFromXbmc(self.curVideo['id'], ['showtitle', 'season', 'episode'])
             if match == None:
@@ -154,8 +151,8 @@ class Scrobbler(threading.Thread):
     def check(self):
         __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
         scrobbleMinViewTimeOption = __settings__.getSetting("scrobble_min_view_time")
-        
-        if (self.watchedTime/self.totalTime)*100>=float(scrobbleMinViewTimeOption):
-            self.scrobble()
+        progress = (self.watchedTime/self.totalTime)*100
+        if progress >= float(scrobbleMinViewTimeOption):
+            self.scrobble(progress)
         else:
             self.stoppedWatching()
