@@ -935,9 +935,36 @@ def getWatchingFromTraktForUser(name):
     if data == None:
         Debug("Error in request from 'getWatchingFromTraktForUser()'")
     return data
-
-def playMovieById(idMovie):
-    # httpapi till jsonrpc supports selecting a single movie
+    
+def playMovieById(idMovie = None, options = None):
+    if (idMovie is None and options is None): return
+    if (idMovie is None):
+        if len(options) == 1:
+            idMovie = options[0]
+        else:
+            choices = []
+            for item in options:
+                rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails', 'params': {'movieid': item, 'properties': ['file', 'streamdetails', 'runtime']}, 'id': 1})
+                result = xbmc.executeJSONRPC(rpccmd)
+                result = json.loads(result)
+                if result is None or 'error' in result:
+                    del options[item]
+                    continue
+                details = result['result']['moviedetails']
+                choices.append(unicode("("+str(details['runtime'])+" Minutes) "+details['streamdetails'])+" - "+unicode(details['file']))
+            
+            if len(options) == 1:
+                idMovie = options[0]
+            else:
+                while True:
+                    select = xbmcgui.Dialog().select("Which one do you want to play ?", choices)
+                    Debug("Select: " + str(select))
+                    if select == -1:
+                        Debug ("menu quit by user")
+                        return
+                    elif select <= len(choices):
+                        idMovie = options[select]
+        
     Debug("Play Movie requested for id: "+str(idMovie))
     if idMovie == -1:
         return # invalid movie id

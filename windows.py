@@ -45,6 +45,7 @@ ACTION_PARENT_DIRECTORY = 9
 ACTION_PREVIOUS_MENU = 10
 ACTION_SELECT_ITEM = 7
 ACTION_CONTEXT_MENU = 117
+ACTION_NAV_BACK = 92
 
 class MoviesWindow(xbmcgui.WindowXML):
 
@@ -149,37 +150,36 @@ class MoviesWindow(xbmcgui.WindowXML):
         li = self.getControl(MOVIE_LIST).getSelectedItem()
         options = []
         actions = []
-        if movie['idMovie'] != -1:
+        if movie.libraryStatus:
             options.append("Play")
             actions.append('play')
         if self.type <> 'watchlist':
-            if 'watchlist' in movie:
-                if movie['watchlist']:
-                    options.append("Remove from watchlist")
-                    actions.append('unwatchlist')
-                else:
-                    options.append("Add to watchlist")
-                    actions.append('watchlist')
+            if movie.watchlistStatus:
+                options.append("Remove from watchlist")
+                actions.append('unwatchlist')
+            else:
+                options.append("Add to watchlist")
+                actions.append('watchlist')
         else:
             options.append("Remove from watchlist")
             actions.append('unwatchlist')
         options.append("Rate")
         actions.append('rate')
-        if 'plays' in movie and movie['plays'] == 0:
+        if movie.playcount == 0:
             options.append("Mark as seen")
             actions.append('seen')
-        elif 'watchlist' in movie and movie['watchlist']:
+        elif movie.watchlistStatus:
             options.append("Mark as seen")
             actions.append('seen')
         
-        select = xbmcgui.Dialog().select(movie['title']+" - "+str(movie['year']), options)
+        select = xbmcgui.Dialog().select(unicode(movie.title)+" - "+str(movie.year), options)
         if select != -1:
             Debug("Select: " + actions[select])
         if select == -1:
             Debug ("menu quit by user")
             return
         elif actions[select] == 'play':
-            playMovieById(movie['idMovie'])
+            movie.play()
         elif actions[select] == 'unwatchlist':
             if removeMoviesFromWatchlist([movie]) == None:
                 notification("Trakt Utilities", __language__(1311).encode( "utf-8", "ignore" )) # Failed to remove from watch-list
@@ -213,7 +213,7 @@ class MoviesWindow(xbmcgui.WindowXML):
     def onAction(self, action):
         if action.getId() == 0:
             return
-        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
             Debug("Closing MoviesWindow")
             self.close()
         elif action.getId() in (1,2,107):
@@ -299,7 +299,7 @@ class MovieWindow(xbmcgui.WindowXML):
         
         if action.getId() == 0:
             return
-        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
             Debug("Closing MovieInfoWindow")
             self.close()
         else:
@@ -454,7 +454,7 @@ class TVShowsWindow(xbmcgui.WindowXML):
 
         if action.getId() == 0:
             return
-        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
             Debug("Closing TV Shows Window")
             self.close()
         elif action.getId() in (1,2,107):
@@ -516,7 +516,7 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         
         if action.getId() in (0, 107):
             return
-        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
             Debug("Closing RateMovieDialog")
             self.close()
         else:
@@ -587,7 +587,7 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         
         if action.getId() in (0, 107):
             return
-        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
             Debug("Closing RateEpisodeDialog")
             self.close()
         else:
@@ -652,7 +652,7 @@ class RateShowDialog(xbmcgui.WindowXMLDialog):
         
         if action.getId() in (0, 107):
             return
-        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU):
+        if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
             Debug("Closing RateShowDialog")
             self.close()
         else:

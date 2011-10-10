@@ -427,6 +427,14 @@ def getMovieRemoteId(localId):
             return movies['_byLocalId'][localId]
     return None
 
+def getMovieLocalIds(remoteId):
+    hits = []
+    with SafeShelf('movies', True) as movies:
+        for localId in movies['_byLocalId']:
+            if remoteId == movies['_byLocalId'][localId]:
+                hits.append(localId)
+    return hits
+
 def updateSyncTimes(sets = [], remoteIds = []):
     updated = {}
     for set in sets: updated[str(set)] = None

@@ -24,7 +24,6 @@ conn = httplib.HTTPConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 def showFriends():
-
     options = []
     data = getFriendsFromTrakt()
     

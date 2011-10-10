@@ -161,6 +161,8 @@ class Movie(object):
     @staticmethod
     def cancelWatching():
         cancelWatchingMovieOnTrakt()
+    def play(self):
+        playMovieById(options = trakt_cache.getMovieLocalIds(self.remoteId))
     
     def Property(func):
         return property(**func()) 

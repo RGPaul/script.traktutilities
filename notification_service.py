@@ -12,7 +12,7 @@ from utilities import *
 from rating import *
 from sync_update import *
 from instant_sync import *
-import main_menu
+from watchlist import *
 from scrobbler import Scrobbler
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
@@ -94,8 +94,8 @@ class NotificationService(threading.Thread):
                         self.abortRequested = True
                 
                 if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'TraktUtilities':
-                    if data['method'] == 'Other.TraktUtilities.ShowMenu':
-                        main_menu.menu()
+                    if data['method'] == 'Other.TraktUtilities.Show.MoviesWatchlist':
+                        showWatchlistMovies()
             time.sleep(1)
         tn.close()
         scrobbler.abortRequested = True
