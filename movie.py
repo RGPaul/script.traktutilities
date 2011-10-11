@@ -35,11 +35,11 @@ class Movie(object):
         self._recommendedStatus = None
         self._libraryStatus = None
         self._traktDbStatus = None
-    
-    _trailer = None
-    
-    _poster = None
-    _fanart = None
+        
+        self._trailer = None
+        
+        self._poster = None
+        self._fanart = None
         
     def __repr__(self):
         return "<"+repr(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._poster)+","+str(self._runtime)+","+str(self._tagline)+">"
