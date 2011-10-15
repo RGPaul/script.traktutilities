@@ -181,7 +181,7 @@ class MoviesWindow(xbmcgui.WindowXML):
         elif actions[select] == 'play':
             movie.play()
         elif actions[select] == 'unwatchlist':
-            if removeMoviesFromWatchlist([movie]) == None:
+            if removeMoviesFromWatchlist([movie.traktise()]) == None:
                 notification("Trakt Utilities", __language__(1311).encode( "utf-8", "ignore" )) # Failed to remove from watch-list
             else:
                 notification("Trakt Utilities", __language__(1312).encode( "utf-8", "ignore" )) # Successfully removed from watch-list
@@ -192,16 +192,16 @@ class MoviesWindow(xbmcgui.WindowXML):
                     self.getControl(MOVIE_LIST).reset()
                     self.getControl(MOVIE_LIST).addItems(self.lis)
         elif actions[select] == 'watchlist':
-            if addMoviesToWatchlist([movie]) == None:
+            if addMoviesToWatchlist([movie.traktise()]) == None:
                 notification("Trakt Utilities", __language__(1309).encode( "utf-8", "ignore" )) # Failed to added to watch-list
             else:
                 notification("Trakt Utilities", __language__(1310).encode( "utf-8", "ignore" )) # Successfully added to watch-list
                 li.setProperty('Watchlist','true')
                 movie['watchlist'] = True;
         elif actions[select] == 'rate':
-            doRateMovie(imdbid=movie['imdb_id'], title=movie['title'], year=movie['year'])  
+            doRateMovie(imdbid=movie['imdb_id'], title=movie.title, year=movie.year)  
         elif actions[select] == 'seen':
-            if setMoviesSeenOnTrakt([movie]) is None:
+            if setMoviesSeenOnTrakt([movie.traktise()]) is None:
                 notification("Trakt Utilities", __language__(1313).encode( "utf-8", "ignore" )) # Failed to mark as seen
             else:
                 if self.type == 'watchlist':

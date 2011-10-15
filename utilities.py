@@ -51,10 +51,10 @@ def Debug(msg, force=False):
         except UnicodeEncodeError:
             print "Trakt Utilities: " + msg.encode( "utf-8", "ignore" )
 
-from trakt import Trakt
-
 def notification( header, message, time=5000, icon=__settings__.getAddonInfo( "icon" ) ):
     xbmc.executebuiltin( "XBMC.Notification(%s,%s,%i,%s)" % ( header, message, time, icon ) )
+
+from trakt import Trakt
 
 def checkSettings(daemon=False):
     if username == "":
@@ -568,7 +568,7 @@ def removeTVShowsFromWatchlist(shows, *args, **argd):
 
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
 def rateMovieOnTrakt(movie, rating, *args, **argd):
-    return Trakt.rateMovie(movie, rating, *args, **argd)
+    return Trakt.rateMovie(movie['imdb_id'], movie['title'], movie['year'], rating, movie['tmdb_id'], *args, **argd)
 
 #Get the rating for a movie from trakt
 def getMovieRatingFromTrakt(imdbid, title, year, *args, **argd):

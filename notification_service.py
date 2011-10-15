@@ -95,7 +95,7 @@ class NotificationService(threading.Thread):
                 
                 if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'TraktUtilities':
                     if data['method'] == 'Other.TraktUtilities.Show.MoviesWatchlist':
-                        showWatchlistMovies()
+                        thread.start_new_thread(showWatchlistMovies, ())
             time.sleep(1)
         tn.close()
         scrobbler.abortRequested = True

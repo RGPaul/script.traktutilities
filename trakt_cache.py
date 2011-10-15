@@ -73,6 +73,8 @@ def init(location=None):
     trakt_cache._location = xbmc.translatePath(location)
     if trakt_cache._location is not None:
         _fill()
+        # Send changes to trakt
+        trakt_cache._updateTrakt()
         needSyncAtLeast(['library'])
 
 def _fill():

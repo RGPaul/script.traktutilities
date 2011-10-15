@@ -9,7 +9,7 @@ try: import simplejson as json
 except ImportError: import json
 
 from nbhttpconnection import *
-from utilities import Debug
+from utilities import Debug, notification
 
 import urllib, re
 

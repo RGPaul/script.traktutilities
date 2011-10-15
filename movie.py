@@ -229,6 +229,8 @@ class Movie(object):
         movie['in_collection'] = self._libraryStatus
         movie['runtime'] = self._runtime
         
+        movie['imdb_id'] = None
+        movie['tmdb_id'] = None
         if str(self._remoteId).find('imdb=') == 0:
             movie['imdb_id'] = self._remoteId[5:]
         if str(self._remoteId).find('tmdb=') == 0:
