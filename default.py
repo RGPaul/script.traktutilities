@@ -6,6 +6,7 @@ import os
 import xbmcgui,xbmcaddon,xbmc,xbmcplugin
 from utilities import *
 from friends import *
+from trakt import Trakt
 
 try: import simplejson as json
 except ImportError: import json
@@ -150,12 +151,13 @@ def submenuRecommendations():
 
 
 def testing():
-    movie = Movie("dummy=1234455")
+    Trakt.testAll()
+    """movie = Movie("dummy=1234455")
     Debug("[~] rating: "+str(movie.rating))
     movie.rating = "help"
     movie.setRating("help")
     Debug('[TraktCache] _updateTrakt, libraryStatus, unlibrary, responce: '+str(result))
-    Debug(str(trakt_cache.getMovieWatchList()))
+    Debug(str(trakt_cache.getMovieWatchList()))"""
     xbmcgui.Dialog().ok("Trakt Utilities, TESTS", "Success")
     
 if __name__ == "__main__" :

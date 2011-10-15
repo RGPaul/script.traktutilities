@@ -51,6 +51,8 @@ def Debug(msg, force=False):
         except UnicodeEncodeError:
             print "Trakt Utilities: " + msg.encode( "utf-8", "ignore" )
 
+from trakt import Trakt
+
 def notification( header, message, time=5000, icon=__settings__.getAddonInfo( "icon" ) ):
     xbmc.executebuiltin( "XBMC.Notification(%s,%s,%i,%s)" % ( header, message, time, icon ) )
 
@@ -70,7 +72,7 @@ def checkSettings(daemon=False):
             __settings__.openSettings()
         return False
     
-    data = traktJsonRequest('POST', '/account/test/%%API_KEY%%', daemon=True)
+    data = Trakt.jsonRequest('POST', '/account/test/%%API_KEY%%', daemon=True)
     if data == None: #Incorrect trakt login details
         if daemon:
             notification("Trakt Utilities", __language__(1110).encode( "utf-8", "ignore" )) # please enter your Password in settings
@@ -101,141 +103,22 @@ def xbmcHttpapiQuery(query):
 def xbmcHttpapiExec(query):
     xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus(query), )
     return xml_data
-
-# get a connection to trakt
-def getTraktConnection():
-    try:
-        conn = NBHTTPConnection('api.trakt.tv')
-    except socket.timeout:
-        Debug("getTraktConnection: can't connect to trakt - timeout")
-        notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
-        return None
-    return conn
-    
-# make a JSON api request to trakt
-# method: http method (GET or POST)
-# req: REST request (ie '/user/library/movies/all.json/%%API_KEY%%/%%USERNAME%%')
-# args: arguments to be passed by POST JSON (only applicable to POST requests), default:{}
-# returnStatus: when unset or set to false the function returns None apon error and shows a notification,
-#   when set to true the function returns the status and errors in ['error'] as given to it and doesn't show the notification,
-#   use to customise error notifications
-# anon: anonymous (dont send username/password), default:False
-# connection: default it to make a new connection but if you want to keep the same one alive pass it here
-# daemon: default is False, when true it disable any error notifications (but not debug messages)
-# passVersions: default is False, when true it passes extra version information to trakt to help debug problems
-def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=False, daemon=False, passVersions=False):
-    closeConnection = False
-    if conn == False:
-        conn = getTraktConnection()
-        closeConnection = True
-    if conn == None:
-        if returnStatus:
-            data = {}
-            data['status'] = 'failure'
-            data['error'] = 'Unable to connect to trakt'
-            return data
-        return None
-
-    try:
-        req = req.replace("%%API_KEY%%",apikey)
-        req = req.replace("%%USERNAME%%",username)
-        if method == 'POST':
-            if not anon:
-                args['username'] = username
-                args['password'] = pwd
-            if passVersions:
-                args['plugin_version'] = __settings__.getAddonInfo("version")
-                args['media_center'] = 'xbmc'
-                args['media_center_version'] = xbmc.getInfoLabel("system.buildversion")
-                args['media_center_date'] = xbmc.getInfoLabel("system.builddate")
-            jdata = json.dumps(args)
-            conn.request('POST', req, jdata)
-        elif method == 'GET':
-            conn.request('GET', req)
-        else:
-            return None
-        Debug("trakt json url: "+req)
-    except socket.error:
-        Debug("traktQuery: can't connect to trakt")
-        if not daemon: notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" )) # can't connect to trakt
-        if returnStatus:
-            data = {}
-            data['status'] = 'failure'
-            data['error'] = 'Socket error, unable to connect to trakt'
-            return data;
-        return None
-     
-    conn.go()
-    
-    while True:
-        if conn.hasResult() or xbmc.abortRequested:
-            if xbmc.abortRequested:
-                Debug("Broke loop due to abort")
-                if returnStatus:
-                    data = {}
-                    data['status'] = 'failure'
-                    data['error'] = 'Abort requested, not waiting for responce'
-                    return data;
-                return None
-            if closeConnection:
-                conn.close()
-            break
-        time.sleep(1)
-    
-    response = conn.getResult()
-    if closeConnection:
-        conn.close()
-    
-    try:
-        raw = response.read()
-        data = json.loads(raw)
-    except ValueError:
-        Debug("traktQuery: Bad JSON responce: "+raw)
-        if returnStatus:
-            data = {}
-            data['status'] = 'failure'
-            data['error'] = 'Bad responce from trakt'
-            return data
-        if not daemon: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": Bad responce from trakt") # Error
-        return None
-    
-    if 'status' in data:
-        if data['status'] == 'failure':
-            Debug("traktQuery: Error: " + str(data['error']))
-            if returnStatus:
-                return data;
-            if not daemon: notification("Trakt Utilities", __language__(1109).encode( "utf-8", "ignore" ) + ": " + str(data['error'])) # Error
-            return None
-    
-    return data
    
 # get movies from trakt server
 def getMoviesFromTrakt(*args, **argd):
-    data = traktJsonRequest('POST', '/user/library/movies/all.json/%%API_KEY%%/%%USERNAME%%', *args, **argd)
-    if data == None:
-        Debug("Error in request from 'getMoviesFromTrakt()'")
-    return data
+    return Trakt.userLibraryMoviesAll(username, *args, **argd)
 
 # get movie that are listed as in the users collection from trakt server
 def getMovieCollectionFromTrakt(*args, **argd):
-    data = traktJsonRequest('POST', '/user/library/movies/collection.json/%%API_KEY%%/%%USERNAME%%', *args, **argd)
-    if data == None:
-        Debug("Error in request from 'getMovieCollectionFromTrakt()'")
-    return data
+    return Trakt.userLibraryMoviesCollection(username, *args, **argd)
 
 # add movies to the users collection on trakt
 def addMoviesToTraktCollection(movies, *args, **argd):
-    data = traktJsonRequest('POST', '/movie/library/%%API_KEY%%', {'movies': movies}, *args, **argd)
-    if data == None:
-        Debug("Error in request from 'addMoviesToTraktCollection()'")
-    return data
+    return Trakt.movieLibrary(movies, *args, **argd)
 
 # remove movies from the users collection on trakt
 def removeMoviesFromTraktCollection(movies, *args, **argd):
-    data = traktJsonRequest('POST', '/movie/unlibrary/%%API_KEY%%', {'movies': movies}, *args, **argd)
-    if data == None:
-        Debug("Error in request from 'removeMoviesFromTraktCollection()'")
-    return data
+    return Trakt.movieUnlibrary(movies, *args, **argd)
     
 # get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
@@ -249,9 +132,9 @@ def traktMovieListByImdbID(data):
 
 # search movies on trakt
 def searchTraktForMovie(title, year=None):
-    data = traktJsonRequest('POST', '/search/movies.json/%%API_KEY%%/'+urllib.quote_plus(repr(unicode(title))[1:].strip('\'\"')))
+    query = urllib.quote_plus(repr(unicode(title))[1:].strip('\'\"'))
+    data = Trakt.searchMovies(query)
     if data is None:
-        Debug("Error in request from 'searchTraktForMovie()'")
         return None
     if year is not None:
         for item in data:
@@ -299,18 +182,12 @@ def searchGoogleForImdbId(query):
     
 # get movie summary from trakt server
 # title: Either the slug (i.e. the-social-network-2010), IMDB ID, or TMDB ID.
-def getMovieFromTrakt(title, daemon=False):
-    data = traktJsonRequest('POST', '/movie/summary.json/%%API_KEY%%/'+title)
-    if data == None:
-        Debug("Error in request from 'getMovieFromTrakt()'")
-    return data
+def getMovieFromTrakt(title, *args, **argd):
+    return Trakt.movieSummary(title, *args, **argd)
 
 # get shows from trakt server
-def getShowsFromTrakt(daemon=False):
-    data = traktJsonRequest('POST', '/user/library/shows/all.json/%%API_KEY%%/%%USERNAME%%')
-    if data == None:
-        Debug("Error in request from 'getShowsFromTrakt()'")
-    return data
+def getShowsFromTrakt(*args, **argd):
+    return Trakt.userLibraryShowsAll(username, *args, **argd)
     
 # get easy access to tvshow by tvdb_id
 def traktShowListByTvdbID(data):
@@ -322,76 +199,46 @@ def traktShowListByTvdbID(data):
     return trakt_tvshows
 
 # get seen tvshows from trakt server
-def getWatchedTVShowsFromTrakt(daemon=False):
-    data = traktJsonRequest('POST', '/user/library/shows/watched.json/%%API_KEY%%/%%USERNAME%%')
-    if data == None:
-        Debug("Error in request from 'getWatchedTVShowsFromTrakt()'")
-    return data
+def getWatchedTVShowsFromTrakt(*args, **argd):
+    return Trakt.userLibraryShowsWatched(username, *args, **argd)
 
 # set episodes seen on trakt
-def setEpisodesSeenOnTrakt(tvdb_id, title, year, episodes):
-    data = traktJsonRequest('POST', '/show/episode/seen/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes})
-    if data == None:
-        Debug("Error in request from 'setEpisodeSeenOnTrakt()'")
-    return data
+def setEpisodesSeenOnTrakt(tvdbId, title, year, episodes, imdbId=None, *args, **argd):
+    return Trakt.showEpisodeSeen(tvdbId, title, year, episodes, imdbId, *args, **argd)
 
 # set episodes unseen on trakt
-def setEpisodesUnseenOnTrakt(tvdb_id, title, year, episodes):
-    data = traktJsonRequest('POST', '/show/episode/unseen/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes})
-    if data == None:
-        Debug("Error in request from 'setEpisodesUnseenOnTrakt()'")
-    return data
+def setEpisodesUnseenOnTrakt(tvdb_id, title, year, episodes, imdbId=None, *args, **argd):
+    return Trakt.showEpisodeUnseen(tvdbId, title, year, episodes, imdbId, *args, **argd)
 
 # set movies seen on trakt
 #  - movies, required fields are 'plays', 'last_played' and 'title', 'year' or optionally 'imdb_id'
-def setMoviesSeenOnTrakt(movies):
-    data = traktJsonRequest('POST', '/movie/seen/%%API_KEY%%', {'movies': movies})
-    if data == None:
-        Debug("Error in request from 'setMoviesSeenOnTrakt()'")
-    return data
+def setMoviesSeenOnTrakt(movies, *args, **argd):
+    return Trakt.movieSeen(movies, *args, **argd)
 
 # set movies unseen on trakt
 #  - movies, required fields are 'plays', 'last_played' and 'title', 'year' or optionally 'imdb_id'
-def setMoviesUnseenOnTrakt(movies):
-    data = traktJsonRequest('POST', '/movie/unseen/%%API_KEY%%', {'movies': movies})
-    if data == None:
-        Debug("Error in request from 'setMoviesUnseenOnTrakt()'")
-    return data
+def setMoviesUnseenOnTrakt(movies, *args, **argd):
+    return Trakt.movieUnseen(movies, *args, **argd)
 
 # get tvshow collection from trakt server
-def getTVShowCollectionFromTrakt(daemon=False):
-    data = traktJsonRequest('POST', '/user/library/shows/collection.json/%%API_KEY%%/%%USERNAME%%')
-    if data == None:
-        Debug("Error in request from 'getTVShowCollectionFromTrakt()'")
-    return data
+def getTVShowCollectionFromTrakt(*args, **argd):
+    return Trakt.userLibraryShowsCollection(username, *args, **argd)
 
 # add a whole tv show to the users collection
 def addWholeTvShowToTraktCollection(tvdb_id, title, year, imdb_id=None, *args, **argd):
-    data = traktJsonRequest('POST', '/show/library/%%API_KEY%%', {'imdb_id': imdb_id, 'tvdb_id': tvdb_id, 'title': title, 'year': year}, *args, **argd)
-    if data == None:
-        Debug("Error in request from 'addWholeTvShowToTraktCollection()'")
-    return data
+    return Trakt.showLibrary(tvdbId, title, year, imdbId, *args, **argd)
 
 # add individual episodes of a tshow to the users trakt collection
-def addEpisodesToTraktCollection(tvdb_id, title, year, imdb_id=None, *args, **argd):
-    data = traktJsonRequest('POST', '/show/episode/library/%%API_KEY%%', {'imdb_id': imdb_id, 'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes}, *args, **argd)
-    if data == None:
-        Debug("Error in request from 'addEpisodesToTraktCollection()'")
-    return data
+def addEpisodesToTraktCollection(tvdb_id, title, year, episodes, imdb_id=None, *args, **argd):
+    return Trakt.showEpisodeLibrary(tvdbId, title, year, imdbId, *args, **argd)
 
 # remove a whole tv show from the users collection
 def removeWholeTvShowFromTraktCollection(tvdb_id, title, year, imdb_id=None, *args, **argd):
-    data = traktJsonRequest('POST', '/show/unlibrary/%%API_KEY%%', {'imdb_id': imdb_id, 'tvdb_id': tvdb_id, 'title': title, 'year': year}, *args, **argd)
-    if data == None:
-        Debug("Error in request from 'removeWholeTvShowFromTraktCollection()'")
-    return data
+    return Trakt.showUnlibrary(tvdbId, title, year, imdbId, *args, **argd)
 
 # remove individual episodes of a tshow from the users trakt collection
-def removeEpisodesFromTraktCollection(tvdb_id, title, year, imdb_id=None, *args, **argd):
-    data = traktJsonRequest('POST', '/show/episode/unlibrary/%%API_KEY%%', {'imdb_id': imdb_id, 'tvdb_id': tvdb_id, 'title': title, 'year': year, 'episodes': episodes}, *args, **argd)
-    if data == None:
-        Debug("Error in request from 'removeEpisodesFromTraktCollection()'")
-    return data
+def removeEpisodesFromTraktCollection(tvdb_id, title, year, episodes, imdb_id=None, *args, **argd):
+    return Trakt.showUnlibrary(tvdbId, title, year, episodes, imdbId, *args, **argd)
 
 # get tvshows from XBMC
 def getTVShowsFromXBMC():
@@ -696,245 +543,106 @@ def getShowIdFromXBMC(tvdb_id, title):
     return match[0]
 
 # returns list of movies from watchlist
-def getWatchlistMoviesFromTrakt():
-    data = traktJsonRequest('POST', '/user/watchlist/movies.json/%%API_KEY%%/%%USERNAME%%')
-    if data == None:
-        Debug("Error in request from 'getWatchlistMoviesFromTrakt()'")
-    return data
+def getWatchlistMoviesFromTrakt(*args, **argd):
+    return Trakt.userWatchlistMovies(username, *args, **argd)
 
 # returns list of tv shows from watchlist
-def getWatchlistTVShowsFromTrakt():
-    data = traktJsonRequest('POST', '/user/watchlist/shows.json/%%API_KEY%%/%%USERNAME%%')
-    if data == None:
-        Debug("Error in request from 'getWatchlistTVShowsFromTrakt()'")
-    return data
+def getWatchlistTVShowsFromTrakt(*args, **argd):
+    return Trakt.userWatchlistShows(username, *args, **argd)
 
 # add an array of movies to the watch-list
-def addMoviesToWatchlist(data):
-    movies = []
-    for item in data:
-        movie = {}
-        if "imdb_id" in item:
-            movie["imdb_id"] = item["imdb_id"]
-        if "tmdb_id" in item:
-            movie["tmdb_id"] = item["tmdb_id"]
-        if "title" in item:
-            movie["title"] = item["title"]
-        if "year" in item:
-            movie["year"] = item["year"]
-        movies.append(movie)
-    
-    data = traktJsonRequest('POST', '/movie/watchlist/%%API_KEY%%', {"movies":movies})
-    if data == None:
-        Debug("Error in request from 'addMoviesToWatchlist()'")
-    return data
+def addMoviesToWatchlist(movies, *args, **argd):
+    return Trakt.movieWatchlist(movies, *args, **argd)
 
 # remove an array of movies from the watch-list
-def removeMoviesFromWatchlist(data):
-    movies = []
-    for item in data:
-        movie = {}
-        if "imdb_id" in item:
-            movie["imdb_id"] = item["imdb_id"]
-        if "tmdb_id" in item:
-            movie["tmdb_id"] = item["tmdb_id"]
-        if "title" in item:
-            movie["title"] = item["title"]
-        if "year" in item:
-            movie["year"] = item["year"]
-        movies.append(movie)
-    
-    data = traktJsonRequest('POST', '/movie/unwatchlist/%%API_KEY%%', {"movies":movies})
-    if data == None:
-        Debug("Error in request from 'removeMoviesFromWatchlist()'")
-    return data
+def removeMoviesFromWatchlist(movies, *args, **argd):
+    return Trakt.movieUnwatchlist(movies, *args, **argd)
 
 # add an array of tv shows to the watch-list
-def addTVShowsToWatchlist(data):
-    shows = []
-    for item in data:
-        show = {}
-        if "tvdb_id" in item:
-            show["tvdb_id"] = item["tvdb_id"]
-        if "imdb_id" in item:
-            show["tmdb_id"] = item["imdb_id"]
-        if "title" in item:
-            show["title"] = item["title"]
-        if "year" in item:
-            show["year"] = item["year"]
-        shows.append(show)
-    
-    data = traktJsonRequest('POST', '/show/watchlist/%%API_KEY%%', {"shows":shows})
-    if data == None:
-        Debug("Error in request from 'addMoviesToWatchlist()'")
-    return data
+def addTVShowsToWatchlist(shows, *args, **argd):
+    return Trakt.showWatchlist(shows, *args, **argd)
 
 # remove an array of tv shows from the watch-list
-def removeTVShowsFromWatchlist(data):
-    shows = []
-    for item in data:
-        show = {}
-        if "tvdb_id" in item:
-            show["tvdb_id"] = item["tvdb_id"]
-        if "imdb_id" in item:
-            show["imdb_id"] = item["imdb_id"]
-        if "title" in item:
-            show["title"] = item["title"]
-        if "year" in item:
-            show["year"] = item["year"]
-        shows.append(show)
-    
-    data = traktJsonRequest('POST', '/show/unwatchlist/%%API_KEY%%', {"shows":shows})
-    if data == None:
-        Debug("Error in request from 'removeMoviesFromWatchlist()'")
-    return data
+def removeTVShowsFromWatchlist(shows, *args, **argd):
+    return Trakt.showUnwatchlist(shows, *args, **argd)
 
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
-def rateMovieOnTrakt(movie, rating):
-    if not (rating in ("love", "hate", "unrate")):
-        #add error message
-        return
-    
-    Debug("[Util] rateMovieOnTrakt, Rating movie:" + rating)
-    
-    data = movie
-    data['rating'] = rating
-    
-    responce = traktJsonRequest('POST', '/rate/movie/%%API_KEY%%', data)
-    if responce == None:
-        Debug("Error in request from 'rateMovieOnTrakt()'")
-    
-    if (rating == "unrate"):
-        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
-    else :
-        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
-    
-    return data
+def rateMovieOnTrakt(movie, rating, *args, **argd):
+    return Trakt.rateMovie(movie, rating, *args, **argd)
 
 #Get the rating for a movie from trakt
-def getMovieRatingFromTrakt(imdbid, title, year):
-    if imdbid == "" or imdbid == None:
-        return None #would be nice to be smarter in this situation
+def getMovieRatingFromTrakt(imdbid, title, year, *args, **argd):
+    if imdbid is None or imdbid == "":
+        data = Trakt.movieSummary(title, *args, **argd)
+    else:
+        data = Trakt.movieSummary(imdbid, *args, **argd)
     
-    data = traktJsonRequest('POST', '/movie/summary.json/%%API_KEY%%/'+str(imdbid))
     if data == None:
-        Debug("Error in request from 'getMovieRatingFromTrakt()'")
         return None
         
     if 'rating' in data:
         return data['rating']
         
-    print data
     Debug("Error in request from 'getMovieRatingFromTrakt()'")
     return None
 
 #Set the rating for a tv episode on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
-def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
-    if not (rating in ("love", "hate", "unrate")):
-        #add error message
-        return
-    
-    Debug("Rating episode:" + rating)
-    
-    data = traktJsonRequest('POST', '/rate/episode/%%API_KEY%%', {'tvdb_id': tvdbid, 'title': title, 'year': year, 'season': season, 'episode': episode, 'rating': rating})
-    if data == None:
-        Debug("Error in request from 'rateEpisodeOnTrakt()'")
-    
-    if (rating == "unrate"):
-        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
-    else :
-        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
-    
-    return data
+def rateEpisodeOnTrakt(tvdbId, title, year, season, episode, rating, imdbId=None, *args, **argd):
+    return Trakt.rateEpisode(tvdbId, title, year, season, episode, rating, imdbId, *args, **argd)
     
 #Get the rating for a tv episode from trakt
-def getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode):
-    if tvdbid == "" or tvdbid == None:
-        return None #would be nice to be smarter in this situation
-    
-    data = traktJsonRequest('POST', '/show/episode/summary.json/%%API_KEY%%/'+str(tvdbid)+"/"+season+"/"+episode)
+def getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode, *args, **argd):
+    if imdbid is None or imdbid == "":
+        data = Trakt.showEpisodeSummary(title, season, episode, *args, **argd)
+    else:
+        data = Trakt.showEpisodeSummary(imdbid, season, episode, *args, **argd)
+        
     if data == None:
-        Debug("Error in request from 'getEpisodeRatingFromTrakt()'")
         return None
         
     if 'rating' in data:
         return data['rating']
         
-    print data
     Debug("Error in request from 'getEpisodeRatingFromTrakt()'")
     return None
 
 #Set the rating for a tv show on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
-def rateShowOnTrakt(tvdbid, title, year, rating):
-    if not (rating in ("love", "hate", "unrate")):
-        #add error message
-        return
-    
-    Debug("Rating show:" + rating)
-    
-    data = traktJsonRequest('POST', '/rate/show/%%API_KEY%%', {'tvdb_id': tvdbid, 'title': title, 'year': year, 'rating': rating})
-    if data == None:
-        Debug("Error in request from 'rateShowOnTrakt()'")
-    
-    if (rating == "unrate"):
-        notification("Trakt Utilities", __language__(1166).encode( "utf-8", "ignore" )) # Rating removed successfully
-    else :
-        notification("Trakt Utilities", __language__(1167).encode( "utf-8", "ignore" )) # Rating submitted successfully
-    
-    return data
+def rateShowOnTrakt(tvdbid, title, year, rating, imdbId=None, *args, **argd):
+    return Trakt.rateShow(tvdbId, title, year, rating, imdbId, *args, **argd)
 
 #Get the rating for a tv show from trakt
 def getShowRatingFromTrakt(tvdbid, title, year):
-    if tvdbid == "" or tvdbid == None:
-        return None #would be nice to be smarter in this situation
-    
-    data = traktJsonRequest('POST', '/show/summary.json/%%API_KEY%%/'+str(tvdbid))
+    if imdbid is None or imdbid == "":
+        data = Trakt.showSummary(title, extended=None, *args, **argd)
+    else:
+        data = Trakt.showSummary(tvdbid, extended=None, *args, **argd)
+        
     if data == None:
-        Debug("Error in request from 'getShowRatingFromTrakt()'")
         return None
         
     if 'rating' in data:
         return data['rating']
         
-    print data
     Debug("Error in request from 'getShowRatingFromTrakt()'")
     return None
 
-def getRecommendedMoviesFromTrakt():
-    data = traktJsonRequest('POST', '/recommendations/movies/%%API_KEY%%')
-    if data == None:
-        Debug("Error in request from 'getRecommendedMoviesFromTrakt()'")
-    return data
+def getRecommendedMoviesFromTrakt(*args, **argd):
+    return Trakt.recommendationsMovies(*args, **argd)
 
-def getRecommendedTVShowsFromTrakt():
-    data = traktJsonRequest('POST', '/recommendations/shows/%%API_KEY%%')
-    if data == None:
-        Debug("Error in request from 'getRecommendedTVShowsFromTrakt()'")
-    return data
+def getRecommendedTVShowsFromTrakt(*args, **argd):
+    return Trakt.recommendationsShows(*args, **argd)
 
-def getTrendingMoviesFromTrakt():
-    data = traktJsonRequest('GET', '/movies/trending.json/%%API_KEY%%')
-    if data == None:
-        Debug("Error in request from 'getTrendingMoviesFromTrakt()'")
-    return data
+def getTrendingMoviesFromTrakt(*args, **argd):
+    return Trakt.moviesTrending(*args, **argd)
 
-def getTrendingTVShowsFromTrakt():
-    data = traktJsonRequest('GET', '/shows/trending.json/%%API_KEY%%')
-    if data == None:
-        Debug("Error in request from 'getTrendingTVShowsFromTrakt()'")
-    return data
+def getTrendingTVShowsFromTrakt(*args, **argd):
+    return Trakt.showsTrending(*args, **argd)
 
-def getFriendsFromTrakt():
-    data = traktJsonRequest('POST', '/user/friends.json/%%API_KEY%%/%%USERNAME%%')
-    if data == None:
-        Debug("Error in request from 'getFriendsFromTrakt()'")
-    return data
+def getFriendsFromTrakt(*args, **argd):
+    return Trakt.userFriends(username, *args, **argd)
 
-def getWatchingFromTraktForUser(name):
-    data = traktJsonRequest('POST', '/user/watching.json/%%API_KEY%%/%%USERNAME%%')
-    if data == None:
-        Debug("Error in request from 'getWatchingFromTraktForUser()'")
-    return data
+def getWatchingFromTraktForUser(name, *args, **argd):
+    return Trakt.userWatching(name, *args, **argd)
     
 def playMovieById(idMovie = None, options = None):
     if (idMovie is None and options is None): return
@@ -995,54 +703,33 @@ def playMovieById(idMovie = None, options = None):
 ###############################
 
 #tell trakt that the user is watching a movie
-def watchingMovieOnTrakt(movie, progress):
-    data = movie
-    if 'runtime' in data: data['duration'] = data['runtime']
-    data['progress'] = progress
-    responce = traktJsonRequest('POST', '/movie/watching/%%API_KEY%%', data, passVersions=True)
-    if responce == None:
-        Debug("Error in request from 'watchingMovieOnTrakt()'")
-    return responce
+def watchingMovieOnTrakt(movie, progress, *args, **argd):
+    duration = 90
+    if 'runtime' in movie: duration = movie['runtime']
+    return Trakt.movieWatching(movie['imdb_id'], movie['title'], movie['year'], duration, progress, *args, **argd)
 
 #tell trakt that the user is watching an episode
-def watchingEpisodeOnTrakt(tvdb_id, title, year, season, episode, duration, percent):
-    responce = traktJsonRequest('POST', '/show/watching/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'season': season, 'episode': episode, 'duration': duration, 'progress': percent}, passVersions=True)
-    if responce == None:
-        Debug("Error in request from 'watchingEpisodeOnTrakt()'")
-    return responce
+def watchingEpisodeOnTrakt(tvdbId, title, year, season, episode, duration, progess, imdbId=None, *args, **argd):
+    return Trakt.showWatching(tvdbId, title, year, season, episode, duration, progess, imdbId, *args, **argd)
 
 #tell trakt that the user has stopped watching a movie
-def cancelWatchingMovieOnTrakt():
-    responce = traktJsonRequest('POST', '/movie/cancelwatching/%%API_KEY%%')
-    if responce == None:
-        Debug("Error in request from 'cancelWatchingMovieOnTrakt()'")
-    return responce
+def cancelWatchingMovieOnTrakt(*args, **argd):
+    return Trakt.movieCancelWatching(*args, **argd)
 
 #tell trakt that the user has stopped an episode
 def cancelWatchingEpisodeOnTrakt():
-    responce = traktJsonRequest('POST', '/show/cancelwatching/%%API_KEY%%')
-    if responce == None:
-        Debug("Error in request from 'cancelWatchingEpisodeOnTrakt()'")
-    return responce
+    return Trakt.showCancelWatching(*args, **argd)
 
 #tell trakt that the user has finished watching an movie
-def scrobbleMovieOnTrakt(movie, progress):
-    data = movie
-    if 'runtime' in data: data['duration'] = data['runtime']
-    data['progress'] = progress
-    responce = traktJsonRequest('POST', '/movie/scrobble/%%API_KEY%%', data, passVersions=True)
-    if responce == None:
-        Debug("Error in request from 'scrobbleMovieOnTrakt()'")
-    return responce
+def scrobbleMovieOnTrakt(movie, progress, *args, **argd):
+    duration = 90
+    if 'runtime' in movie: duration = movie['runtime']
+    return Trakt.movieScrobble(movie['imdb_id'], movie['title'], movie['year'], duration, progress, *args, **argd)
 
 #tell trakt that the user has finished watching an episode
-def scrobbleEpisodeOnTrakt(tvdb_id, title, year, season, episode, duration, percent):
-    responce = traktJsonRequest('POST', '/show/scrobble/%%API_KEY%%', {'tvdb_id': tvdb_id, 'title': title, 'year': year, 'season': season, 'episode': episode, 'duration': duration, 'progress': percent}, passVersions=True)
-    if responce == None:
-        Debug("Error in request from 'scrobbleEpisodeOnTrakt()'")
-    return responce
+def scrobbleEpisodeOnTrakt(tvdbId, title, year, season, episode, duration, progess, *args, **argd):
+    return Trakt.showScrobble(tvdbId, title, year, season, episode, duration, progess, imdbId, *args, **argd)
 
-            
             
 """
 ToDo:
