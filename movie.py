@@ -87,6 +87,9 @@ class Movie(object):
     def save(self):
         trakt_cache.saveMovie(self)
         
+    def refresh(self):
+        trakt_cache.refreshMovie(self._remoteId)
+        
     @property
     def remoteId(self):
         """A unique identifier for the movie."""

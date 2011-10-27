@@ -207,7 +207,7 @@ def setEpisodesSeenOnTrakt(tvdbId, title, year, episodes, imdbId=None, *args, **
     return Trakt.showEpisodeSeen(tvdbId, title, year, episodes, imdbId, *args, **argd)
 
 # set episodes unseen on trakt
-def setEpisodesUnseenOnTrakt(tvdb_id, title, year, episodes, imdbId=None, *args, **argd):
+def setEpisodesUnseenOnTrakt(tvdbId, title, year, episodes, imdbId=None, *args, **argd):
     return Trakt.showEpisodeUnseen(tvdbId, title, year, episodes, imdbId, *args, **argd)
 
 # set movies seen on trakt
@@ -592,10 +592,10 @@ def rateEpisodeOnTrakt(tvdbId, title, year, season, episode, rating, imdbId=None
     
 #Get the rating for a tv episode from trakt
 def getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode, *args, **argd):
-    if imdbid is None or imdbid == "":
+    if tvdbid is None or tvdbid == "":
         data = Trakt.showEpisodeSummary(title, season, episode, *args, **argd)
     else:
-        data = Trakt.showEpisodeSummary(imdbid, season, episode, *args, **argd)
+        data = Trakt.showEpisodeSummary(tvdbid, season, episode, *args, **argd)
         
     if data == None:
         return None
@@ -659,7 +659,7 @@ def playMovieById(idMovie = None, options = None):
                     del options[item]
                     continue
                 details = result['result']['moviedetails']
-                choices.append(unicode("("+str(details['runtime'])+" Minutes) "+details['streamdetails'])+" - "+unicode(details['file']))
+                choices.append(unicode("("+str(details['runtime'])+" Minutes) "+repr(details['streamdetails']))+" - "+unicode(details['file']))
             
             if len(options) == 1:
                 idMovie = options[0]
@@ -672,6 +672,7 @@ def playMovieById(idMovie = None, options = None):
                         return
                     elif select <= len(choices):
                         idMovie = options[select]
+                        break
         
     Debug("Play Movie requested for id: "+str(idMovie))
     if idMovie == -1:
@@ -717,7 +718,7 @@ def cancelWatchingMovieOnTrakt(*args, **argd):
     return Trakt.movieCancelWatching(*args, **argd)
 
 #tell trakt that the user has stopped an episode
-def cancelWatchingEpisodeOnTrakt():
+def cancelWatchingEpisodeOnTrakt(*args, **argd):
     return Trakt.showCancelWatching(*args, **argd)
 
 #tell trakt that the user has finished watching an movie
@@ -727,7 +728,7 @@ def scrobbleMovieOnTrakt(movie, progress, *args, **argd):
     return Trakt.movieScrobble(movie['imdb_id'], movie['title'], movie['year'], duration, progress, *args, **argd)
 
 #tell trakt that the user has finished watching an episode
-def scrobbleEpisodeOnTrakt(tvdbId, title, year, season, episode, duration, progess, *args, **argd):
+def scrobbleEpisodeOnTrakt(tvdbId, title, year, season, episode, duration, progess, imdbId=None, *args, **argd):
     return Trakt.showScrobble(tvdbId, title, year, season, episode, duration, progess, imdbId, *args, **argd)
 
             

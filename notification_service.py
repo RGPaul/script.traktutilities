@@ -85,8 +85,16 @@ class NotificationService(threading.Thread):
                     elif data['method'] == 'Player.OnPause':
                         scrobbler.playbackPaused()
                     elif data['method'] == 'VideoLibrary.OnUpdate':
-                        if 'data' in data['params'] and 'playcount' in data['params']['data']:
-                            instantSyncPlayCount(data)
+                        if 'data' in data['params'] and 'item' in data['params']['data']:
+                            if 'type' in data['params']['data']['item']:
+                                type = data['params']['data']['item']['type']
+                                id = data['params']['data']['item']['id']
+                                if type == 'episode' and 'playcount' in data['params']['data']:
+                                    instantSyncPlayCount(data)
+                                elif type == 'movie':
+                                    movie = trakt_cache.getMovie(localId = id)
+                                    if movie is not None:
+                                        movie.refresh()
                     elif data['method'] == 'VideoLibrary.OnRemove':
                         if 'data' in data['params'] and 'id' in data['params']['data']:
                             instantSyncRemove(data)

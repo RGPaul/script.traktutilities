@@ -27,6 +27,10 @@ def autostart():
         
         try:
             trakt_cache.init("special://profile/addon_data/script.TraktUtilities/trakt_cache")
+            
+            # Send changes to trakt
+            trakt_cache._updateTrakt()
+            trakt_cache.needSyncAtLeast(['library'], force=True)
 
         except SystemExit:
             notificationThread.abortRequested = True

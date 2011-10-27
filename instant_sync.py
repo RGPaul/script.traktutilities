@@ -24,13 +24,13 @@ __language__ = __settings__.getLocalizedString
 # Instantly syncronise changes in playcount
 def instantSyncPlayCount(data):
     if data['params']['data']['item']['type'] == 'episode':
-        info = getEpisodeDetailsFromXbmc(data['params']['data']['item']['id'], ['showtitle', 'season', 'episode'])
+        info = getEpisodeDetailsFromXbmc(data['params']['data']['item']['id'], ['tvshowid', 'showtitle', 'season', 'episode'])
         if info == None: return
         Debug("[Instant-sync] (episode playcount): "+str(info))
         if data['params']['data']['playcount'] == 0:
-            res = setEpisodesUnseenOnTrakt(info['imdbnumber'], info['showtitle'], info['year'], [{'season':info['season'], 'episode':info['episode']}])
+            res = setEpisodesUnseenOnTrakt(info['tvshowid'], info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
         elif data['params']['data']['playcount'] == 1:
-            res = setEpisodesSeenOnTrakt(info['imdbnumber'], info['showtitle'], info['year'], [{'season':info['season'], 'episode':info['episode']}])
+            res = setEpisodesSeenOnTrakt(info['tvshowid'], info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
         else:
             return
         Debug("[Instant-sync] (episode playcount): responce "+str(res))

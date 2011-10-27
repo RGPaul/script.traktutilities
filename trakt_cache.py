@@ -73,9 +73,6 @@ def init(location=None):
     trakt_cache._location = xbmc.translatePath(location)
     if trakt_cache._location is not None:
         _fill()
-        # Send changes to trakt
-        trakt_cache._updateTrakt()
-        needSyncAtLeast(['library'])
 
 def _fill():
     SafeShelf.set("movies", shelve.open(trakt_cache._location+".movies"))
@@ -83,22 +80,25 @@ def _fill():
     SafeShelf.set("episodes", shelve.open(trakt_cache._location+".episodes"))
     SafeShelf.set("expire", shelve.open(trakt_cache._location+".ttl"))
     
-def _sync(xbmcData = None, traktData = None):
+def _sync(xbmcData = None, traktData = None, cacheData = None):
     Debug("[TraktCache] Syncronising")
     
     if xbmcData is not None and 'movies' not in xbmcData: xbmcData['movies'] = {}
     if traktData is not None and 'movies' not in traktData: traktData['movies'] = {}
+    if cacheData is not None and 'movies' not in cacheData: cacheData['movies'] = {}
     if xbmcData is not None and 'shows' not in xbmcData: xbmcData['shows'] = {}
     if traktData is not None and 'shows' not in traktData: traktData['shows'] = {}
+    if cacheData is not None and 'shows' not in cacheData: cacheData['shows'] = {}
     if xbmcData is not None and 'episodes' not in xbmcData: xbmcData['episodes'] = {}
     if traktData is not None and 'episodes' not in traktData: traktData['episodes'] = {}
+    if cacheData is not None and 'episodes' not in cacheData: cacheData['episodes'] = {}
     
     # Find and list all changes
     if traktData is not None:
-        xbmcChanges = trakt_cache._syncCompare(traktData)
+        xbmcChanges = trakt_cache._syncCompare(traktData, cache = cacheData)
         Debug("[~] X"+repr(xbmcChanges))
     if xbmcData is not None:
-        traktChanges = trakt_cache._syncCompare(xbmcData, xbmc = True)
+        traktChanges = trakt_cache._syncCompare(xbmcData, xbmc = True, cache = cacheData)
         Debug("[~] T"+repr(traktChanges))
         
     # Find unanimous changes and direct them to the cache
@@ -345,33 +345,64 @@ def _copyXbmc():
     xbmcData['episodes'] = episodes
     return xbmcData
 
-def _syncCompare(data, xbmc = False):
+attributes = {
+    'xbmc': {
+        'movies': {
+            'primary': ['playcount'],
+            'secondary': ['title', 'year', 'runtime']
+        },
+        'shows': {
+            'primary': [],
+            'secondary': []
+        },
+        'episodes': {
+            'primary': ['playcount'],
+            'secondary': []
+        }
+    },
+    'trakt': {
+        'movies': {
+            'primary': ['title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus'],
+            'secondary': ['trailer', 'poster', 'fanart']
+        },
+        'shows': {
+            'primary': ['rating', 'watchlistStatus', 'recommendedStatus'],
+            'secondary': []
+        },
+        'episodes': {
+            'primary': ['playcount', 'rating', 'watchlistStatus', 'libraryStatus'],
+            'secondary': []
+        }
+    }
+}
+
+def _syncCompare(data, xbmc = False, cache = None):
     if xbmc:
-        movieAttributes = ['playcount']
-        movieAttributesWeak = ['title', 'year', 'runtime']
-        showAttributes = []
-        showAttributesWeak = []
-        episodeAttributes = ['playcount']
-        episodeAttributesWeak = []
-    else:
-        movieAttributes = ['title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus']
-        movieAttributesWeak = ['trailer', 'poster', 'fanart']
-        showAttributes = ['rating', 'watchlistStatus', 'recommendedStatus']
-        showAttributesWeak = []
-        episodeAttributes = ['playcount', 'rating', 'watchlistStatus', 'libraryStatus']
-        episodeAttributesWeak = []
-    
+        attr = attributes['xbmc']
+    else :
+        attr = attributes['trakt']
     changes = {}
-    # Compare movies
-    with SafeShelf('movies') as movies:
-        changes['movies'] = _listChanges(data['movies'], movies, movieAttributes, movieAttributesWeak, xbmc)
-    # Compare TV shows
-    with SafeShelf('shows') as shows:
-        changes['shows'] = _listChanges(data['shows'], shows, showAttributes, showAttributesWeak, xbmc)
-    # Compare TV episodes
-    with SafeShelf('episodes') as episodes:
-        changes['episodes'] = _listChanges(data['episodes'], episodes, episodeAttributes, episodeAttributesWeak, xbmc)
     
+    if cache is None:
+        # Compare movies
+        with SafeShelf('movies') as movies:
+            changes['movies'] = _listChanges(data['movies'], movies, attr['movies']['primary'],  attr['movies']['secondary'], xbmc)
+        # Compare TV shows
+        with SafeShelf('shows') as shows:
+            changes['shows'] = _listChanges(data['shows'], shows, attr['shows']['primary'],  attr['shows']['secondary'], xbmc)
+        # Compare TV episodes
+        with SafeShelf('episodes') as episodes:
+            changes['episodes'] = _listChanges(data['episodes'], episodes, attr['episodes']['primary'],  attr['episodes']['secondary'], xbmc)
+    else:
+        # Compare movies
+        with SafeShelf('movies') as movies:
+            changes['movies'] = _listChanges(data['movies'], cache['movies'], attr['movies']['primary'],  attr['movies']['secondary'], xbmc)
+        # Compare TV shows
+        with SafeShelf('shows') as shows:
+            changes['shows'] = _listChanges(data['shows'], cache['shows'], attr['shows']['primary'],  attr['shows']['secondary'], xbmc)
+        # Compare TV episodes
+        with SafeShelf('episodes') as episodes:
+            changes['episodes'] = _listChanges(data['episodes'], cache['episodes'], attr['episodes']['primary'],  attr['episodes']['secondary'], xbmc)
     return changes
 
 def _listChanges(newer, older, attributes, weakAttributes, xbmc = False):
@@ -513,23 +544,25 @@ def refreshSet(set):
         Debug("[TraktCache] No method specified to refresh the set: "+str(set))
 
 def refreshItem(remoteId):
-    if remoteId.partition("=") in ('imdb', 'tmdb'):
+    Debug("[~] "+repr(remoteId.partition("=")[0]))
+    if remoteId.partition("=")[0] in ('imdb', 'tmdb'):
         refreshMovie(remoteId)
     else:
         Debug("[TraktCache] No method yet to refresh non-movie items")
         
 def refreshMovie(remoteId):
+    localId  = getMovieLocalIds(remoteId)[0]
+    xbmcData = None
+    cacheData = None
+    if localId is not None:
+        xbmcData = {'movies': {remoteId: Movie.fromXbmc(getMovieDetailsFromXbmc(localId,['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed', 'runtime']))}}
+    traktData = {'movies': {remoteId: Movie.download(remoteId)}}
     with SafeShelf('movies') as movies:
-        exists = remoteId in movies
-        if exists:
-            movie = movies[remoteId]
-    if exists:
-        changes = _listChanges([Movie.download(remoteId)],[movie], ['playcount', 'rating', 'watchlistStatus', 'libraryStatus'])
-        _updateCache(changes)
-    else:
-        movie = Movie.download(remoteId)
-        with SafeShelf('movies', True) as movies:
-            movies[remoteId] = movie
+        if remoteId in movies:
+            cacheData = {'movies': {remoteId: movies[remoteId]}}
+            
+    _sync(xbmcData, traktData, cacheData)
+    
     with SafeShelf('expire', True) as expire:
         expire[remoteId] = time.time() + 10*60 # +10mins
 
