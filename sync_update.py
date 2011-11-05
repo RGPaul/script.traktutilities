@@ -594,7 +594,7 @@ def syncSeenMovies(daemon=False):
                         movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
                     except KeyError:
                         movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount'], 'last_played': int(time.mktime(time.strptime(xbmc_movies[i]['lastplayed'], '%Y-%m-%d %H:%M:%S')))})
-                except KeyError:
+                except (KeyError, ValueError):
                     try:
                         movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['originaltitle'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount']})
                     except KeyError:
