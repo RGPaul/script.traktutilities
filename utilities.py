@@ -168,19 +168,17 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
     conn.go()
     
     while True:
-        if conn.hasResult() or xbmc.abortRequested:
-            if xbmc.abortRequested:
-                Debug("Broke loop due to abort")
-                if returnStatus:
-                    data = {}
-                    data['status'] = 'failure'
-                    data['error'] = 'Abort requested, not waiting for responce'
-                    return data;
-                return None
-            if closeConnection:
-                conn.close()
+        if xbmc.abortRequested:
+            Debug("Broke loop due to abort")
+            if returnStatus:
+                data = {}
+                data['status'] = 'failure'
+                data['error'] = 'Abort requested, not waiting for responce'
+                return data;
+            return None
+        if conn.hasResult():
             break
-        time.sleep(1)
+        time.sleep(0.1)
     
     response = conn.getResult()
     if closeConnection:
