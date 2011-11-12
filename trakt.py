@@ -138,7 +138,7 @@ class Trakt():
             raw = response.read()
             data = json.loads(raw)
         except ValueError:
-            Debug("traktQuery: Bad JSON responce: "+raw)
+            Debug("traktQuery: Bad JSON responce: "+repr(raw))
             if returnStatus:
                 data = {}
                 data['status'] = 'failure'
@@ -379,7 +379,7 @@ class Trakt():
         
     @staticmethod
     def moviesTrending(*args, **argd):
-        data = Trakt.jsonRequest('POST', '/movie/trending.json/%%API_KEY%%', *args, **argd)
+        data = Trakt.jsonRequest('POST', '/movies/trending.json/%%API_KEY%%', *args, **argd)
         if data == None:
             Debug("[Trakt] Error in request from 'moviesTrending()'")
         return data

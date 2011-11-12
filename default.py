@@ -49,37 +49,21 @@ def switchBoard():
         else:
             menu()
         return
-    if sys.argv[2].find('?action=') == 0:
-        actionName = sys.argv[2][8:]
-        Debug(str(actionName))
-        if actionName == 'watchlistMovies':
-            rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.Show.MoviesWatchlist', 'data':{}}, 'id': 1})
+    if sys.argv[2].find('?view=') == 0:
+        windowName = sys.argv[2][6:]
+        Debug("Requesting display of window "+repr(windowName))
+        if windowName in ('watchlistMovies', 'watchlistShows', 'trendingMovies', 'trendingShows', 'recommendedMovies', 'recommendedShows'):
+            rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.View', 'data':windowName}, 'id': 1})
+            Debug("[~] "+repr(rpccmd))
             result = xbmc.executeJSONRPC(rpccmd)
             result = json.loads(result)
-        elif actionName == 'watchlistTVShows':
-            showWatchlistTVShows()
-        elif actionName == 'trendingMovies':
-            showTrendingMovies()
-        elif actionName == 'trendingTVShows':
-            showTrendingTVShows()
-        elif actionName == 'recommendedMovies':
-            showRecommendedMovies()
-        elif actionName == 'recommendedTVShows':
-            showRecommendedTVShows()
-        elif actionName == 'updateMovieCollection':
-            showWatchlistTVShows()
-        elif actionName == 'syncSeenMovies':
-            syncSeenMovies()
-        elif actionName == 'updateTVShowCollection':
-            updateTVShowCollection()
-        elif actionName == 'syncSeenTVShows':
-            syncSeenTVShows()
-        elif actionName == 'cleanMovieCollection':
-            cleanMovieCollection()
-        elif actionName == 'cleanTVShowCollection':
-            cleanTVShowCollection()
-        else:
-            menu()
+        return
+    if sys.argv[2].find('?sync=') == 0:
+        setName = sys.argv[2][6:]
+        Debug("Requesting sync of set "+repr(setName))
+        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.Sync', 'data':setName}, 'id': 1})
+        result = xbmc.executeJSONRPC(rpccmd)
+        result = json.loads(result)
         return
     menu()
 
@@ -88,9 +72,14 @@ def submenu(menuName, title):
     url = sys.argv[0]+'?menu=' + str(menuName)
     return url, li, True
     
-def action(actionName, title):
+def view(windowName, title):
     li = xbmcgui.ListItem(title)
-    url = sys.argv[0]+'?action=' + str(actionName)
+    url = sys.argv[0]+'?view=' + str(windowName)
+    return url, li, False
+
+def sync(setName, title):
+    li = xbmcgui.ListItem(title)
+    url = sys.argv[0]+'?sync=' + str(setName)
     return url, li, False
 
 # Usermenu:
@@ -111,12 +100,10 @@ def menu():
 
 def submenuUpdateSyncClean():
     options = [
-        action('updateMovieCollection', __language__(1217).encode( "utf-8", "ignore" )),
-        action('syncSeenMovies', __language__(1218).encode( "utf-8", "ignore" )),
-        action('updateTVShowCollection', __language__(1219).encode( "utf-8", "ignore" )),
-        action('syncSeenTVShows', __language__(1220).encode( "utf-8", "ignore" )),
-        action('cleanMovieCollection', __language__(1221).encode( "utf-8", "ignore" )),
-        action('cleanTVShowCollection', __language__(1222).encode( "utf-8", "ignore" ))]
+        sync('movielibrary', __language__(1217).encode( "utf-8", "ignore" )),
+        sync('movielibrary', __language__(1218).encode( "utf-8", "ignore" )),
+        sync('showlibrary', __language__(1219).encode( "utf-8", "ignore" )),
+        sync('showlibrary', __language__(1220).encode( "utf-8", "ignore" ))]
         
     xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
@@ -124,8 +111,8 @@ def submenuUpdateSyncClean():
 
 def submenuTrendingMoviesTVShows():
     options = [
-        action('trendingMovies', __language__(1250).encode( "utf-8", "ignore" )),
-        action('trendingTVShows', __language__(1251).encode( "utf-8", "ignore" ))]
+        view('trendingMovies', __language__(1250).encode( "utf-8", "ignore" )),
+        view('trendingTVShows', __language__(1251).encode( "utf-8", "ignore" ))]
         
     xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
@@ -133,8 +120,8 @@ def submenuTrendingMoviesTVShows():
 
 def submenuWatchlist():
     options = [
-        action('watchlistMovies', __language__(1252).encode( "utf-8", "ignore" )),
-        action('watchlistTVShows', __language__(1253).encode( "utf-8", "ignore" ))]
+        view('watchlistMovies', __language__(1252).encode( "utf-8", "ignore" )),
+        view('watchlistTVShows', __language__(1253).encode( "utf-8", "ignore" ))]
         
     xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
@@ -142,8 +129,8 @@ def submenuWatchlist():
 
 def submenuRecommendations():
     options = [
-        action('recommendedMovies', __language__(1255).encode( "utf-8", "ignore" )),
-        action('recommendedTVShows', __language__(1256).encode( "utf-8", "ignore" ))]
+        view('recommendedMovies', __language__(1255).encode( "utf-8", "ignore" )),
+        view('recommendedTVShows', __language__(1256).encode( "utf-8", "ignore" ))]
         
     xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     

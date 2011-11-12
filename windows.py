@@ -61,6 +61,7 @@ class MoviesWindow(xbmcgui.WindowXML):
         self.getControl(MOVIE_LIST).reset()
         if self.movies != None:
             for movie in self.movies:
+                
                 li = xbmcgui.ListItem(unicode(movie.title), '', unicode(movie.poster))
                 if movie.libraryStatus:
                     li.setProperty('Available','true')
@@ -80,6 +81,9 @@ class MoviesWindow(xbmcgui.WindowXML):
             current = self.getControl(MOVIE_LIST).getSelectedPosition()
         except TypeError:
             return # ToDo: error output
+        if current >= len(self.movies) or current < 0:
+            Debug("[MoviesWindow] invalid current movie size:"+repr(len(self.movies))+" posision:"+repr(current))
+            return
         
         try:
             self.getControl(BACKGROUND).setImage(unicode(self.movies[current].fanart))
@@ -201,7 +205,7 @@ class MoviesWindow(xbmcgui.WindowXML):
         elif actions[select] == 'rate':
             doRateMovie(imdbid=movie['imdb_id'], title=movie.title, year=movie.year)  
         elif actions[select] == 'seen':
-            if setMoviesSeenOnTrakt([movie.traktise()]) is None:
+            if Trakt.movieSeen([movie.traktise()]) is None:
                 notification("Trakt Utilities", __language__(1313).encode( "utf-8", "ignore" )) # Failed to mark as seen
             else:
                 if self.type == 'watchlist':
@@ -216,7 +220,7 @@ class MoviesWindow(xbmcgui.WindowXML):
         if action.getId() in (ACTION_PARENT_DIRECTORY, ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
             Debug("Closing MoviesWindow")
             self.close()
-        elif action.getId() in (1,2,107):
+        elif action.getId() in (1,2,3,4,107):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]

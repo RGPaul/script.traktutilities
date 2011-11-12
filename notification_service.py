@@ -14,6 +14,7 @@ from sync_update import *
 from instant_sync import *
 from watchlist import *
 from scrobbler import Scrobbler
+from viewer import Viewer
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -102,8 +103,25 @@ class NotificationService(threading.Thread):
                         self.abortRequested = True
                 
                 if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'TraktUtilities':
-                    if data['method'] == 'Other.TraktUtilities.Show.MoviesWatchlist':
-                        thread.start_new_thread(showWatchlistMovies, ())
+                    if data['method'] == 'Other.TraktUtilities.View' and 'data' in data['params']:
+                            #if 'window' in data['params']['data']:
+                            window = data['params']['data']#['window']
+                            if window == 'watchlistMovies':
+                                thread.start_new_thread(Viewer.watchlistMovies, ())
+                            elif window == 'watchlistShows':
+                                thread.start_new_thread(Viewer.watchlistShows, ())
+                            elif window == 'trendingMovies':
+                                thread.start_new_thread(Viewer.trendingMovies, ())
+                            elif window == 'trendingShows':
+                                thread.start_new_thread(Viewer.trendingShows, ())
+                            elif window == 'recommendedMovies':
+                                thread.start_new_thread(Viewer.recommendedMovies, ())
+                            elif window == 'recommendedShows':
+                                thread.start_new_thread(Viewer.recommendedShows, ())
+                    elif data['method'] == 'Other.TraktUtilities.Sync' and 'data' in data['params']:
+                            #if 'set' in data['params']['data']:
+                            setName = data['params']['data']#['set']
+                            thread.start_new_thread(trakt_cache.refreshSet, (setName))
             time.sleep(1)
         tn.close()
         scrobbler.abortRequested = True
