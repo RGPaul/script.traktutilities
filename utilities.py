@@ -181,11 +181,11 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
         time.sleep(0.1)
     
     response = conn.getResult()
+    raw = response.read()
     if closeConnection:
         conn.close()
     
     try:
-        raw = response.read()
         data = json.loads(raw)
     except ValueError:
         Debug("traktQuery: Bad JSON responce: "+raw)
