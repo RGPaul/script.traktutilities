@@ -104,8 +104,8 @@ class NotificationService(threading.Thread):
                 
                 if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'TraktUtilities':
                     if data['method'] == 'Other.TraktUtilities.View' and 'data' in data['params']:
-                            #if 'window' in data['params']['data']:
-                            window = data['params']['data']#['window']
+                        if 'window' in data['params']['data']:
+                            window = data['params']['data']['window']
                             if window == 'watchlistMovies':
                                 thread.start_new_thread(Viewer.watchlistMovies, ())
                             elif window == 'watchlistShows':
@@ -119,8 +119,8 @@ class NotificationService(threading.Thread):
                             elif window == 'recommendedShows':
                                 thread.start_new_thread(Viewer.recommendedShows, ())
                     elif data['method'] == 'Other.TraktUtilities.Sync' and 'data' in data['params']:
-                            #if 'set' in data['params']['data']:
-                            setName = data['params']['data']#['set']
+                        if 'set' in data['params']['data']:
+                            setName = data['params']['data']['set']
                             thread.start_new_thread(trakt_cache.refreshSet, (setName))
             time.sleep(1)
         tn.close()

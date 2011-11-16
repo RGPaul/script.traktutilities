@@ -68,6 +68,8 @@ class MoviesWindow(xbmcgui.WindowXML):
                 if self.type <> 'watchlist':
                     if movie.watchlistStatus:
                         li.setProperty('Watchlist','true')
+                if movie.trailer <> None:
+                    li.setInfo('video', {'trailer': movie.trailer})
                 self.lis.append(li)
                 self.getControl(MOVIE_LIST).addItem(li)
             self.setFocus(self.getControl(MOVIE_LIST))

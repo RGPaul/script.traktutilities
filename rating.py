@@ -50,12 +50,12 @@ def doRateMovie(movie):
 
 # ask user if they liked the episode
 def doRateEpisode(episodeId):
-    match = getEpisodeDetailsFromXbmc(episodeId, ['showtitle', 'season', 'episode'])
+    match = getEpisodeDetailsFromXbmc(episodeId, ['tvshowid', 'showtitle', 'season', 'episode'])
     if not match:
         #add error message here
         return
     
-    tvdbid = None #match['tvdbnumber']
+    tvdbid = match['tvshowid']
     title = match['showtitle']
     year = None #match['year']
     season = match['season']

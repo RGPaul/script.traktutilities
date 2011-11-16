@@ -583,11 +583,12 @@ def refreshMovie(remoteId, property = None):
     cacheData = None
     if localId is not None:
         xbmcData = {'movies': {remoteId: Movie.fromXbmc(getMovieDetailsFromXbmc(localId,['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed', 'runtime']))}}
-    if property in ('title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'libraryStatus', 'traktDbStatus', 'trailer', 'poster', 'fanart'):
-        traktData = {'movies': {remoteId: Movie.download(remoteId)}}
-    elif property in ('recommendedStatus'):
-        refreshRecommendedMovies()
-        return
+    if property is not None:
+        if property in ('title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'libraryStatus', 'traktDbStatus', 'trailer', 'poster', 'fanart'):
+            traktData = {'movies': {remoteId: Movie.download(remoteId)}}
+        elif property in ('recommendedStatus'):
+            refreshRecommendedMovies()
+            return
     else:
         traktData = {'movies': {remoteId: Movie.download(remoteId)}}
     with SafeShelf('movies') as movies:

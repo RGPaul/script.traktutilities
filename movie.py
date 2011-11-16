@@ -94,7 +94,7 @@ class Movie(object):
     def refresh(self, property = None):
         if not self._static:
             trakt_cache.refreshMovie(self._remoteId, property)
-            newer = trakt_cache.getMovie(remoteId)
+            newer = trakt_cache.getMovie(self._remoteId)
             
             self._title = newer._title
             self._year = newer._year

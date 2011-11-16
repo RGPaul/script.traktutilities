@@ -53,7 +53,7 @@ def switchBoard():
         windowName = sys.argv[2][6:]
         Debug("Requesting display of window "+repr(windowName))
         if windowName in ('watchlistMovies', 'watchlistShows', 'trendingMovies', 'trendingShows', 'recommendedMovies', 'recommendedShows'):
-            rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.View', 'data':windowName}, 'id': 1})
+            rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.View', 'data':{'window':windowName}}, 'id': 1})
             Debug("[~] "+repr(rpccmd))
             result = xbmc.executeJSONRPC(rpccmd)
             result = json.loads(result)
@@ -61,7 +61,7 @@ def switchBoard():
     if sys.argv[2].find('?sync=') == 0:
         setName = sys.argv[2][6:]
         Debug("Requesting sync of set "+repr(setName))
-        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.Sync', 'data':setName}, 'id': 1})
+        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.Sync', 'data':{'set':setName}}, 'id': 1})
         result = xbmc.executeJSONRPC(rpccmd)
         result = json.loads(result)
         return
