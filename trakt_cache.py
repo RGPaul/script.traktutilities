@@ -458,6 +458,7 @@ def _listChanges(newer, older, attributes, weakAttributes, xbmc = False, writeBa
         if remoteId is None: continue
         if remoteId[0] == '_': continue
         newItem = newer[remoteId]
+        if newItem is None: continue
         if newItem['_remoteId'] not in older:
             if xbmc: changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':True})
             for attribute in attributes:
@@ -594,7 +595,6 @@ def getMovie(remoteId = None, localId = None):
         remoteId = trakt_cache.getMovieRemoteId(localId)
     if remoteId is None:
         return None
-    needSyncAtLeast(remoteIds = [remoteId])
     with SafeShelf('movies') as movies:
         if remoteId not in movies:
             raise "Bad, logic bomb"
@@ -639,10 +639,18 @@ def refreshMovie(remoteId, property = None):
     xbmcData = None
     cacheData = None
     if localId is not None:
-        xbmcData = {'movies': {remoteId: Movie.fromXbmc(getMovieDetailsFromXbmc(localId,['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed', 'runtime']))}}
+        movie = Movie.fromXbmc(getMovieDetailsFromXbmc(localId,['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed', 'runtime']))
+        if movie is not None:
+            xbmcData = {'movies': {remoteId: movie}}
+        else:
+            xbmcData = {'movies': {}}
     if property is not None:
         if property in ('title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'libraryStatus', 'traktDbStatus', 'trailer', 'poster', 'fanart'):
-            traktData = {'movies': {remoteId: Movie.download(remoteId)}}
+            movie = Movie.download(remoteId)
+            if movie is not None:
+                traktData = {'movies': {remoteId: movie}}
+            else:
+                traktData = {'movies': {}}
         elif property in ('recommendedStatus'):
             refreshRecommendedMovies()
             return
@@ -659,7 +667,12 @@ def refreshMovie(remoteId, property = None):
 def saveMovie(movie):
     with SafeShelf('movies', True) as movies:
         movies[movie.remoteId] = movie
-
+def newLocalMovie(localId):
+    movie = Movie.fromXbmc(getMovieDetailsFromXbmc(localId,['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed', 'runtime']))
+    movie.save()
+    relateMovieId(localId, movie.remoteId)
+    movie.refresh()
+    
 ##
 # Sets
 ##
@@ -707,17 +720,23 @@ def getTrendingMovies():
     traktItems = Trakt.moviesTrending();
     items = []
     for movie in traktItems:
-        localMovie = Movie.fromTrakt(movie, static = True)
+        localMovie = Movie.fromTrakt(movie)
         items.append(localMovie)
     return items
 
-def refreshSet(set):
-    try:
-        method = _refresh[set]
-    except KeyError:
-        Debug("[TraktCache] No method specified to refresh the set: "+str(set))
+def refreshSet(set, _structure=None):
+    if set in _refresh:
+        _refresh[set]()
     else:
-        method()
+        if _structure is None:
+            _structure = _setStucture
+        if set in _structure:
+            for subSet in _structure[set]:
+                refreshSet(subSet, _structure=_structure[set])
+        else:
+            for subSet in _structure:
+                refreshSet(set, _structure=_structure[subSet])
+            if len(_structure.keys())==0: Debug("[TraktCache] No method specified to refresh the set: "+str(set))
 
 def refreshLibrary():
     # Send changes to trakt

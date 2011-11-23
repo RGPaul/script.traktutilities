@@ -252,10 +252,10 @@ class Movie(object):
         Debug("[Movie] Downloading info for "+str(Movie.devolveId(remoteId)))
         local = Trakt.movieSummary(Movie.devolveId(remoteId))
         if local is None:
-            movie = Movie(remoteId, static = True)
+            movie = Movie(remoteId)
             movie._traktDbStatus = False
             return movie
-        return Movie.fromTrakt(local, static = True)
+        return Movie.fromTrakt(local)
     
     def traktise(self):
         movie = {}
@@ -275,7 +275,7 @@ class Movie(object):
         return movie
         
     @staticmethod
-    def fromTrakt(movie, static = False):
+    def fromTrakt(movie, static = True):
         if 'imdb_id' in movie:
             local = Movie("imdb="+movie['imdb_id'], static)
         elif 'tmdb_id' in movie:
@@ -310,12 +310,13 @@ class Movie(object):
         return local
      
     @staticmethod
-    def fromXbmc(movie):
+    def fromXbmc(movie, static = True):
+        if movie is None: return None
         #Debug("[Movie] Creating from: "+str(movie))
-        if 'imdbnumber' not in movie or movie['imdbnumber'].strip() == "":
+        if 'imdbnumber' not in movie or movie['imdbnumber'] is None or movie['imdbnumber'].strip() == "":
             remoteId = trakt_cache.getMovieRemoteId(movie['movieid'])
             if remoteId is not None:
-                local = Movie(remoteId)
+                local = Movie(remoteId, static)
             else:
                 imdb_id = searchGoogleForImdbId(unicode(movie['title'])+"+"+unicode(movie['year']))
                 if imdb_id is None or imdb_id == "":
@@ -324,16 +325,16 @@ class Movie(object):
                          Debug("[Movie] Unable to find movie '"+unicode(movie['title'])+"' ["+unicode(movie['year'])+"]")
                     else:
                         if 'imdb_id' in traktMovie and traktMovie['imdb_id'] <> "":
-                            local = Movie("imdb="+traktMovie['imdb_id'])
+                            local = Movie("imdb="+traktMovie['imdb_id'], static)
                         elif 'tmdb_id' in traktMovie and traktMovie['tmdb_id'] <> "":
-                            local = Movie("tmdb="+traktMovie['tmdb_id'])
+                            local = Movie("tmdb="+traktMovie['tmdb_id'], static)
                         else:
                             return None
                     return None
                 else:
-                    local = Movie("imdb="+imdb_id)
+                    local = Movie("imdb="+imdb_id, static)
         else:
-            local = Movie(Movie.evolveId(movie['imdbnumber']))
+            local = Movie(Movie.evolveId(movie['imdbnumber']), static)
         trakt_cache.relateMovieId(movie['movieid'], local._remoteId)
         if local._remoteId == 'imdb=' or local._remoteId == 'tmdb=':
             Debug("[Movie] Fail tried to use blank remote id for "+repr(movie))

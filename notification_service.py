@@ -86,20 +86,23 @@ class NotificationService(threading.Thread):
                             scrobbler.playbackStarted(data['params']['data'])
                     elif data['method'] == 'Player.OnPause':
                         scrobbler.playbackPaused()
-                    elif data['method'] == 'VideoLibrary.OnUpdate':
-                        if 'data' in data['params'] and 'item' in data['params']['data']:
-                            if 'type' in data['params']['data']['item']:
-                                type = data['params']['data']['item']['type']
-                                id = data['params']['data']['item']['id']
-                                if type == 'episode' and 'playcount' in data['params']['data']:
-                                    instantSyncPlayCount(data)
+                    elif data['method'] in ('VideoLibrary.OnUpdate', 'VideoLibrary.OnRemove'):
+                        if 'data' in data['params']:
+                            if 'type' in data['params']['data'] and 'id' in data['params']['data']:
+                                type = data['params']['data']['type']
+                                id = data['params']['data']['id']
+                                if type == 'episode':
+                                    episode = trakt_cache.getEpisode(localId=id)
+                                    if episode is not None:
+                                        episode.refresh()
+                                    else:
+                                        trakt_cache.newLocalEpisode(localId=id)
                                 elif type == 'movie':
-                                    movie = trakt_cache.getMovie(localId = id)
+                                    movie = trakt_cache.getMovie(localId=id)
                                     if movie is not None:
                                         movie.refresh()
-                    elif data['method'] == 'VideoLibrary.OnRemove':
-                        if 'data' in data['params'] and 'id' in data['params']['data']:
-                            instantSyncRemove(data)
+                                    else:
+                                        trakt_cache.newLocalMovie(localId=id)
                     elif data['method'] == 'System.OnQuit':
                         self.abortRequested = True
                 

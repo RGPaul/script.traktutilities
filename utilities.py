@@ -349,7 +349,6 @@ def getMoviesFromXBMC():
 # get a single movie from xbmc given the id
 def getMovieDetailsFromXbmc(libraryId, fields):
     rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetMovieDetails','params':{'movieid': libraryId, 'properties': fields}, 'id': 1})
-    
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
 
