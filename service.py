@@ -19,23 +19,21 @@ __language__ = __settings__.getLocalizedString
 
 Debug("service: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
 
-# starts update/sync
+cacheDirectory = "special://profile/addon_data/script.TraktUtilities/"
+
+# Initialise all of the background services
 def autostart():
-    if checkSettings(True):
-        notificationThread = notification_service.NotificationService()
-        notificationThread.start()
-        
-        try:
-            trakt_cache.init("special://profile/addon_data/script.TraktUtilities/trakt_cache")
-            
-            # Send changes to trakt
-            trakt_cache._updateTrakt()
-            trakt_cache.needSyncAtLeast(['library'], force=True)
-
-        except SystemExit:
-            notificationThread.abortRequested = True
-            Debug("[Service] Auto sync processes aborted due to shutdown request")
-            
-        notificationThread.join()
-
+    # Initialise the cache
+    trakt_cache.init(os.path.join(cacheDirectory,"trakt_cache"))
+    
+    # Initialise the notification handler
+    notificationThread = notification_service.NotificationService()
+    notificationThread.start()
+    
+    # Trigger update checks for the cache
+    trakt_cache.trigger()
+    
+    # Wait for the notification handler to quit
+    notificationThread.join()
+    
 autostart()

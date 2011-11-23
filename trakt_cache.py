@@ -6,8 +6,8 @@ from utilities import *
 from movie import *
 import time
 import shelve
-from threading import Lock, Semaphore
 import trakt_cache
+from threading import Lock, Semaphore
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -20,7 +20,45 @@ __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 username = __settings__.getSetting("username")
 
+###################
 # Caches all information between the add-on and the web based trakt api
+#
+# trakt_cache is a group of functions that organise and maintain the cached information between xbmcs DB and the one at
+# trakt.tv. It is based on the rational that you only want to keep certain peices of information up to date but that you
+# might want it again soon and there is no point in going and getting it all over again.
+#
+# Information is stored in a DB file in the filesystem using 'shelfs'. To make these safe for using in theaded programs
+# the SafeShelf class has been created, this allows multiple reads simultaniously but locks the whole db down for
+# writes.
+#
+# Access for reading is like this:
+#     with SafeShelf('movies') as movies:
+#         #Do stuff with the DB
+#         foo = movies['bar']
+#
+# Access for writing is like this:
+#     with SafeShelf('movies', True) as movies:
+#         #Do stuff with the DB
+#         movies['foo'] = bar
+#
+# Internally the caching is based on sets and items, a set is a list of items, like the watchlist or the recommended
+# movies list. Each set has an associated refresher function unless it is not cached (like the trending lists).
+#
+# When any request is make for a set or information from an item a check is performed to make sure that the information
+# is as recent as it required, and if it is not the associated refresher is executed to get newer information.
+#
+# Internally to find the changes between the new copys of the items and the old ones a generalised comparitor is
+# provided, this has a list of known variables to look for changes in.
+#
+# Basic operation of trakt_cache starts with:
+#     trakt_cache.init("the/path/to/the/dbs/and/the/common/part/of/the/db/name")
+# 
+# From this point any requests for data with a function like:
+#     trakt_cache.getMovieLibrary()
+# or the more abstracted:
+#     sets.Movies.library()
+# will return information that is up to date within internally defined standards
+##
 
 _location = None
 
@@ -69,12 +107,15 @@ class SafeShelf:
                 SafeShelf.__readCount[self.name] -= 1
                 if SafeShelf.__readCount[self.name] == 0:
                     SafeShelf.__readMutex[self.name].release()
-        
+  
+##
+# Cache DB operations
+##
+
 def init(location=None):
     trakt_cache._location = xbmc.translatePath(location)
     if trakt_cache._location is not None:
         _fill()
-
 def _fill():
     SafeShelf.set("movies", shelve.open(trakt_cache._location+".movies"))
     SafeShelf.set("shows", shelve.open(trakt_cache._location+".shows"))
@@ -146,16 +187,9 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
     # Update next sync times
     trakt_cache.updateSyncTimes(['library'], remoteIds)
 
-def refreshLibrary():
-    # Send changes to trakt
-    trakt_cache._updateTrakt()
-    
-    # Receive latest according to trakt
-    traktData = trakt_cache._copyTrakt()
-    # Get latest xbmc
-    xbmcData = trakt_cache._copyXbmc()
-    
-    _sync(xbmcData, traktData)
+##
+# DB updaters
+##
 
 def _updateCache(changes, traktData = {}):
     if 'movies' in changes:
@@ -293,6 +327,10 @@ def _updateTrakt(newChanges = None, traktData = {}):
                 movies['_queue'] = queue
     trakt_cache._updateCache(cacheChanges, traktData)
 
+##
+# DB Readers
+##
+
 def _copyTrakt():
     traktData = {}
     
@@ -348,6 +386,10 @@ def _copyXbmc():
     xbmcData['shows'] = shows
     xbmcData['episodes'] = episodes
     return xbmcData
+
+##
+# Sync comparitors
+##
 
 attributes = {
     'xbmc': {
@@ -457,15 +499,106 @@ def makeChanges(changes, traktOnly = False, xbmcOnly = False):
     Debug("[~] Made changes: "+repr(changes))
     if not traktOnly: _updateXbmc(changes)
     if not xbmcOnly: _updateTrakt(changes)
+
+##
+# Sync timing
+##
+
+def trigger():
+    needSyncAtLeast(['library', 'watchlist'])
+
+_setStucture = {
+    'all': {
+        'movieall': {
+            'movielibrary': {},
+            'movierecommended': {},
+            'moviewatchlist': {},
+            'movieimages': {},
+        },
+        'library': {
+            'movielibrary': {},
+        },
+        'movielibrary': {
+            'movieseen': {},
+        },
+        'watchlist': {
+           'moviewatchlist': {},
+        },
+    }
+}
     
-def relateMovieId(localId, remoteId):
-    with SafeShelf('movies', True) as movies:
-        if '_byLocalId' in movies:
-            index = movies['_byLocalId']
+syncTimes = {'moviewatchlist': 10*60,
+             'movierecommended': 30*60,
+             'movieseen': 3*60*60,
+             'movielibrary': 6*60*60,
+             'movieimages': 6*60*60,
+             'movieall': 24*60*60,
+             'library': 60*60,
+             'all': 24*60*60}
+
+def updateSyncTimes(sets = [], remoteIds = []):
+    updated = {}
+    sets = set(sets)
+    sets = setPropergatePositive(sets, _setStucture)
+    
+    with SafeShelf('expire', True) as expire:
+        for updatedSet in sets:
+            if updatedSet not in syncTimes:
+                Debug("[TraktCache] Tried to bump update time of unknown update set:" +updatedSet)
+                continue
+            expire[updatedSet] = time.time() + syncTimes[updatedSet]
+        for remoteId in remoteIds:
+            expire[remoteId] = time.time() + 10*60 # +10mins
+
+def setPropergatePositive(sets, structure):
+    for item in structure:
+        if item in sets:
+            sets |= set(structure[item].keys())
+        sets = setPropergatePositive(sets, structure[item])
+    return sets
+
+def needSyncAtLeast(sets = [], remoteIds = [], force = False):
+    # This function should block untill all syncs have been satisfied
+    sets = set(sets)
+    sets = setPropergateNegative(sets, _setStucture)
+    
+    for staleSet in sets:
+        with SafeShelf('expire') as expire:
+            stale = staleSet not in expire or expire[staleSet] < time.time() or force
+        if stale:
+            refreshSet(staleSet)
+    for remoteId in remoteIds:
+        with SafeShelf('expire') as expire:
+            stale = remoteId not in expire or expire[remoteId] < time.time() or force
+        if stale:
+            refreshItem(remoteId)
+    return
+
+def setPropergateNegative(sets, structure, fireSale=False):
+    for item in structure:
+        if fireSale or item in sets:
+            sets -= set(structure[item].keys())
+            sets = setPropergateNegative(sets, structure[item], fireSale=True)
         else:
-            index = {}
-        index[localId] = remoteId
-        movies['_byLocalId'] = index
+            sets = setPropergateNegative(sets, structure[item])
+    return sets
+
+##
+# Items
+##
+
+def getMovie(remoteId = None, localId = None):
+    if remoteId is None and localId is None:
+        raise ValueError("Must provide at least one form of id")
+    if remoteId is None:
+        remoteId = trakt_cache.getMovieRemoteId(localId)
+    if remoteId is None:
+        return None
+    needSyncAtLeast(remoteIds = [remoteId])
+    with SafeShelf('movies') as movies:
+        if remoteId not in movies:
+            raise "Bad, logic bomb"
+        return movies[remoteId]
     
 def getMovieRemoteId(localId):
     with SafeShelf('movies') as movies:
@@ -481,90 +614,14 @@ def getMovieLocalIds(remoteId):
                 hits.append(localId)
     return hits
 
-def updateSyncTimes(sets = [], remoteIds = []):
-    updated = {}
-    for set in sets: updated[str(set)] = None
-    if 'all' in updated:
-        updated['all'] = True
-        updated['movieall'] = True
-    if 'movieall' in updated:
-        updated['movielibrary'] = True
-        updated['movierecommended'] = True
-        updated['moviewatchlist'] = True
-        updated['movieimages'] = True
-    if 'library' in updated:
-        updated['movielibrary'] = True
-    if 'movielibrary' in updated:
-        updated['movieseen'] = True
-        
-    syncTimes = {'moviewatchlist': 10*60,
-                 'movierecommended': 30*60,
-                 'movieseen': 3*60*60,
-                 'movielibrary': 6*60*60,
-                 'movieimages': 6*60*60,
-                 'movieall': 24*60*60,
-                 'library': 60*60,
-                 'all': 24*60*60}
-    with SafeShelf('expire', True) as expire:
-        for set in updated:
-            if set not in syncTimes:
-                Debug("[TraktCache] Tried to bump update time of unknown update set:" +set)
-                continue
-            expire[set] = time.time() + syncTimes[set]
-        for remoteId in remoteIds:
-            expire[remoteId] = time.time() + 10*60 # +10mins
-
-def needSyncAtLeast(sets = [], remoteIds = [], force = False):
-    # This function should block untill all syncs have been satisfied
-    staleSets = {}
-    for set in sets:
-            staleSets[str(set)] = None
-    if 'library' in  staleSets:
-        if 'movielibrary' in staleSets: del staleSets['movielibrary']
-        if 'movieseen' in staleSets: del staleSets['movieseen']
-    if 'movielibrary' in  staleSets:
-        if 'movieseen' in staleSets: del staleSets['movieseen']
-    if 'movieall' in staleSets:
-        if 'movielibrary' in staleSets: del staleSets['movielibrary']
-        if 'movieseen' in staleSets: del staleSets['movieseen']
-        if 'movierecommended' in staleSets: del staleSets['movierecommended']
-        if 'moviewatchlist' in staleSets: del staleSets['moviewatchlist']
-        if 'movieimages' in staleSets: del staleSets['movieimages']
-    if 'all' in staleSets:
-        if 'movieall' in staleSets: del staleSets['movieall']
-    for set in staleSets:
-        with SafeShelf('expire') as expire:
-            stale = set not in expire or expire[set] < time.time() or force
-        if stale:
-            refreshSet(set)
-    for remoteId in remoteIds:
-        with SafeShelf('expire') as expire:
-            stale = remoteId not in expire or expire[remoteId] < time.time() or force
-        if stale:
-            refreshItem(remoteId)
-    return
-    
-def getMovie(remoteId = None, localId = None):
-    if remoteId is None and localId is None:
-        raise ValueError("Must provide at least one form of id")
-    if remoteId is None:
-        remoteId = trakt_cache.getMovieRemoteId(localId)
-    if remoteId is None:
-        return None
-    needSyncAtLeast(remoteIds = [remoteId])
-    with SafeShelf('movies') as movies:
-        if remoteId not in movies:
-            raise "Bad, logic bomb"
-        return movies[remoteId]
-        
-
-def refreshSet(set):
-    try:
-        method = _refresh[set]
-    except KeyError:
-        Debug("[TraktCache] No method specified to refresh the set: "+str(set))
-    else:
-        method()
+def relateMovieId(localId, remoteId):
+    with SafeShelf('movies', True) as movies:
+        if '_byLocalId' in movies:
+            index = movies['_byLocalId']
+        else:
+            index = {}
+        index[localId] = remoteId
+        movies['_byLocalId'] = index
 
 def refreshItem(remoteId):
     Debug("[~] "+repr(remoteId.partition("=")[0]))
@@ -572,7 +629,7 @@ def refreshItem(remoteId):
         refreshMovie(remoteId)
     else:
         Debug("[TraktCache] No method yet to refresh non-movie items")
-        
+      
 def refreshMovie(remoteId, property = None):
     localIds = getMovieLocalIds(remoteId)
     if len(localIds) == 0:
@@ -599,12 +656,29 @@ def refreshMovie(remoteId, property = None):
     
     with SafeShelf('expire', True) as expire:
         expire[remoteId] = time.time() + 10*60 # +10mins
-
 def saveMovie(movie):
     with SafeShelf('movies', True) as movies:
         movies[movie.remoteId] = movie
 
-
+##
+# Sets
+##
+   
+def getMovieLibrary():
+    needSyncAtLeast(['movielibrary'])
+    items = []
+    with SafeShelf('movies') as movies:
+        for remoteId in movies:
+            if remoteId[0] == '_': continue
+            movie = movies[remoteId]
+            if movie is None:
+                continue
+            items.append(movie)
+    return items
+def getShows():
+    raise NotImplementedError()
+def getShowEpisodes():
+    raise NotImplementedError()
 def getMovieWatchList():
     needSyncAtLeast(['moviewatchlist'])
     watchlist = []
@@ -616,9 +690,45 @@ def getMovieWatchList():
                 continue
             if movie['_watchlistStatus'] == True:
                 watchlist.append(movie)
-    return watchlist
+    return watchlist    
+def getRecommendedMovies():
+    needSyncAtLeast(['movierecommended'])
+    items = []
+    with SafeShelf('movies') as movies:
+        for remoteId in movies:
+            if remoteId[0] == '_': continue
+            movie = movies[remoteId]
+            if movie is None:
+                continue
+            if movie['_recommendedStatus'] == True:
+                items.append(movie)
+    return items
+def getTrendingMovies():
+    traktItems = Trakt.moviesTrending();
+    items = []
+    for movie in traktItems:
+        localMovie = Movie.fromTrakt(movie, static = True)
+        items.append(localMovie)
+    return items
 
+def refreshSet(set):
+    try:
+        method = _refresh[set]
+    except KeyError:
+        Debug("[TraktCache] No method specified to refresh the set: "+str(set))
+    else:
+        method()
 
+def refreshLibrary():
+    # Send changes to trakt
+    trakt_cache._updateTrakt()
+    
+    # Receive latest according to trakt
+    traktData = trakt_cache._copyTrakt()
+    # Get latest xbmc
+    xbmcData = trakt_cache._copyXbmc()
+    
+    _sync(xbmcData, traktData)  
 def refreshMovieWatchlist():
     Debug("[TraktCache] Refreshing watchlist")
     traktWatchlist = Trakt.userWatchlistMovies(username)
@@ -641,21 +751,6 @@ def refreshMovieWatchlist():
                 movies[movie['_remoteId']] = movie
             
     updateSyncTimes(['moviewatchlist'], watchlist.keys())
-    
-def getRecommendedMovies():
-    needSyncAtLeast(['movierecommended'])
-    items = []
-    with SafeShelf('movies') as movies:
-        for remoteId in movies:
-            if remoteId[0] == '_': continue
-            movie = movies[remoteId]
-            if movie is None:
-                continue
-            if movie['_recommendedStatus'] == True:
-                items.append(movie)
-    return items
-
-
 def refreshRecommendedMovies():
     Debug("[TraktCache] Refreshing recommended movies")
     traktItems = Trakt.recommendationsMovies()
@@ -682,15 +777,7 @@ def refreshRecommendedMovies():
                 movies[movie['_remoteId']] = movie
             
     updateSyncTimes(['movierecommended'], items.keys())
-    
-def getTrendingMovies():
-    traktItems = Trakt.moviesTrending();
-    items = []
-    for movie in traktItems:
-        localMovie = Movie.fromTrakt(movie, static = True)
-        items.append(localMovie)
-    return items
-
+ 
 _refresh = {}
 _refresh['library'] = refreshLibrary
 _refresh['moviewatchlist'] = refreshMovieWatchlist

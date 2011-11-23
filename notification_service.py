@@ -34,6 +34,7 @@ class NotificationService(threading.Thread):
         scrobbler = Scrobbler()
         scrobbler.start()
         
+        tn = None
         while (not (self.abortRequested or xbmc.abortRequested)):
             try:
                 tn = telnetlib.Telnet('localhost', 9090, 10)
@@ -123,5 +124,5 @@ class NotificationService(threading.Thread):
                             setName = data['params']['data']['set']
                             thread.start_new_thread(trakt_cache.refreshSet, (setName))
             time.sleep(1)
-        tn.close()
+        if tn is not None: tn.close()
         scrobbler.abortRequested = True
