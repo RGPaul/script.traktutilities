@@ -50,7 +50,6 @@ class Show:
         return unicode(self._title)+" ("+str(self._year)+")"
         
     def __getitem__(self, index):
-        if index == "_remoteId": return self._remoteId
         if index == "_title": return self._title
         if index == "_year": return self._year
         if index == "_firstAired": return self._firstAired
@@ -69,7 +68,6 @@ class Show:
         if index == "_fanart": return self._fanart
     
     def __setitem__(self, index, value):
-        if index == "_remoteId": self._remoteId = value
         if index == "_title": self._title = value
         if index == "_year": self._year = value
         if index == "_firstAired": self._firstAired = value
@@ -88,7 +86,7 @@ class Show:
         if index == "_fanart": self._fanart = value
     
     def save(self):
-        TraktCache.saveMovie(self)
+        TraktCache.saveShow(self)
     
     def refresh(self, property = None):
         if not self._static:
@@ -212,7 +210,7 @@ class Show:
     
     @property
     def rating(self):
-        if not self._static: trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        self.checkExpire('rating')
         return self._rating
     @rating.setter
     def rating(self, value):
