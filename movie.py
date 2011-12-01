@@ -94,29 +94,32 @@ class Movie(object):
     def refresh(self, property = None):
         if not self._static:
             trakt_cache.refreshMovie(self._remoteId, property)
-            newer = trakt_cache.getMovie(self._remoteId)
+            self.reread()
             
-            self._title = newer._title
-            self._year = newer._year
-            self._runtime = newer._runtime
-            self._released = newer._released
-            self._tagline = newer._tagline
-            self._overview = newer._overview
-            self._classification = newer._classification
-            self._playcount = newer._playcount
-            self._rating = newer._rating
-            self._watchlistStatus = newer._watchlistStatus
-            self._recommendedStatus = newer._recommendedStatus
-            self._libraryStatus = newer._libraryStatus
-            self._traktDbStatus = newer._traktDbStatus
-            
-            self._trailer = newer._trailer
-            
-            self._poster = newer._poster
-            self._fanart = newer._fanart
-            
-            self._bestBefore = newer._bestBefore
-            self._static = newer._static
+    def reread(self):
+        newer = trakt_cache.getMovie(self._remoteId)
+        
+        self._title = newer._title
+        self._year = newer._year
+        self._runtime = newer._runtime
+        self._released = newer._released
+        self._tagline = newer._tagline
+        self._overview = newer._overview
+        self._classification = newer._classification
+        self._playcount = newer._playcount
+        self._rating = newer._rating
+        self._watchlistStatus = newer._watchlistStatus
+        self._recommendedStatus = newer._recommendedStatus
+        self._libraryStatus = newer._libraryStatus
+        self._traktDbStatus = newer._traktDbStatus
+        
+        self._trailer = newer._trailer
+        
+        self._poster = newer._poster
+        self._fanart = newer._fanart
+        
+        self._bestBefore = newer._bestBefore
+        self._static = newer._static
         
     @property
     def remoteId(self):
@@ -276,6 +279,7 @@ class Movie(object):
         
     @staticmethod
     def fromTrakt(movie, static = True):
+        if movie is None: return None
         if 'imdb_id' in movie:
             local = Movie("imdb="+movie['imdb_id'], static)
         elif 'tmdb_id' in movie:
