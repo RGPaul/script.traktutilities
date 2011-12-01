@@ -3,7 +3,9 @@
 
 import xbmc,xbmcaddon
 from utilities import *
-from movie import *
+from movie import Movie
+from show import Show
+from episode import Episode
 import time
 import shelve
 import trakt_cache
@@ -347,14 +349,24 @@ def _copyTrakt():
         
     
     shows = {}
-    #traktShows = Trakt.userLibraryShowsAll(daemon=True)
-    #for show in traktShows:
-    #    shows.append(Show.fromTrakt(show))
+    traktShows = Trakt.userLibraryShowsAll(daemon=True)
+    
+    for show in traktShows:
+        shows.append(Show.fromTrakt(show))
         
     episodes = {}
-    #traktEpisodes = getEpisodesFromTrakt(daemon=True)
-    #for episode in traktEpisodes:
-    #    episodes.append(Episode.fromTrakt(episode))
+    traktShowsCollection = Trakt.userLibraryShowsCollection(daemon=True)
+    
+    for show in traktShowsCollection:
+        local = Show.fromTrakt(show)
+        if local is None: continue
+        remoteId = local._remoteId
+        for season in show['seasons']:
+            s = season['season']
+            for e in season['episodes']:
+                episode = Episode(remoteId, s, e)
+                episode._libraryStatus = True;
+                episodes.append(episode)
         
     traktData['movies'] = movies
     traktData['shows'] = shows
@@ -373,14 +385,21 @@ def _copyXbmc():
         movies[local._remoteId] = local
     
     shows = {}
-    #traktShows = Trakt.userLibraryShowsAll(daemon=True)
-    #for show in traktShows:
-    #    shows.append(Show.fromTrakt(show))
+    xbmvShows = getTVShowsFromXBMC()
+    for show in xbmvShows:
+        local = Show.fromXbmc(show)
+        if local is None:
+            continue
+        shows.append(local)
         
     episodes = {}
-    #traktEpisodes = getEpisodesFromTrakt(daemon=True)
-    #for episode in traktEpisodes:
-    #    episodes.append(Episode.fromTrakt(episode))
+    for show in xbmvShows:
+        remoteId = Show.fromXbmc(show)._remoteId
+        seasons = getSeasonsFromXBMC(show)['seasons']
+        for season in seasons:
+            s = season['season']
+            for episode in getEpisodesFromXBMC(show, s):
+                episodes.append(Episode.fromXbmc(remoteId, episode))
         
     xbmcData['movies'] = movies
     xbmcData['shows'] = shows

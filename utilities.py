@@ -129,7 +129,19 @@ def traktMovieListByImdbID(data):
         trakt_movies[data[i]['imdb_id']] = data[i]
         
     return trakt_movies
+    
+# get easy access to show by remoteId
+def traktShowListByRemoteId(data):
+    trakt_shows = {}
 
+    for show in data:
+        if 'tvdb_id' in show and show['tvdb_id'] not in ("", None):
+            trakt_shows[show['tvdb_id']] = show
+        elif 'imdb_id' in show and show['imdb_id'] not in ("", None):
+            trakt_shows[show['imdb_id']] = show
+        
+    return trakt_shows
+    
 # search movies on trakt
 def searchTraktForMovie(title, year=None):
     query = urllib.quote_plus(repr(unicode(title))[1:].strip('\'\"'))
