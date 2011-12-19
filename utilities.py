@@ -83,7 +83,7 @@ def checkSettings(daemon=False):
 
 # SQL string quote escaper
 def xcp(s):
-    return re.sub('''(['])''', r"''", str(s))
+    return re.sub('''(['])''', r"''", unicode(s))
 
 # make a httpapi based XBMC db query (get data)
 def xbmcHttpapiQuery(query):
@@ -93,7 +93,7 @@ def xbmcHttpapiQuery(query):
     match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
     
     Debug("[httpapi-sql] responce: "+xml_data)
-    Debug("[httpapi-sql] matches: "+str(match))
+    Debug("[httpapi-sql] matches: "+unicode(match))
     
     return match
 
