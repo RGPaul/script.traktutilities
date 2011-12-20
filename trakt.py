@@ -170,6 +170,83 @@ class Trakt():
         return data
         
     @staticmethod
+    def activityCommunity(types='all', actions='all', timestamp=None, *args, **argd):
+        if timestamp is None:
+            timestamp = ""
+        else: 
+            timestamp = '/'+str(timestamp)
+        data = Trakt.jsonRequest('POST', '/activity/community.json/%%API_KEY%%/'+str(types)+'/'+str(actions)+timestamp, *args, **argd)
+        if data == None:
+            Debug("[Trakt] Error in request from 'accountTest()'")
+        return data
+        
+    @staticmethod
+    def activityEpisodes(title, season, episode, actions='all', timestamp=None, *args, **argd):
+        if timestamp is None:
+            timestamp = ""
+        else: 
+            timestamp = '/'+str(timestamp)
+        data = Trakt.jsonRequest('POST', '/activity/episodes.json/%%API_KEY%%/'+str(title)+'/'+str(season)+'/'+str(episode)+'/'+str(actions)+timestamp, *args, **argd)
+        if data == None:
+            Debug("[Trakt] Error in request from 'accountTest()'")
+        return data
+        
+    @staticmethod
+    def activityFriends(types='all', actions='all', timestamp=None, *args, **argd):
+        if timestamp is None:
+            timestamp = ""
+        else: 
+            timestamp = '/'+str(timestamp)
+        data = Trakt.jsonRequest('POST', '/activity/friends/%%API_KEY%%/'+str(types)+'/'+str(actions)+timestamp, *args, **argd)
+        if data == None:
+            Debug("[Trakt] Error in request from 'accountTest()'")
+        return data
+        
+    @staticmethod
+    def activityMovies(title, actions='all', timestamp=None, *args, **argd):
+        if timestamp is None:
+            timestamp = ""
+        else: 
+            timestamp = '/'+str(timestamp)
+        data = Trakt.jsonRequest('POST', '/activity/movies.json/%%API_KEY%%/'+str(title)+'/'+str(actions)+timestamp, *args, **argd)
+        if data == None:
+            Debug("[Trakt] Error in request from 'accountTest()'")
+        return data
+        
+    @staticmethod
+    def activitySeasons(title, season, actions='all', timestamp=None, *args, **argd):
+        if timestamp is None:
+            timestamp = ""
+        else: 
+            timestamp = '/'+str(timestamp)
+        data = Trakt.jsonRequest('POST', '/activity/seasons.json/%%API_KEY%%/'+str(title)+'/'+str(season)+'/'+str(actions)+timestamp, *args, **argd)
+        if data == None:
+            Debug("[Trakt] Error in request from 'accountTest()'")
+        return data
+        
+    @staticmethod
+    def activityShows(title, actions='all', timestamp=None, *args, **argd):
+        if timestamp is None:
+            timestamp = ""
+        else: 
+            timestamp = '/'+str(timestamp)
+        data = Trakt.jsonRequest('POST', '/activity/shows.json/%%API_KEY%%/'+str(title)+'/'+str(actions)+timestamp, *args, **argd)
+        if data == None:
+            Debug("[Trakt] Error in request from 'accountTest()'")
+        return data
+        
+    @staticmethod
+    def activityUsers(username, types='all', actions='all', timestamp=None, *args, **argd):
+        if timestamp is None:
+            timestamp = ""
+        else: 
+            timestamp = '/'+str(timestamp)
+        data = Trakt.jsonRequest('POST', '/activity/user.json/%%API_KEY%%/'+str(username)+'/'+str(types)+'/'+str(actions)+timestamp, *args, **argd)
+        if data == None:
+            Debug("[Trakt] Error in request from 'accountTest()'")
+        return data
+        
+    @staticmethod
     def calendarPremieres(date=None, days=None, *args, **argd):
         ext = ""
         if date is not None:

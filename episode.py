@@ -30,7 +30,6 @@ class Episode(object):
         self._playcount = None
         self._rating = None
         self._watchlistStatus = None
-        self._recommendedStatus = None
         self._libraryStatus = None
         self._traktDbStatus = None
         
@@ -52,7 +51,6 @@ class Episode(object):
         if index == "_rating": return self._rating
         if index == "_firstAired": return self._firstAired
         if index == "_watchlistStatus": return self._watchlistStatus
-        if index == "_recommendedStatus": return self._recommendedStatus
         if index == "_libraryStatus": return self._libraryStatus
         if index == "_screen": return self._poster
         if index == "_fanart": return self._fanart
@@ -65,7 +63,6 @@ class Episode(object):
         if index == "_rating": self._rating = value
         if index == "_firstAired": self._firstAired = value
         if index == "_watchlistStatus": self._watchlistStatus = value
-        if index == "_recommendedStatus": self._recommendedStatus = value
         if index == "_libraryStatus": self._libraryStatus = value
         if index == "_screen": return self._poster
         if index == "_fanart": self._fanart = value
@@ -188,12 +185,6 @@ class Episode(object):
     @watchlistStatus.setter
     def watchlistStatus(self, value):
         raise NotImplementedError("This function has not been written")
-        
-    @property
-    def recommendedStatus(self):
-        """Whether the movie is recommended to the user by trakt."""
-        if not self._static: trakt_cache.needSyncAtLeast(['movierecommended'])
-        returnself._recommendedStatus
     
     def checkExpire(self, property):
         if self._static:
@@ -232,9 +223,9 @@ class Episode(object):
         if show is None or episode is None: return None
         if 'tvdb_id' in show:
             local = Show("tvdb="+show['tvdb_id'], static)
-        else if 'imdb_id' in movie:
+        elif 'imdb_id' in movie:
             local = Show("imdb="+show['imdb_id'], static)
-        else
+        else:
             return None
         local._title = episode['title']
         local._season = episode['season']
@@ -263,7 +254,7 @@ class Episode(object):
             Debug("[Movie] Fail tried to use blank remote id for "+repr(movie))
             return None
             
-        local = Episode(remoteId, episode['season'], episode['episode']), static)
+        local = Episode(remoteId, episode['season'], episode['episode'], static)
         trakt_cache.relateEpisodeId(episode['episodeid'], local._remoteId, season, episode)
         local._title = episode['title']
         local._firstAired = episode['firstaired']

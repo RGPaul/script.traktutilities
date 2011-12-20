@@ -413,16 +413,16 @@ def _copyXbmc():
 attributes = {
     'xbmc': {
         'movies': {
-            'primary': ['playcount'],
-            'secondary': ['title', 'year', 'runtime']
+            'primary': ['playcount', 'trailer', 'poster', 'fanart'],
+            'secondary': ['title', 'year', 'runtime', 'tagline']
         },
         'shows': {
-            'primary': [],
-            'secondary': []
+            'primary': ['fanart'],
+            'secondary': ['title', 'year']
         },
         'episodes': {
-            'primary': ['playcount'],
-            'secondary': []
+            'primary': ['playcount', 'screen', 'playcount'],
+            'secondary': ['title', 'firstAired', 'runtime']
         }
     },
     'trakt': {
@@ -432,11 +432,11 @@ attributes = {
         },
         'shows': {
             'primary': ['rating', 'watchlistStatus', 'recommendedStatus'],
-            'secondary': []
+            'secondary': ['poster', 'fanart']
         },
         'episodes': {
             'primary': ['playcount', 'rating', 'watchlistStatus', 'libraryStatus'],
-            'secondary': []
+            'secondary': ['screen']
         }
     }
 }
@@ -499,6 +499,9 @@ def _listChanges(newer, older, attributes, weakAttributes, xbmc = False, writeBa
             if newItem is None:
                 continue
             for attribute in attributes:
+                if attribute == 'episodes':
+                    if _episodesDifferent(newItem['_'+attribute], oldItem['_'+attribute]): # If the non cached data is different from the old data cached locally
+                        if newItem['_'+attribute] is not None: changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute]})
                 if newItem['_'+attribute] <> oldItem['_'+attribute]: # If the non cached data is different from the old data cached locally
                     if newItem['_'+attribute] is not None: changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute]})
                 oldItem._bestBefore[attribute] = time.time()+24*60*60
@@ -514,7 +517,15 @@ def _listChanges(newer, older, attributes, weakAttributes, xbmc = False, writeBa
         else:
             writeBack[remoteId] = oldItem
     return changes
-
+    
+def _episodesDifferent(newEpisodes, oldEpisodes):
+    diff = set(newEpisodes.keys()) - set(oldEpisodes.keys())
+    if diff.length <> 0: return True
+    for season in newEpisodes:
+        diff = set(newEpisodes[season].keys()) - set(oldEpisodes[season].keys())
+        if diff.length <> 0: return True
+    return False
+    
 def makeChanges(changes, traktOnly = False, xbmcOnly = False):
     Debug("[~] Made changes: "+repr(changes))
     if not traktOnly: _updateXbmc(changes)
@@ -525,7 +536,8 @@ def makeChanges(changes, traktOnly = False, xbmcOnly = False):
 ##
 
 def trigger():
-    needSyncAtLeast(['library', 'watchlist'])
+    if not getActivityUpdates(): # if the activity updates might ve missing some data
+        needSyncAtLeast(['library', 'watchlist'])
 
 _setStucture = {
     'all': {
@@ -554,8 +566,36 @@ syncTimes = {'moviewatchlist': 10*60,
              'movieimages': 6*60*60,
              'movieall': 24*60*60,
              'library': 60*60,
-             'all': 24*60*60}
+             'all': 24*60*60,
+             'useractivity': 2*60*60,
+             'friendsactivity': 3*60*60}
 
+def getActivityUpdates(force=False):
+    checkUserActivity = -1
+    userActCount = 0
+    checkFriendsActivity = -1
+    friendsActCount = 0
+    with SafeShelf('expire') as expire:
+        if 'useractivity' not in expire or expire['useractivity'] is None:
+            expire['useractivity'] = time.time()
+        if expire['useractivity'] < time.time()-syncTimes['useractivity'] or force:
+            checkUserActivity = expire['useractivity']
+        if 'friendsactivity' not in expire or expire['friendsactivity'] is None:
+            expire['friendsactivity'] = time.time()
+        if expire['friendsactivity'] < time.time()-syncTimes['friendsactivity'] or force:
+            checkFriendsActivity = expire['friendsactivity']
+    if checkUserActivity <> -1:
+        timeStamp, userActCount = refreshFromUserActivity(checkUserActivity)
+        with SafeShelf('expire', True) as expire:
+            expire['useractivity'] = timeStamp
+    if checkFriendsActivity <> -1:
+        timeStamp, friendsActCount = refreshFromFriendsActivity(checkFriendsActivity)
+        with SafeShelf('expire', True) as expire:
+            expire['friendsactivity'] = timeStamp
+    if userActCount >= 100 or friendsActCount >= 100:
+        return False
+    return True
+    
 def updateSyncTimes(sets = [], remoteIds = []):
     updated = {}
     sets = set(sets)
@@ -691,7 +731,114 @@ def newLocalMovie(localId):
     movie.save()
     relateMovieId(localId, movie.remoteId)
     movie.refresh()
+  
     
+##
+# Activity Updates
+##
+
+def refreshFromUserActivity(lastTimestamp):
+    responce = activityUsers(username, timestamp=lastTimestamp)
+    changes = {}
+    changes['episodes'] = []
+    for event in responce['activity']:
+        if event['type'] == 'episode':
+            if event['action'] == 'watching':
+                continue #ignore
+            if event['action'] == 'scrobble':
+                episode = Episode.fromTrakt(event['show'], event['episode'])
+                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'playcount', 'value':episode._playcount, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'checkin':
+                continue #ignore
+            if event['action'] == 'seen':
+                episode = Episode.fromTrakt(event['show'], event['episode'])
+                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'playcount', 'value':episode._playcount, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'collection':
+                episode = Episode.fromTrakt(event['show'], event['episode'])
+                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'libraryStatus', 'value':episode._libraryStatus, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'rating':
+                episode = Episode.fromTrakt(event['show'], event['episode'])
+                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'rating', 'value':episode._rating, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'watchlist':
+                episode = Episode.fromTrakt(event['show'], event['episode'])
+                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'watchlistStatus', 'value':episode._watchlistStatus, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'shout':
+                continue #ignore
+        if event['type'] == 'show':
+            if event['action'] == 'rating':
+                show = Show.fromTrakt(event['show'])
+                changes['shows'].append({'remoteId': show.remoteId, 'subject': 'rating', 'value':show._rating, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'watchlist':
+                show = Show.fromTrakt(event['show'])
+                changes['shows'].append({'remoteId': show.remoteId, 'subject': 'watchlistStatus', 'value':show._watchlistStatus, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'shout':
+                continue #ignore
+        if event['type'] == 'movie':
+            if event['action'] == 'watching':
+                continue #ignore
+            if event['action'] == 'scrobble':
+                movie = Movie.fromTrakt(event['movie'])
+                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'playcount', 'value':movie._playcount, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'checkin':
+                continue #ignore
+            if event['action'] == 'seen':
+                movie = Movie.fromTrakt(event['movie'])
+                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'playcount', 'value':movie._playcount, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'collection':
+                movie = Movie.fromTrakt(event['movie'])
+                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'libraryStatus', 'value':movie._libraryStatus, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'rating':
+                movie = Movie.fromTrakt(event['movie'])
+                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'rating', 'value':movie._rating, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'watchlist':
+                movie = Movie.fromTrakt(event['movie'])
+                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'watchlistStatus', 'value':movie._watchlistStatus, 'bestBefore': time.time()+6*60*60})
+            if event['action'] == 'shout':
+                continue #ignore
+    
+    trakt_cache._updateXbmc(changes) 
+    return responce['timestamps']['current'], responce['activity'].length
+    
+def refreshFromFriensActivity(lastTimestamp):
+    raise NotImplementedError("This function has not been written")
+    
+"""def compareNewer(xbmcData=None, traktData=None):
+    if xbmcData is None and traktData is None:
+        return
+    cacheData = {}
+    cacheData['movies'] = []
+    for movie in xbmcData['movies']:
+        item = getMovie(movie._remoteId)
+        if item is not None:
+            cacheData['movies'].append(item)
+    cacheData['shows'] = []
+    for show in xbmcData['shows']:
+        item = getShow(show._remoteId)
+        if item is not None:
+            cacheData['shows'].append(item)
+    cacheData['episodes'] = []
+    for episode in xbmcData['episodes']:
+        item = getEpisode(episode._remoteId)
+        if item is not None:
+            cacheData['episodes'].append(item)
+    if xbmcData is None:
+        xbmcData = {}
+        xbmcData['movies'] = []
+        for movie in xbmcData['movies']:
+            localIds = getMovieLocalIds(remoteId)
+            if len(localIds) > 0:
+                item = Movie.fromXbmc(getMovieDetailsFromXbmc(localIds[0],['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed', 'runtime']))
+                if item is not None:
+                    xbmcData['movies'].append(item)
+        if item is not None:
+            cacheData['movies'].append(item)
+        
+    if traktData is None:
+        
+    _sync(xbmcData, traktData, cacheData)"""
+        
+        
+
 ##
 # Sets
 ##
@@ -767,6 +914,7 @@ def refreshLibrary():
     xbmcData = trakt_cache._copyXbmc()
     
     _sync(xbmcData, traktData)  
+    
 def refreshMovieWatchlist():
     Debug("[TraktCache] Refreshing watchlist")
     traktWatchlist = Trakt.userWatchlistMovies(username)

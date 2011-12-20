@@ -2,7 +2,7 @@
 # 
 
 import xbmc,xbmcaddon
-from trakt_cache import TraktCache
+import trakt_cache
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -40,6 +40,8 @@ class Show:
         self._poster = None
         self._fanart = None
         
+        self._episodes = {}
+        
         self._bestBefore = {}
         self._static = static
     
@@ -66,6 +68,7 @@ class Show:
         if index == "_libraryStatus": return self._libraryStatus
         if index == "_poster": return self._poster
         if index == "_fanart": return self._fanart
+        if index == "_episodes": return self._episodes
     
     def __setitem__(self, index, value):
         if index == "_title": self._title = value
@@ -84,6 +87,7 @@ class Show:
         if index == "_libraryStatus": self._libraryStatus = value
         if index == "_poster": self._poster = value
         if index == "_fanart": self._fanart = value
+        if index == "_episodes": self._episodes = value
     
     def save(self):
         TraktCache.saveShow(self)
@@ -114,6 +118,8 @@ class Show:
         
         self._poster = newer._poster
         self._fanart = newer._fanart
+        
+        self._episodes = newer._episodes
         
         self._bestBefore = newer._bestBefore
         self._static = newer._static
@@ -194,6 +200,15 @@ class Show:
         """The shows fanart image."""
         self.checkExpire('fanart')
         return self._fanart
+        
+    def episodes(self, seasonFilter=None, episodeFilter=None):
+        matches = []
+        for season in self._episodes.keys:
+            if season == seasonFilter or seasonFilter is None:
+                for episode in self._episodes[season].keys:
+                    if episode == episodeFilter or episodeFilter is None:
+                        matches.append(getEpisode(self._remoteID, season+'x'+episode))
+        return matches
         
     def shout(self, text):
         raise NotImplementedError("This function has not been written")
@@ -276,9 +291,9 @@ class Show:
         if show is None: return None
         if 'tvdb_id' in show:
             local = Show("tvdb="+show['tvdb_id'], static)
-        else if 'imdb_id' in movie:
+        elif 'imdb_id' in movie:
             local = Show("imdb="+show['imdb_id'], static)
-        else
+        else:
             return None
         local._title = show['title']
         local._year = show['year']
