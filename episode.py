@@ -4,6 +4,7 @@
 import xbmc,xbmcaddon
 from utilities import *
 import trakt_cache
+from show import Show
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -18,12 +19,13 @@ __language__ = __settings__.getLocalizedString
 # Caches all information between the add-on and the web based trakt api
 class Episode(object):
     
-    def __init__(self, remoteId, season, episode, static=False):
+    def __init__(self, remoteId, static=False):
         if remoteId is None:
             raise ValueError("Must provide the id for the episode")
         self._remoteId = str(remoteId)
-        self._season = str(season)
-        self._episode = str(episode)
+        self._showRemoteId = str(remoteId)[:str(remoteId).rfind('@')]
+        self._season = int(str(remoteId)[str(remoteId).rfind('@')+1:str(remoteId).rfind('x')])
+        self._episode = int(str(remoteId)[str(remoteId).rfind('x')+1:])
         self._title = None
         self._overview = None
         self._firstAired = None
@@ -39,10 +41,10 @@ class Episode(object):
         self._static = static
         
     def __repr__(self):
-        return "<"+repr(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._poster)+","+str(self._runtime)+","+str(self._tagline)+">"
+        return "<"+repr(self._title)+" - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._screen)+","+str(self._overview)+">"
         
     def __str__(self):
-        return unicode(self._title)+" ("+str(self._year)+")"
+        return unicode(self._title)
     
     def __getitem__(self, index):
         if index == "_title": return self._title
@@ -52,7 +54,7 @@ class Episode(object):
         if index == "_firstAired": return self._firstAired
         if index == "_watchlistStatus": return self._watchlistStatus
         if index == "_libraryStatus": return self._libraryStatus
-        if index == "_screen": return self._poster
+        if index == "_screen": return self._screen
         if index == "_fanart": return self._fanart
     
     def __setitem__(self, index, value):
@@ -64,7 +66,7 @@ class Episode(object):
         if index == "_firstAired": self._firstAired = value
         if index == "_watchlistStatus": self._watchlistStatus = value
         if index == "_libraryStatus": self._libraryStatus = value
-        if index == "_screen": return self._poster
+        if index == "_screen": return self._screen
         if index == "_fanart": self._fanart = value
     
     
@@ -191,6 +193,9 @@ class Episode(object):
             return
         if property not in self._bestBefore or self._bestBefore[property] < time.time():
             self.refresh(property)
+    
+    def getShow(self):
+        return trakt_cache.getShow(self.showRemoteId)
         
     @staticmethod
     def download(remoteId, season, episode):
@@ -221,15 +226,14 @@ class Episode(object):
     @staticmethod
     def fromTrakt(show, episode, static = True):
         if show is None or episode is None: return None
+        if 'season' not in episode or 'number' not in episode: return None 
         if 'tvdb_id' in show:
-            local = Show("tvdb="+show['tvdb_id'], static)
-        elif 'imdb_id' in movie:
-            local = Show("imdb="+show['imdb_id'], static)
+            local = Episode("tvdb="+str(show['tvdb_id'])+'@'+str(episode['season'])+'x'+str(episode['number']), static)
+        elif 'imdb_id' in show:
+            local = Episode("imdb="+str(show['imdb_id'])+'@'+str(episode['season'])+'x'+str(episode['number']), static)
         else:
             return None
         local._title = episode['title']
-        local._season = episode['season']
-        local._episode = episode['number']
         if 'plays' in episode:
             local._playcount = episode['plays']
         if 'in_watchlist' in episode:
@@ -254,11 +258,28 @@ class Episode(object):
             Debug("[Movie] Fail tried to use blank remote id for "+repr(movie))
             return None
             
-        local = Episode(remoteId, episode['season'], episode['episode'], static)
-        trakt_cache.relateEpisodeId(episode['episodeid'], local._remoteId, season, episode)
-        local._title = episode['title']
-        local._firstAired = episode['firstaired']
-        local._playcount = episode['playcount']
-        local._rating = episode['rating']
+        local = Episode(str(remoteId)+'@'+str(episode['season'])+'x'+str(episode['episode']), static)
+        trakt_cache.relateEpisodeId(episode['episodeid'], str(remoteId)+'@'+str(episode['season'])+'x'+str(episode['episode']))
+        if 'title' in episode: local._title = episode['title']
+        if 'firstaired' in episode: local._firstAired = episode['firstaired']
+        if 'playcount' in episode: local._playcount = episode['playcount']
+        if 'rating' in episode: local._rating = episode['rating']
         return local
-        
+     
+    @staticmethod
+    def evolveId(idString, season, episode):
+        if idString.find('tt') == 0:
+            return str("imdb="+idString.strip()+'@'+str(season)+'x'+str(episode))
+        else:
+            return str("tvdb="+idString.strip()+'@'+str(season)+'x'+str(episode))
+    
+    @staticmethod
+    def devolveId(idString):
+        div1 = idString.rfind('@')
+        div2 = idString.rfind('x')
+        if idString.find('imdb=tt') == 0:
+            return idString[5:div1], int(idString[div1+1:div2]), int(idString[div2+1:])
+        elif idString.find('imdb=') == 0:
+            return "tt"+idString[5:div1], int(idString[div1+1:div2]), int(idString[div2+1:])
+        elif idString.find('tvdb=') == 0:
+            return idString[5:div1], int(idString[div1+1:div2]), int(idString[div2+1:])   

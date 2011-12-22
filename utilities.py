@@ -276,7 +276,7 @@ def getTVShowsFromXBMC():
 # get seasons for a given tvshow from XBMC
 def getSeasonsFromXBMC(tvshow):
     Debug("getSeasonsFromXBMC: "+str(tvshow))
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetSeasons','params':{'tvshowid': tvshow['tvshowid'], 'fields': ['season']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetSeasons','params':{'tvshowid': tvshow['tvshowid'], 'properties': ['season']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -297,7 +297,7 @@ def getSeasonsFromXBMC(tvshow):
     
 # get episodes for a given tvshow / season from XBMC
 def getEpisodesFromXBMC(tvshow, season):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes','params':{'tvshowid': tvshow['tvshowid'], 'season': season, 'properties': ['playcount', 'episode']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes','params':{'tvshowid': tvshow['tvshowid'], 'season': season, 'properties': ['playcount', 'season', 'episode', 'firstaired', 'rating']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
@@ -710,6 +710,10 @@ def playMovieById(idMovie = None, options = None):
             Debug("playMovieById, VideoPlaylist.Play: KeyError")
             return None
 
+def validRemoteId(remoteId):
+    if remoteId is None or not (isinstance(remoteId, str) or isinstance(remoteId, unicode)) or len(remoteId) == 0 or remoteId[0] == '_': return False
+    return True
+            
 ###############################
 ##### Scrobbling to trakt #####
 ###############################

@@ -3,6 +3,7 @@
 
 import xbmc,xbmcaddon
 import trakt_cache
+from utilities import Debug
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -17,10 +18,10 @@ __language__ = __settings__.getLocalizedString
 # Caches all information between the add-on and the web based trakt api
 class Show:
     
-    def __init__(self, remoteId):
+    def __init__(self, remoteId, static=False):
         if remoteId is None:
             raise ValueError("Must provide the id for the show")
-        self._remoteId = remoteId
+        self._remoteId = str(remoteId)
         self._title = None
         self._year = None
         self._firstAired = None
@@ -46,7 +47,7 @@ class Show:
         self._static = static
     
     def __repr__(self):
-        return "<"+repr(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._poster)+","+str(self._runtime)+","+str(self._tagline)+">"
+        return "<"+repr(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._poster)+","+str(self._runtime)+">"
         
     def __str__(self):
         return unicode(self._title)+" ("+str(self._year)+")"
@@ -331,7 +332,8 @@ class Show:
     def fromXbmc(show, static = True):
         if show is None: return None
         if 'imdbnumber' not in show or show['imdbnumber'] is None or show['imdbnumber'].strip() == "":
-            remoteId = trakt_cache.getShowRemoteId(Show['movieid'])
+            Debug("[~] "+repr(show))
+            remoteId = trakt_cache.getShowRemoteId(show['showid'])
             if remoteId is not None:
                 local = Show(remoteId, static)
             else:
@@ -356,9 +358,9 @@ class Show:
         if local._remoteId == 'tvdb=' or local._remoteId == 'imdb=':
             Debug("[Show] Fail tried to use blank remote id for "+repr(show))
             return None
-        local._title = show['title']
-        local._year = show['year']
-        local._runtime = show['runtime']
+        if 'title' in show: local._title = show['title']
+        if 'year' in show: local._year = show['year']
+        if 'runtime' in show: local._runtime = show['runtime']
         return local
     
     @staticmethod

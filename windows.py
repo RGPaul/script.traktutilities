@@ -493,7 +493,6 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         
     def onClick(self, controlId):
         if controlId == RATE_LOVE_BTN:
-            Debug("[~] love")
             self.curRating = 'love'
             self.updateRatedButton()
             self.movie.rating = 'love'
@@ -535,13 +534,9 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
 
 class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
 
-    def initDialog(self, tvdbid, title, year, season, episode, curRating):
-        self.tvdbid = tvdbid
-        self.title = title
-        self.year = year
-        self.season = season
+    def initDialog(self, episode):
         self.episode = episode
-        self.curRating = curRating
+        self.curRating = episode.rating
         if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
         
     def onInit(self):
@@ -559,13 +554,13 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         if controlId == RATE_LOVE_BTN:
             self.curRating = "love"
             self.updateRatedButton()
-            rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "love")
+            self.episode.rating = 'love'
             self.close()
             return
         elif controlId == RATE_HATE_BTN:
             self.curRating = "hate"
             self.updateRatedButton()
-            rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "hate")
+            self.episode.rating = 'hate'
             self.close()
             return
         elif controlId == RATE_SKIP_RATING:
@@ -574,14 +569,14 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
             self.curRating = None
             self.updateRatedButton();
-            rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "unrate")
+            self.episode.rating = 'unrate'
             return
         elif controlId == RATE_RATE_SHOW_BTN:
             self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
             self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
             self.setFocus(self.getControl(RATE_SKIP_RATING))
             rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-            rateShow.initDialog(self.tvdbid, self.title, self.year, getShowRatingFromTrakt(self.tvdbid, self.title, self.year))
+            rateShow.initDialog(episode.getShow())
             rateShow.doModal()
             del rateShow
         else:
@@ -606,11 +601,9 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
 
 class RateShowDialog(xbmcgui.WindowXMLDialog):
 
-    def initDialog(self, tvdbid, title, year, curRating):
-        self.tvdbid = tvdbid
-        self.title = title
-        self.year = year
-        self.curRating = curRating
+    def initDialog(self, show):
+        self.show = show
+        self.curRating = show.rating
         if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
         
     def onInit(self):
@@ -628,15 +621,15 @@ class RateShowDialog(xbmcgui.WindowXMLDialog):
         
     def onClick(self, controlId):
         if controlId == RATE_LOVE_BTN:
-            self.curRating = "love"
+            self.curRating = 'love'
             self.updateRatedButton()
-            rateShowOnTrakt(self.tvdbid, self.title, self.year, "love")
+            self.show.rating = 'love'
             self.close()
             return
         elif controlId == RATE_HATE_BTN:
-            self.curRating = "hate"
+            self.curRating = 'hate'
             self.updateRatedButton()
-            rateShowOnTrakt(self.tvdbid, self.title, self.year, "hate")
+            self.show.rating = 'hate'
             self.close()
             return
         elif controlId == RATE_SKIP_RATING:
@@ -645,7 +638,7 @@ class RateShowDialog(xbmcgui.WindowXMLDialog):
         elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
             self.curRating = None
             self.updateRatedButton();
-            rateShowOnTrakt(self.tvdbid, self.title, self.year, "unrate")
+            self.show.rating = 'unrate'
             return
         elif controlId == RATE_RATE_SHOW_BTN:
             return
