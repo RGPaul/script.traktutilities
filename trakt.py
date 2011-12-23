@@ -58,22 +58,22 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 
 if __cached_requests__:
     def cacheRequest(uRID, data):
-        Debug("Storing request in cache, "+str(uRID))
+        #Debug("Storing request in cache, "+str(uRID))
         with SafeShelf('expire', True) as expire:
             expire[uRID] = {'expire': time.time()+10*60, 'data': data}
         
     def cachedRequest(uRID):
         with SafeShelf('expire') as expire:
             if uRID in expire:
-                Debug("Looking for, "+str(uRID))
+                #Debug("Looking for, "+str(uRID))
                 entry = expire[uRID]
                 if entry['expire'] >= time.time():
-                    Debug("Getting request from cache, "+str(uRID))
+                    #Debug("Getting request from cache, "+str(uRID))
                     return entry['data']
-                else:
-                    Debug("Cached request expired, "+str(uRID))
-            else:
-                Debug("Rrequest not found in cache, "+str(uRID))
+                #else:
+                    #Debug("Cached request expired, "+str(uRID))
+            #else:
+                #Debug("Rrequest not found in cache, "+str(uRID))
         return None
 
 class Trakt():

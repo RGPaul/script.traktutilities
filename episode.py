@@ -5,6 +5,7 @@ import xbmc,xbmcaddon
 from utilities import *
 import trakt_cache
 from show import Show
+from trakt import Trakt
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -26,6 +27,10 @@ class Episode(object):
         self._showRemoteId = str(remoteId)[:str(remoteId).rfind('@')]
         self._season = int(str(remoteId)[str(remoteId).rfind('@')+1:str(remoteId).rfind('x')])
         self._episode = int(str(remoteId)[str(remoteId).rfind('x')+1:])
+        if not static:
+            if self.reread():
+                return
+                
         self._title = None
         self._overview = None
         self._firstAired = None
@@ -39,6 +44,7 @@ class Episode(object):
         
         self._bestBefore = {}
         self._static = static
+            
         
     def __repr__(self):
         return "<"+repr(self._title)+" - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._screen)+","+str(self._overview)+">"
@@ -81,6 +87,8 @@ class Episode(object):
             
     def reread(self):
         newer = trakt_cache.getEpisode(self._remoteId)
+        if newer is None:
+            return False
         
         self._title = newer._title
         self._overview = newer._overview
@@ -88,7 +96,6 @@ class Episode(object):
         self._playcount = newer._playcount
         self._rating = newer._rating
         self._watchlistStatus = newer._watchlistStatus
-        self._recommendedStatus = newer._recommendedStatus
         self._libraryStatus = newer._libraryStatus
         self._traktDbStatus = newer._traktDbStatus
         
@@ -96,6 +103,8 @@ class Episode(object):
         
         self._bestBefore = newer._bestBefore
         self._static = newer._static
+        
+        return True
         
     @property
     def remoteId(self):
@@ -198,19 +207,25 @@ class Episode(object):
         return trakt_cache.getShow(self.showRemoteId)
         
     @staticmethod
-    def download(remoteId, season, episode):
-        Debug("[Episode] Downloading info for "+str(Show.devolveId(remoteId))+" "+season+"x"+episode)
-        local = Trakt.showEpisodeSummary(Show.devolveId(remoteId), season, episode)
+    def download(remoteId):
+        showRemoteId, season, episode = Episode.devolveId(remoteId)
+        Debug("[Episode] Downloading info for "+str(showRemoteId)+" "+str(season)+"x"+str(episode))
+        local = Trakt.showEpisodeSummary(showRemoteId, season, episode)
         if local is None:
-            episode = Episode(remoteId, season, episode)
+            episode = Episode(str(showRemoteId)+'@'+str(season)+'x'+str(episode), static=True)
             episode._traktDbStatus = False
             return episode
-        return Episode.fromTrakt(local)
+        return Episode.fromTrakt(local['show'], local['episode'])
     
     def traktise(self):
+        show = Show(self._showRemoteId)
         episode = {}
+        
+        episode['title'] = self._title
+        episode['showtitle'] = show._title
+        episode['year'] = show._year
         episode['season'] = self._season
-        episode['episode'] = self._title
+        episode['episode'] = self._episode
         episode['plays'] = self._playcount
         episode['in_watchlist'] = self._watchlistStatus
         episode['in_collection'] = self._libraryStatus
@@ -218,9 +233,9 @@ class Episode(object):
         episode['imdb_id'] = None
         episode['tvdb_id'] = None
         if str(self._remoteId).find('imdb=') == 0:
-            episode['imdb_id'] = self._remoteId[5:]
+            episode['imdb_id'] = Episode.devolveId(self._remoteId)[0]
         if str(self._remoteId).find('tvdb=') == 0:
-            episode['tvdb_id'] = self._remoteId[5:]
+            episode['tvdb_id'] = Episode.devolveId(self._remoteId)[0]
         return episode
         
     @staticmethod
@@ -283,3 +298,9 @@ class Episode(object):
             return "tt"+idString[5:div1], int(idString[div1+1:div2]), int(idString[div2+1:])
         elif idString.find('tvdb=') == 0:
             return idString[5:div1], int(idString[div1+1:div2]), int(idString[div2+1:])   
+    
+    @staticmethod
+    def splitId(idString):
+        div1 = idString.rfind('@')
+        div2 = idString.rfind('x')
+        return idString[:div1], int(idString[div1+1:div2]), int(idString[div2+1:])

@@ -4,6 +4,7 @@
 import xbmc,xbmcaddon
 import trakt_cache
 from utilities import Debug
+from trakt import Trakt
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -22,6 +23,10 @@ class Show:
         if remoteId is None:
             raise ValueError("Must provide the id for the show")
         self._remoteId = str(remoteId)
+        if not static:
+            if self.reread():
+                return
+        
         self._title = None
         self._year = None
         self._firstAired = None
@@ -35,7 +40,6 @@ class Show:
         self._rating = None
         self._watchlistStatus = None
         self._recommendedStatus = None
-        self._libraryStatus = None
         self._traktDbStatus = None
         
         self._poster = None
@@ -47,7 +51,7 @@ class Show:
         self._static = static
     
     def __repr__(self):
-        return "<"+repr(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+","+str(self._libraryStatus)+","+str(self._poster)+","+str(self._runtime)+">"
+        return "<"+repr(self._title)+" ("+str(self._year)+") - "+str(self._remoteId)+","+str(self._poster)+","+str(self._runtime)+">"
         
     def __str__(self):
         return unicode(self._title)+" ("+str(self._year)+")"
@@ -66,7 +70,6 @@ class Show:
         if index == "_rating": return self._rating
         if index == "_watchlistStatus": return self._watchlistStatus
         if index == "_recommendedStatus": return self._recommendedStatus
-        if index == "_libraryStatus": return self._libraryStatus
         if index == "_poster": return self._poster
         if index == "_fanart": return self._fanart
         if index == "_episodes": return self._episodes
@@ -85,13 +88,12 @@ class Show:
         if index == "_rating": self._rating = value
         if index == "_watchlistStatus": self._watchlistStatus = value
         if index == "_recommendedStatus": self._recommendedStatus = value
-        if index == "_libraryStatus": self._libraryStatus = value
         if index == "_poster": self._poster = value
         if index == "_fanart": self._fanart = value
         if index == "_episodes": self._episodes = value
     
     def save(self):
-        TraktCache.saveShow(self)
+        trakt_cache.saveShow(self)
     
     def refresh(self, property = None):
         if not self._static:
@@ -100,6 +102,8 @@ class Show:
         
     def reread(self):
         newer = trakt_cache.getShow(self._remoteId)
+        if newer is None:
+            return False
         
         self._title = newer._title
         self._year = newer._year
@@ -114,7 +118,6 @@ class Show:
         self._rating = newer._rating
         self._watchlistStatus = newer._watchlistStatus
         self._recommendedStatus = newer._recommendedStatus
-        self._libraryStatus = newer._libraryStatus
         self._traktDbStatus = newer._traktDbStatus
         
         self._poster = newer._poster
@@ -124,6 +127,8 @@ class Show:
         
         self._bestBefore = newer._bestBefore
         self._static = newer._static
+        
+        return True
             
     @property
     def remoteId(self):
@@ -233,12 +238,6 @@ class Show:
         trakt_cache.makeChanges({'shows': [{'remoteId': self.remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
         
     @property
-    def libraryStatus(self):
-        """Whether the show is in the users library."""
-        if not self._static: trakt_cache.needSyncAtLeast(['showlibrary'])
-        return self._libraryStatus
-        
-    @property
     def watchingStatus(self):
         """Whether the user is currently watching the show."""
         raise NotImplementedError("This function has not been written")
@@ -276,15 +275,17 @@ class Show:
         
     def traktise(self):
         show = {}
-        show['title'] = _title
-        show['year'] = _year
-        show['plays'] = _playcount
-        show['in_watchlist'] = _watchlistStatus
-        show['in_collection'] = _libraryStatus
-        if str(_remoteId).find('tvbd=') == 0:
-            show['tvdb_id'] = _remoteId[5:]
-        if str(_remoteId).find('imbd=') == 0:
-            show['imdb_id'] = _remoteId[5:]
+        show['title'] = self._title
+        show['year'] = self._year
+        show['in_watchlist'] = self._watchlistStatus
+        show['in_collection'] = self._libraryStatus
+        
+        show['imdb_id'] = None
+        show['tvdb_id'] = None
+        if str(self._remoteId).find('tvbd=') == 0:
+            show['tvdb_id'] = self._remoteId[5:]
+        if str(self._remoteId).find('imbd=') == 0:
+            show['imdb_id'] = self._remoteId[5:]
         return show
         
     @staticmethod
@@ -302,8 +303,6 @@ class Show:
             local._playcount = show['url']
         if 'in_watchlist' in show:
             local._watchlistStatus = show['in_watchlist']
-        if 'in_collection' in show:
-            local._libraryStatus = show['in_collection']
         if 'images' in show and 'poster' in show['images']:
             local._poster = show['images']['poster']
         if 'images' in show and 'fanart' in show['images']:

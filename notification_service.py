@@ -127,7 +127,7 @@ class NotificationService(threading.Thread):
                             setName = data['params']['data']['set']
                             thread.start_new_thread(trakt_cache.refreshSet, (setName))
                 # Trigger update checks for the cache
-                trakt_cache.trigger()
+                #trakt_cache.trigger()
             time.sleep(1)
         if tn is not None: tn.close()
         scrobbler.abortRequested = True

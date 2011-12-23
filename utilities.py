@@ -89,13 +89,13 @@ def xcp(s):
 
 # make a httpapi based XBMC db query (get data)
 def xbmcHttpapiQuery(query):
-    Debug("[httpapi-sql] query: "+query)
+    #Debug("[httpapi-sql] query: "+query)
     
     xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(query), )
     match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
     
-    Debug("[httpapi-sql] responce: "+xml_data)
-    Debug("[httpapi-sql] matches: "+str(match))
+    #Debug("[httpapi-sql] responce: "+xml_data)
+    #Debug("[httpapi-sql] matches: "+str(match))
     
     return match
 
@@ -275,7 +275,7 @@ def getTVShowsFromXBMC():
     
 # get seasons for a given tvshow from XBMC
 def getSeasonsFromXBMC(tvshow):
-    Debug("getSeasonsFromXBMC: "+str(tvshow))
+    #Debug("getSeasonsFromXBMC: "+str(tvshow))
     rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetSeasons','params':{'tvshowid': tvshow['tvshowid'], 'properties': ['season']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
@@ -297,7 +297,7 @@ def getSeasonsFromXBMC(tvshow):
     
 # get episodes for a given tvshow / season from XBMC
 def getEpisodesFromXBMC(tvshow, season):
-    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes','params':{'tvshowid': tvshow['tvshowid'], 'season': season, 'properties': ['playcount', 'season', 'episode', 'firstaired', 'rating']}, 'id': 1})
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes','params':{'tvshowid': tvshow['tvshowid'], 'season': season, 'properties': ['title', 'playcount', 'season', 'episode', 'firstaired', 'rating']}, 'id': 1})
     
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)

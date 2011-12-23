@@ -4,6 +4,7 @@
 import xbmc,xbmcaddon
 from utilities import *
 import trakt_cache
+from trakt import Trakt
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -22,6 +23,11 @@ class Movie(object):
         if remoteId is None:
             raise ValueError("Must provide the id for the movie")
         self._remoteId = str(remoteId)
+        
+        if not static:
+            if self.reread():
+                return
+                
         self._title = None
         self._year = None
         self._runtime = None
@@ -96,7 +102,9 @@ class Movie(object):
             
     def reread(self):
         newer = trakt_cache.getMovie(self._remoteId)
-        
+        if newer is None:
+            return False
+            
         self._title = newer._title
         self._year = newer._year
         self._runtime = newer._runtime
@@ -118,6 +126,8 @@ class Movie(object):
         
         self._bestBefore = newer._bestBefore
         self._static = newer._static
+        
+        return True
         
     @property
     def remoteId(self):
