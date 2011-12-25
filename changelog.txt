@@ -1,3 +1,7 @@
+Version 0.6.?:
+    - Fixed problem where connections to trakt were closed before readin the responce
+    - Fixed syncing error that occured when a last played value was not a correctly formatted date
+
 Version 0.6.4:
     - Fixed broken syncing and scrobbling due to changes in xbmc json-rpc schema
 

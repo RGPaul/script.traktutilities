@@ -85,7 +85,7 @@ def checkSettings(daemon=False):
 
 # SQL string quote escaper
 def xcp(s):
-    return re.sub('''(['])''', r"''", str(s))
+    return re.sub('''(['])''', r"''", unicode(s))
 
 # make a httpapi based XBMC db query (get data)
 def xbmcHttpapiQuery(query):
