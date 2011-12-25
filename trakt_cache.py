@@ -92,24 +92,34 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
     if cacheData is not None and 'episodes' not in cacheData: cacheData['episodes'] = {}
     
     #isolation testing
-    """xbmcData['movies'] = {}
-    xbmcData['shows'] = {}
-    xbmcData['episodes'] = {'tvdb=73388@1x4': xbmcData['episodes']['tvdb=73388@1x4']}
-    traktData['movies'] = {}
-    traktData['shows'] = {}
-    traktData['episodes'] = {'tvdb=73388@1x4': traktData['episodes']['tvdb=73388@1x4']}"""
+    #isolatedId = 'tvdb=76107@21x15'
+    """if xbmcData is not None:
+        xbmcData['movies'] = {}
+        xbmcData['shows'] = {}
+        if isolatedId in xbmcData['episodes']:
+            xbmcData['episodes'] = {isolatedId: xbmcData['episodes'][isolatedId]}
+        else:
+            xbmcData['episodes'] = {}
+    if traktData is not None:
+        traktData['movies'] = {}
+        traktData['shows'] = {}
+        if isolatedId in traktData['episodes']:
+            traktData['episodes'] = {isolatedId: traktData['episodes'][isolatedId]}
+        else:
+            traktData['episodes'] = {}"""
+    
     
     # Find and list all changes
     if traktData is not None:
         xbmcChanges = trakt_cache._syncCompare(traktData, cache = cacheData)
-        for item in xbmcChanges['episodes']:
-            #if item['remoteId'] == 'tvdb=73388@1x4':
-                Debug("[~] X"+repr(item))
+        #for item in xbmcChanges['episodes']:
+        #    if item['remoteId'] == isolatedId:
+        #        Debug("[~] X"+repr(item))
     if xbmcData is not None:
         traktChanges = trakt_cache._syncCompare(xbmcData, xbmc = True, cache = cacheData)
-        for item in traktChanges['episodes']:
-            #if item['remoteId'] == 'tvdb=73388@1x4':
-                Debug("[~] T"+repr(item))
+        #for item in traktChanges['episodes']:
+        #    if item['remoteId'] == isolatedId:
+        #        Debug("[~] T"+repr(item))
         
     # Find unanimous changes and direct them to the cache
     cacheChanges = {}
@@ -127,8 +137,8 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
                         removeListT.append(traktChange)
                         removeListX.append(xbmcChange)
                         if (xbmcChange['value'] <> traktChange['value']):
-                            Debug("[~] t"+repr(traktChange))
-                            Debug("[~] x"+repr(xbmcChange))
+                            #Debug("[~] t"+repr(traktChange))
+                            #Debug("[~] x"+repr(xbmcChange))
                             winingChange = traktChange
                             if 'weak' in winingChange: winingChange['weak'] = False
                             if xbmcChange['subject'] in ('playcount'):
@@ -142,9 +152,15 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
                         else:
                             cacheChanges[type].append(traktChange)
             for item in removeListT:
-                traktChanges[type].remove(item)    
+                try:
+                    traktChanges[type].remove(item)   
+                except ValueError:
+                    continue
             for item in removeListX:
-                xbmcChanges[type].remove(item)
+                try:
+                    xbmcChanges[type].remove(item)
+                except ValueError:
+                    continue
     if traktData is not None:
         for type in ['movies', 'shows', 'episodes']:
             moveList = []
@@ -164,14 +180,16 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
                 traktChanges[type].remove(item)
                 cacheChanges[type].append(item)
     
-    """for item in xbmcChanges['episodes']:
-        if item['remoteId'] == 'tvdb=73388@1x4':
-            Debug("[~] X"+repr(item))
-    for item in traktChanges['episodes']:
-        if item['remoteId'] == 'tvdb=73388@1x4':
-            Debug("[~] T"+repr(item))
+    """if traktData is not None:
+        for item in xbmcChanges['episodes']:
+            if item['remoteId'] == isolatedId:
+                Debug("[~] X"+repr(item))
+    if xbmcData is not None:
+        for item in traktChanges['episodes']:
+            if item['remoteId'] == isolatedId:
+                Debug("[~] T"+repr(item))
     for item in cacheChanges['episodes']:
-        if item['remoteId'] == 'tvdb=73388@1x4':
+        if item['remoteId'] == isolatedId:
             Debug("[~] C"+repr(item))"""
                     
     # Perform cache only changes
@@ -658,7 +676,6 @@ def _syncCompare(data, xbmc = False, cache = None):
     else :
         attr = attributes['trakt']
     changes = {}
-    
     if cache is None:
         # Compare movies
         with SafeShelf('movies', True) as movies:
@@ -704,7 +721,7 @@ def _listChanges(newer, older, attributes, weakAttributes, xbmc = False, writeBa
             continue
         if remoteId not in newer: #If item not in library
             if xbmc:
-                if '_libraryStatus' in oldItem and oldItem._libraryStatus: #If item had been in library
+                if oldItem['_libraryStatus']: #If item had been in library
                     changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':False})
         else:
             newItem = newer[remoteId]
@@ -748,9 +765,14 @@ def makeChanges(changes, traktOnly = False, xbmcOnly = False):
 ##
 
 def trigger():
+    Debug("[TraktCache] Starting triggered updates")
+    Debug("[TraktCache] Getting partial list of changes")
     if not getActivityUpdates(): # if the activity updates might ve missing some data
+        Debug("[TraktCache] Getting extended list of changes")
         needSyncAtLeast(['library', 'watchlist'], force=True)
-    needSyncAtLeast(['all'], force=True)
+    Debug("[TraktCache] Updating stale sets")
+    needSyncAtLeast(['all'])
+    Debug("[TraktCache] All triggered updates complete")
 
 _setStucture = {
     'all': {
@@ -835,29 +857,45 @@ def getActivityUpdates(force=False):
 def updateSyncTimes(sets = [], remoteIds = []):
     updated = {}
     sets = set(sets)
-    sets = setPropergatePositive(sets, _setStucture)
+    sets, _ = setPropergatePositive(sets, _setStucture)
     
     with SafeShelf('expire', True) as expire:
         for updatedSet in sets:
             if updatedSet not in syncTimes:
                 Debug("[TraktCache] Tried to bump update time of unknown update set:" +updatedSet)
                 continue
+            Debug("[TraktCache] Updating timestamp for "+str(updatedSet))
             expire[updatedSet] = time.time() + syncTimes[updatedSet]
         for remoteId in remoteIds:
             expire[remoteId] = time.time() + 10*60 # +10mins
 
 def setPropergatePositive(sets, structure):
-    for item in structure:
-        if item in sets:
-            sets |= set(structure[item].keys())
-        sets = setPropergatePositive(sets, structure[item])
-    return sets
+    more = True
+    found = False
+    done = set([])
+    checked = set([])
+    while more:
+        more = False
+        for item in structure:
+            if item in sets and item not in done:
+                sets |= set(structure[item].keys())
+                done.add(item)
+                checked.discard(item)
+                found = True
+                more = True
+            subFound = False
+            if item not in checked:
+                sets, subFound = setPropergatePositive(sets, structure[item])
+                checked.add(item)
+            if subFound:
+                more = True
+                found = True
+    return sets, found
 
 def needSyncAtLeast(sets = [], movieIds = [], showIds = [], episodeIds = [], force = False):
     # This function should block untill all syncs have been satisfied
     sets = set(sets)
     sets = setPropergateNegative(sets, _setStucture)
-    
     for staleSet in sets:
         with SafeShelf('expire') as expire:
             stale = staleSet not in expire or expire[staleSet] < time.time() or force
@@ -1216,26 +1254,25 @@ def getTrendingMovies():
 
 def refreshSet(set, _structure=None):
     if set in _refresh and _refresh[set] is not None:
-        Debug("[~] !1 "+str(set))
         _refresh[set]()
         return True
     else:
         if _structure is None:
             _structure = _setStucture
         if set in _structure:
-            complete = True
+            complete = False
             for subSet in _structure[set]:
-                if not refreshSet(subSet, _structure=_structure[set]):
-                    complete = false
-                Debug("[~] !2 "+str(subSet)+str(complete))
+                if refreshSet(subSet, _structure=_structure[set]):
+                    complete = True
             if complete:
                 updateSyncTimes([set])
             return complete
         else:
             for subSet in _structure:
                 refreshSet(set, _structure=_structure[subSet])
-                Debug("[~] !3 "+str(set))
-            if len(_structure.keys())==0: Debug("[TraktCache] No method specified to refresh the set: "+str(set))
+            if len(_structure.keys())==0:
+                Debug("[TraktCache] No method specified to refresh the set: "+str(set))
+    return False
 
 def refreshLibrary():
     Debug("[TraktCache] Refreshing library")
@@ -1374,15 +1411,15 @@ _refresh = {}
 _refresh['all'] = None
 _refresh['library'] = refreshLibrary
 _refresh['movieall'] = None
-_refresh['movielibrary'] = refreshLibrary
+_refresh['movielibrary'] = None
 _refresh['episodelibrary'] = None
 _refresh['moviewatchlist'] = refreshMovieWatchlist
 _refresh['movierecommended'] = refreshRecommendedMovies
-_refresh['movieseen'] = refreshLibrary
+_refresh['movieseen'] = None
 _refresh['showall'] = None
 _refresh['showrecommended'] = refreshRecommendedShows
 _refresh['showwatchlist'] = refreshShowWatchlist
 _refresh['episodeall'] = None
-_refresh['episodelibrary'] = refreshLibrary
+_refresh['episodelibrary'] = None
 _refresh['episodewatchlist'] = refreshEpisodeWatchlist
-_refresh['episodeseen'] = refreshLibrary
+_refresh['episodeseen'] = None
