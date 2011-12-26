@@ -10,9 +10,6 @@ except ImportError: import json
 import threading
 from utilities import *
 from rating import *
-from sync_update import *
-from instant_sync import *
-from watchlist import *
 from scrobbler import Scrobbler
 from viewer import Viewer
 
