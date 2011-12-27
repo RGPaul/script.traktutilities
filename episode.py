@@ -171,7 +171,7 @@ class Episode(object):
     @property
     def playcount(self):
         """How many time the user has watched the episode."""
-        trakt_cache.needSyncAtLeast(remoteIds = [self._remoteId])
+        self.checkExpire('playcount')
         return self._playcount
     @playcount.setter
     def playcount(self, value):
@@ -200,7 +200,7 @@ class Episode(object):
     def checkExpire(self, property):
         if self._static:
             return
-        if property not in self._bestBefore or self._bestBefore[property] < time.time():
+        if property not in self._bestBefore or self['_'+str(property)] is None or self._bestBefore[property] < time.time():
             self.refresh(property)
     
     def getShow(self):

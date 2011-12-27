@@ -380,26 +380,34 @@ def getMovieDetailsFromXbmc(libraryId, fields):
 
 # sets the playcount of a given movie by imdbid
 def setXBMCMoviePlaycount(imdb_id, playcount):
-
+    if playcount is None:
+        playcount = 0
+    else:
+        playcount = int(playcount)
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
     matches = xbmcHttpapiQuery(
     "SELECT movie.idFile FROM movie"+
     " WHERE movie.c09='%(imdb_id)s'" % {'imdb_id':xcp(imdb_id)})
-    
+     
     if not matches:
         #add error message here
         return
     for match in matches:
         result = xbmcHttpapiExec(
         "UPDATE files"+
-        " SET playcount=%(playcount)d" % {'playcount':int(playcount)}+
+        " SET playcount=%(playcount)d" % {'playcount':playcount}+
         " WHERE idFile=%(idFile)s" % {'idFile':xcp(match)})
         
         Debug("xml answer: " + str(result))
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
+    if playcount is None:
+        playcount = 0
+    else:
+        playcount = int(playcount)
+        
     # httpapi till jsonrpc supports playcount update
     # select tvshow by tvdb_id # c12 => TVDB ID # c00 = title
     match = xbmcHttpapiQuery(
@@ -427,7 +435,7 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
                     Debug("idFile: " + str(idFile) + " setting playcount...")
                     responce = xbmcHttpapiExec(
                     "UPDATE files"+
-                    " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
+                    " SET playcount=%(playcount)d" % {'playcount':playcount}+
                     " WHERE idFile=%(idFile)s" % {'idFile':xcp(idFile)})
                     
                     Debug("xml answer: " + str(responce))

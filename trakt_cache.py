@@ -242,8 +242,9 @@ def _updateCache(changes, traktData = {}):
                     else:
                         if 'movies' in traktData and change['remoteId'] in traktData['movies']:
                             Debug("[TraktCache] Inserting into cache from local trakt data: "+repr(traktData['movies'][change['remoteId']]))
-                            with SafeShelf('movies', True) as movies:
-                                movies[change['remoteId']] = traktData['movies'][change['remoteId']]
+                            movie = traktData['movies'][change['remoteId']]
+                            if movie is not None:
+                                movie.save()
                         else:
                             Debug("[TraktCache] Inserting into cache from remote trakt data")
                             movie = Movie.download(change['remoteId'])
@@ -270,8 +271,9 @@ def _updateCache(changes, traktData = {}):
                     else:
                         if 'shows' in traktData and change['remoteId'] in traktData['shows']:
                             Debug("[TraktCache] Inserting into cache from local trakt data: "+repr(traktData['shows'][change['remoteId']]))
-                            with SafeShelf('shows', True) as shows:
-                                shows[change['remoteId']] = traktData['shows'][change['remoteId']]
+                            show = traktData['shows'][change['remoteId']]
+                            if show is not None:
+                                show.save()
                         else:
                             Debug("[TraktCache] Inserting into cache from remote trakt data")
                             show = Show.download(change['remoteId'])
@@ -298,8 +300,9 @@ def _updateCache(changes, traktData = {}):
                     else:
                         if 'episodes' in traktData and change['remoteId'] in traktData['episodes']:
                             Debug("[TraktCache] Inserting into cache from local trakt data: "+repr(traktData['episodes'][change['remoteId']]))
-                            with SafeShelf('episodes', True) as episodes:
-                                episodes[change['remoteId']] = traktData['episodes'][change['remoteId']]
+                            episode = traktData['episodes'][change['remoteId']]
+                            if episode is not None:
+                                episode.save()
                         else:
                             Debug("[TraktCache] Inserting into cache a shell episode")
                             episode = Episode(change['remoteId'], static=True)

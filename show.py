@@ -260,7 +260,7 @@ class Show:
     def checkExpire(self, property):
         if self._static:
             return
-        if property not in self._bestBefore or self._bestBefore[property] < time.time():
+        if property not in self._bestBefore or self['_'+str(property)] is None or self._bestBefore[property] < time.time():
             self.refresh(property)
         
     @staticmethod

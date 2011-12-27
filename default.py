@@ -65,6 +65,16 @@ def switchBoard():
         result = xbmc.executeJSONRPC(rpccmd)
         result = json.loads(result)
         return
+    if sys.argv[2].find('?action=') == 0:
+        actionName = sys.argv[2][8:]
+        Debug(str(actionName))
+        if actionName == 'stop':
+            stopTraktUtilities()
+        elif actionName == 'start':
+            xbmc.executescript('service.py')
+        else:
+            menu()
+        return
     menu()
 
 def submenu(menuName, title):
@@ -136,6 +146,10 @@ def submenuRecommendations():
     
     xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
 
+def stopTraktUtilities():
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.Stop', 'data':{}}, 'id': 1})
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
 
 def testing():
     Trakt.testAll()

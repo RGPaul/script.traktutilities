@@ -69,62 +69,68 @@ class NotificationService(threading.Thread):
                 except EOFError:
                     break #go out to the other loop to restart the connection
                 
-                Debug("[Notification Service] message: " + str(notification))
+                # Deal with the notifiaction in a sub thread so that we can handle requests more efficiently
+                threading.Thread(target=NotificationService._handleNotification, args=(notification,)).start()
                 
-                # Parse recieved notification
-                data = json.loads(notification)
-                
-                # Forward notification to functions
-                if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
-                    if data['method'] == 'Player.OnStop':
-                        scrobbler.playbackEnded()
-                    elif data['method'] == 'Player.OnPlay':
-                        if 'data' in data['params'] and 'item' in data['params']['data'] and 'id' in data['params']['data']['item'] and 'type' in data['params']['data']['item']:
-                            scrobbler.playbackStarted(data['params']['data'])
-                    elif data['method'] == 'Player.OnPause':
-                        scrobbler.playbackPaused()
-                    elif data['method'] in ('VideoLibrary.OnUpdate', 'VideoLibrary.OnRemove'):
-                        if 'data' in data['params']:
-                            if 'type' in data['params']['data'] and 'id' in data['params']['data']:
-                                type = data['params']['data']['type']
-                                id = data['params']['data']['id']
-                                if type == 'episode':
-                                    episode = trakt_cache.getEpisode(localId=id)
-                                    if episode is not None:
-                                        episode.refresh()
-                                    else:
-                                        trakt_cache.newLocalEpisode(localId=id)
-                                elif type == 'movie':
-                                    movie = trakt_cache.getMovie(localId=id)
-                                    if movie is not None:
-                                        movie.refresh()
-                                    else:
-                                        trakt_cache.newLocalMovie(localId=id)
-                    elif data['method'] == 'System.OnQuit':
-                        self.abortRequested = True
-                
-                if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'TraktUtilities':
-                    if data['method'] == 'Other.TraktUtilities.View' and 'data' in data['params']:
-                        if 'window' in data['params']['data']:
-                            window = data['params']['data']['window']
-                            if window == 'watchlistMovies':
-                                thread.start_new_thread(Viewer.watchlistMovies, ())
-                            elif window == 'watchlistShows':
-                                thread.start_new_thread(Viewer.watchlistShows, ())
-                            elif window == 'trendingMovies':
-                                thread.start_new_thread(Viewer.trendingMovies, ())
-                            elif window == 'trendingShows':
-                                thread.start_new_thread(Viewer.trendingShows, ())
-                            elif window == 'recommendedMovies':
-                                thread.start_new_thread(Viewer.recommendedMovies, ())
-                            elif window == 'recommendedShows':
-                                thread.start_new_thread(Viewer.recommendedShows, ())
-                    elif data['method'] == 'Other.TraktUtilities.Sync' and 'data' in data['params']:
-                        if 'set' in data['params']['data']:
-                            setName = data['params']['data']['set']
-                            thread.start_new_thread(trakt_cache.refreshSet, (setName))
                 # Trigger update checks for the cache
                 #trakt_cache.trigger()
             time.sleep(1)
         if tn is not None: tn.close()
         scrobbler.abortRequested = True
+    
+    @staticmethod
+    def _handleNotification(notification):            
+        Debug("[Notification Service] message: " + str(notification))
+        
+        # Parse recieved notification
+        data = json.loads(notification)
+        
+        # Forward notification to functions
+        if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
+            if data['method'] == 'Player.OnStop':
+                scrobbler.playbackEnded()
+            elif data['method'] == 'Player.OnPlay':
+                if 'data' in data['params'] and 'item' in data['params']['data'] and 'id' in data['params']['data']['item'] and 'type' in data['params']['data']['item']:
+                    scrobbler.playbackStarted(data['params']['data'])
+            elif data['method'] == 'Player.OnPause':
+                scrobbler.playbackPaused()
+            elif data['method'] in ('VideoLibrary.OnUpdate', 'VideoLibrary.OnRemove'):
+                if 'data' in data['params']:
+                    if 'type' in data['params']['data'] and 'id' in data['params']['data']:
+                        type = data['params']['data']['type']
+                        id = data['params']['data']['id']
+                        if type == 'episode':
+                            episode = trakt_cache.getEpisode(localId=id)
+                            if episode is not None:
+                                episode.refresh()
+                            else:
+                                trakt_cache.newLocalEpisode(localId=id)
+                        elif type == 'movie':
+                            movie = trakt_cache.getMovie(localId=id)
+                            if movie is not None:
+                                movie.refresh()
+                            else:
+                                trakt_cache.newLocalMovie(localId=id)
+        
+        if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'TraktUtilities':
+            if data['method'] == 'Other.TraktUtilities.View' and 'data' in data['params']:
+                if 'window' in data['params']['data']:
+                    window = data['params']['data']['window']
+                    if window == 'watchlistMovies':
+                        thread.start_new_thread(Viewer.watchlistMovies, ())
+                    elif window == 'watchlistShows':
+                        thread.start_new_thread(Viewer.watchlistShows, ())
+                    elif window == 'trendingMovies':
+                        thread.start_new_thread(Viewer.trendingMovies, ())
+                    elif window == 'trendingShows':
+                        thread.start_new_thread(Viewer.trendingShows, ())
+                    elif window == 'recommendedMovies':
+                        thread.start_new_thread(Viewer.recommendedMovies, ())
+                    elif window == 'recommendedShows':
+                        thread.start_new_thread(Viewer.recommendedShows, ())
+            elif data['method'] == 'Other.TraktUtilities.Sync' and 'data' in data['params']:
+                if 'set' in data['params']['data']:
+                    setName = data['params']['data']['set']
+                    thread.start_new_thread(trakt_cache.refreshSet, (setName))
+            elif data['method'] == 'Other.TraktUtilities.Stop':
+                pass
