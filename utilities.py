@@ -123,7 +123,7 @@ def removeMoviesFromTraktCollection(movies, *args, **argd):
 # get easy access to movie by imdb_id
 def traktMovieListByImdbID(data):
     trakt_movies = {}
-
+    if data is None: return None
     for i in range(0, len(data)):
         if data[i]['imdb_id'] == "": continue
         trakt_movies[data[i]['imdb_id']] = data[i]

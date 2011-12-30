@@ -28,8 +28,8 @@ class NotificationService(threading.Thread):
     abortRequested = False
     def run(self):        
         #while xbmc is running
-        scrobbler = Scrobbler()
-        scrobbler.start()
+        self.scrobbler = Scrobbler()
+        self.scrobbler.start()
         
         tn = None
         while (not (self.abortRequested or xbmc.abortRequested)):
@@ -70,16 +70,15 @@ class NotificationService(threading.Thread):
                     break #go out to the other loop to restart the connection
                 
                 # Deal with the notifiaction in a sub thread so that we can handle requests more efficiently
-                threading.Thread(target=NotificationService._handleNotification, args=(notification,)).start()
+                threading.Thread(target=NotificationService._handleNotification, args=(self, notification,)).start()
                 
                 # Trigger update checks for the cache
                 #trakt_cache.trigger()
             time.sleep(1)
         if tn is not None: tn.close()
-        scrobbler.abortRequested = True
+        self.scrobbler.abortRequested = True
     
-    @staticmethod
-    def _handleNotification(notification):            
+    def _handleNotification(self, notification):            
         Debug("[Notification Service] message: " + str(notification))
         
         # Parse recieved notification
@@ -88,12 +87,12 @@ class NotificationService(threading.Thread):
         # Forward notification to functions
         if 'method' in data and 'params' in data and 'sender' in data['params'] and data['params']['sender'] == 'xbmc':
             if data['method'] == 'Player.OnStop':
-                scrobbler.playbackEnded()
+                self.scrobbler.playbackEnded()
             elif data['method'] == 'Player.OnPlay':
                 if 'data' in data['params'] and 'item' in data['params']['data'] and 'id' in data['params']['data']['item'] and 'type' in data['params']['data']['item']:
-                    scrobbler.playbackStarted(data['params']['data'])
+                    self.scrobbler.playbackStarted(data['params']['data'])
             elif data['method'] == 'Player.OnPause':
-                scrobbler.playbackPaused()
+                self.scrobbler.playbackPaused()
             elif data['method'] in ('VideoLibrary.OnUpdate', 'VideoLibrary.OnRemove'):
                 if 'data' in data['params']:
                     if 'type' in data['params']['data'] and 'id' in data['params']['data']:
@@ -117,20 +116,20 @@ class NotificationService(threading.Thread):
                 if 'window' in data['params']['data']:
                     window = data['params']['data']['window']
                     if window == 'watchlistMovies':
-                        thread.start_new_thread(Viewer.watchlistMovies, ())
+                        Viewer.watchlistMovies()
                     elif window == 'watchlistShows':
-                        thread.start_new_thread(Viewer.watchlistShows, ())
+                        Viewer.watchlistShows()
                     elif window == 'trendingMovies':
-                        thread.start_new_thread(Viewer.trendingMovies, ())
+                        Viewer.trendingMovies()
                     elif window == 'trendingShows':
-                        thread.start_new_thread(Viewer.trendingShows, ())
+                        Viewer.trendingShows()
                     elif window == 'recommendedMovies':
-                        thread.start_new_thread(Viewer.recommendedMovies, ())
+                        Viewer.recommendedMovies()
                     elif window == 'recommendedShows':
-                        thread.start_new_thread(Viewer.recommendedShows, ())
+                        Viewer.recommendedShows()
             elif data['method'] == 'Other.TraktUtilities.Sync' and 'data' in data['params']:
                 if 'set' in data['params']['data']:
                     setName = data['params']['data']['set']
-                    thread.start_new_thread(trakt_cache.refreshSet, (setName))
+                    trakt_cache.refreshSet(setName)
             elif data['method'] == 'Other.TraktUtilities.Stop':
                 pass

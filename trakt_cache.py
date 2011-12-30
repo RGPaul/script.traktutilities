@@ -10,6 +10,7 @@ import time
 import shelve
 import trakt_cache
 from safeShelf import SafeShelf
+from async_tools import Pool, AsyncCall, async
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -81,15 +82,15 @@ def _fill():
 def _sync(xbmcData = None, traktData = None, cacheData = None):
     Debug("[TraktCache] Syncronising")
     
-    if xbmcData is not None and 'movies' not in xbmcData: xbmcData['movies'] = {}
-    if traktData is not None and 'movies' not in traktData: traktData['movies'] = {}
-    if cacheData is not None and 'movies' not in cacheData: cacheData['movies'] = {}
-    if xbmcData is not None and 'shows' not in xbmcData: xbmcData['shows'] = {}
-    if traktData is not None and 'shows' not in traktData: traktData['shows'] = {}
-    if cacheData is not None and 'shows' not in cacheData: cacheData['shows'] = {}
-    if xbmcData is not None and 'episodes' not in xbmcData: xbmcData['episodes'] = {}
-    if traktData is not None and 'episodes' not in traktData: traktData['episodes'] = {}
-    if cacheData is not None and 'episodes' not in cacheData: cacheData['episodes'] = {}
+    if xbmcData is not None and ('movies' not in xbmcData or xbmcData['movies'] is None): xbmcData['movies'] = {}
+    if traktData is not None and ('movies' not in traktData or traktData['movies'] is None): traktData['movies'] = {}
+    if cacheData is not None and ('movies' not in cacheData or cacheData['movies'] is None): cacheData['movies'] = {}
+    if xbmcData is not None and ('shows' not in xbmcData or xbmcData['shows'] is None): xbmcData['shows'] = {}
+    if traktData is not None and ('shows' not in traktData or traktData['shows'] is None): traktData['shows'] = {}
+    if cacheData is not None and ('shows' not in cacheData or cacheData['shows'] is None): cacheData['shows'] = {}
+    if xbmcData is not None and ('episodes' not in xbmcData or xbmcData['episodes'] is None): xbmcData['episodes'] = {}
+    if traktData is not None and ('episodes' not in traktData or traktData['episodes'] is None): traktData['episodes'] = {}
+    if cacheData is not None and ('episodes' not in cacheData or cacheData['episodes'] is None): cacheData['episodes'] = {}
     
     #isolation testing
     #isolatedId = 'tvdb=76107@21x15'
@@ -555,21 +556,27 @@ def _updateTrakt(newChanges = None, traktData = {}):
 # DB Readers
 ##
 
-def _copyTrakt():
-    traktData = {}
-    
+@async
+def _copyTraktMovies():
     movies = {}
-    traktMovies = Trakt.userLibraryMoviesAll(username, daemon=True)
-    watchlistMovies = traktMovieListByImdbID(Trakt.userWatchlistMovies(username))
+    traktMovies = AsyncCall(Trakt.userLibraryMoviesAll, None, username, daemon=True)
+    watchlistMovies = AsyncCall(Trakt.userWatchlistMovies, None, username)
+    
+    traktMovies = ~traktMovies
+    watchlistMovies = ~watchlistMovies
+    if traktMovies is None: return movies
+    watchlistMovies = traktMovieListByImdbID(watchlistMovies)
     for movie in traktMovies:
         local = Movie.fromTrakt(movie)
         if local is None:
             continue
-        if 'imdb_id' in movie:
+        if watchlistMovies is not None and 'imdb_id' in movie:
             local._watchlistStatus = movie['imdb_id'] in watchlistMovies
         movies[local._remoteId] = local
-        
-    
+    return movies
+
+@async
+def _copyTraktShows():
     shows = {}
     traktShows = Trakt.userLibraryShowsAll(username, daemon=True)
     
@@ -578,7 +585,10 @@ def _copyTrakt():
         if local is None:
             continue
         shows[local._remoteId] = local
-        
+    return shows
+
+@async
+def _copyTraktEpisodes():
     episodes = {}
     traktShowsCollection = Trakt.userLibraryShowsCollection(username, daemon=True)
     
@@ -592,10 +602,19 @@ def _copyTrakt():
                 episode = Episode(str(remoteId)+'@'+str(s)+'x'+str(e), static=True)
                 episode._libraryStatus = True;
                 episodes[episode._remoteId] = episode
+    return episodes
+    
+def _copyTrakt():
+    traktData = {}
+                        
+    movies = _copyTraktMovies()
+    shows = _copyTraktShows()
+    episodes = _copyTraktEpisodes()
         
-    traktData['movies'] = movies
-    traktData['shows'] = shows
-    traktData['episodes'] = episodes
+    traktData['movies'] = ~movies
+    traktData['shows'] = ~shows
+    traktData['episodes'] = ~episodes
+    
     return traktData    
 
 def _copyXbmc():
@@ -710,7 +729,7 @@ def _listChanges(newer, older, attributes, weakAttributes, xbmc = False, writeBa
         newItem = newer[remoteId]
         if newItem is None: continue
         if newItem['_remoteId'] not in older:
-            if xbmc: changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':True})
+            if xbmc: changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':True, 'weak': True})
             for attribute in attributes:
                 if newItem['_'+attribute] is not None: changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute], 'weak': True, 'bestBefore': time.time()+24*60*60})
             for attribute in weakAttributes:
@@ -1115,7 +1134,8 @@ def refreshFromUserActivity(lastTimestamp):
             if event['action'] == 'checkin':
                 continue #ignore
             if event['action'] == 'seen':
-                episode = Episode.fromTrakt(event['show'], event['episode'])
+                for traktEpisode in event['episodes']:
+                    episode = Episode.fromTrakt(event['show'], event['episode'])
                 changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'playcount', 'value':episode._playcount, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'collection':
                 for traktEpisode in event['episodes']:

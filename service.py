@@ -6,6 +6,8 @@ import xbmc,xbmcaddon,xbmcgui
 from utilities import *
 import notification_service
 import trakt_cache
+import time
+from async_tools import Pool
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -22,7 +24,19 @@ Debug("service: " + __settings__.getAddonInfo("id") + " - version: " + __setting
 cacheDirectory = "special://profile/addon_data/script.TraktUtilities/"
 
 # Initialise all of the background services
+    
+def myFunc(x):
+    print x
+    time.sleep(1)
+    print x, "+"
+    return x*2
+    
 def autostart():
+        
+    #myPool = Pool(10)
+    
+    #print myPool.nativePool.map(lambda x: x*2, range(20))
+    
     # Initialise the cache
     trakt_cache.init(os.path.join(cacheDirectory,"trakt_cache"))
     
