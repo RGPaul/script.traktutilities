@@ -89,7 +89,7 @@ class AsyncCall():
         if self.pool is not None: pool.useSlot()
         threading.Thread(target=self.__runner).start()
     def __invert__(self):
-        self.need()
+        return self.need()
         
     def __runner(self):
         try:

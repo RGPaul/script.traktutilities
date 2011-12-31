@@ -23,14 +23,7 @@ Debug("service: " + __settings__.getAddonInfo("id") + " - version: " + __setting
 
 cacheDirectory = "special://profile/addon_data/script.TraktUtilities/"
 
-# Initialise all of the background services
-    
-def myFunc(x):
-    print x
-    time.sleep(1)
-    print x, "+"
-    return x*2
-    
+# Initialise all of the background services    
 def autostart():
         
     #myPool = Pool(10)

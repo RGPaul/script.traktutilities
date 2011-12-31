@@ -564,6 +564,7 @@ def _copyTraktMovies():
     
     traktMovies = ~traktMovies
     watchlistMovies = ~watchlistMovies
+    
     if traktMovies is None: return movies
     watchlistMovies = traktMovieListByImdbID(watchlistMovies)
     for movie in traktMovies:
@@ -1318,7 +1319,7 @@ def refreshMovieWatchlist():
     traktData['movies'] = []
     for movie in traktWatchlist:
         localMovie = Movie.fromTrakt(movie)
-        watchlist[localMovie['_remoteId']] = localMovie
+        watchlist[localMovie._remoteId] = localMovie
     traktData['movies'] = watchlist
     _sync(traktData = traktData)
     with SafeShelf('movies', True) as movies:
