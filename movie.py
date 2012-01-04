@@ -69,6 +69,7 @@ class Movie(object):
         if index == "_watchlistStatus": return self._watchlistStatus
         if index == "_recommendedStatus": return self._recommendedStatus
         if index == "_libraryStatus": return self._libraryStatus
+        if index == "_traktDbStatus": return self._traktDbStatus
         if index == "_trailer": return self._trailer
         if index == "_poster": return self._poster
         if index == "_fanart": return self._fanart
@@ -86,6 +87,7 @@ class Movie(object):
         if index == "_watchlistStatus": self._watchlistStatus = value
         if index == "_recommendedStatus": self._recommendedStatus = value
         if index == "_libraryStatus": self._libraryStatus = value
+        if index == "_traktDbStatus": self._traktDbStatus = value
         if index == "_trailer": self._trailer = value
         if index == "_poster": self._poster = value
         if index == "_fanart": self._fanart = value
@@ -204,7 +206,7 @@ class Movie(object):
     def cancelWatching():
         cancelWatchingMovieOnTrakt()
     def play(self):
-        playMovieById(options = trakt_cache.getMovieLocalIds(self.remoteId))
+        playMovieById(options = trakt_cache.getMovieLocalIds(self._remoteId))
     
     def Property(func):
         return property(**func()) 
@@ -215,7 +217,7 @@ class Movie(object):
         return self._rating
     @rating.setter
     def rating(self, value):
-        trakt_cache.makeChanges({'movies': [{'remoteId': self.remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
+        trakt_cache.makeChanges({'movies': [{'remoteId': self._remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
         self.refresh()
         
     @property
@@ -225,7 +227,7 @@ class Movie(object):
         return self._playcount
     @playcount.setter
     def playcount(self, value):
-        trakt_cache.makeChanges({'movies': [{'remoteId': self.remoteId, 'subject': 'playcount', 'value': value}]}, traktOnly = True)
+        trakt_cache.makeChanges({'movies': [{'remoteId': self._remoteId, 'subject': 'playcount', 'value': value}]}, traktOnly = True)
         self.refresh()
         
     @property
@@ -246,7 +248,7 @@ class Movie(object):
         return self._watchlistStatus
     @watchlistStatus.setter
     def watchlistStatus(self, value):
-        trakt_cache.makeChanges({'movies': [{'remoteId': self.remoteId, 'subject': 'watchlistStatus', 'value': value}]}, traktOnly = True)
+        trakt_cache.makeChanges({'movies': [{'remoteId': self._remoteId, 'subject': 'watchlistStatus', 'value': value}]}, traktOnly = True)
         self.refresh()
         
     @property
@@ -264,12 +266,13 @@ class Movie(object):
     @staticmethod
     def download(remoteId):
         Debug("[Movie] Downloading info for "+str(Movie.devolveId(remoteId)))
-        local = Trakt.movieSummary(Movie.devolveId(remoteId))
-        if local is None:
-            movie = Movie(remoteId)
-            movie._traktDbStatus = False
-            return movie
-        return Movie.fromTrakt(local)
+        responce = Trakt.movieSummary(Movie.devolveId(remoteId), returnStatus=True)
+        if responce is not None and 'status' in responce and responce['status'] == 'failure':
+            if 'error' in responce and responce['error'] == 'movie not found':
+                movie = Movie(remoteId)
+                movie._traktDbStatus = False
+                return movie
+        return Movie.fromTrakt(responce)
     
     def traktise(self):
         movie = {}

@@ -111,26 +111,26 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
             traktData['episodes'] = {}"""
             
     # Find and list all changes
-    if xbmcData is not None:
-        for item in xbmcData['movies']:
+    #if xbmcData is not None:
+        #for item in xbmcData['movies']:
         #    if item['remoteId'] == isolatedId:
-                if item is not None: Debug("[~] X0"+repr(xbmcData['movies'][item]))
-    if traktData is not None:
-        for item in traktData['movies']:
+        #        if item is not None: Debug("[~] X0"+repr(xbmcData['movies'][item]))
+    #if traktData is not None:
+        #for item in traktData['movies']:
         #    if item['remoteId'] == isolatedId:
-                if item is not None: Debug("[~] T0"+repr(traktData['movies'][item]))
+        #        if item is not None: Debug("[~] T0"+repr(traktData['movies'][item]))
     
     # Find and list all changes
     if traktData is not None:
         xbmcChanges = trakt_cache._syncCompare(traktData, cache = cacheData)
-        for item in xbmcChanges['movies']:
+        #for item in xbmcChanges['movies']:
         #    if item['remoteId'] == isolatedId:
-                Debug("[~] X1"+repr(item))
+        #        Debug("[~] X1"+repr(item))
     if xbmcData is not None:
         traktChanges = trakt_cache._syncCompare(xbmcData, xbmc = True, cache = cacheData)
-        for item in traktChanges['movies']:
+        #for item in traktChanges['movies']:
         #    if item['remoteId'] == isolatedId:
-                Debug("[~] T1"+repr(item))
+        #        Debug("[~] T1"+repr(item))
         
     # Find unanimous changes and direct them to the cache
     cacheChanges = {}
@@ -191,17 +191,17 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
                 traktChanges[type].remove(item)
                 cacheChanges[type].append(item)
     
-    if traktData is not None:
-        for item in xbmcChanges['movies']:
+    #if traktData is not None:
+    #    for item in xbmcChanges['movies']:
     #        if item['remoteId'] == isolatedId:
-                Debug("[~] X"+repr(item))
-    if xbmcData is not None:
-        for item in traktChanges['movies']:
+    #            Debug("[~] X"+repr(item))
+    #if xbmcData is not None:
+    #    for item in traktChanges['movies']:
     #        if item['remoteId'] == isolatedId:
-                Debug("[~] T"+repr(item))
-    for item in cacheChanges['movies']:
+    #            Debug("[~] T"+repr(item))
+    #for item in cacheChanges['movies']:
     #    if item['remoteId'] == isolatedId:
-            Debug("[~] C"+repr(item))
+    #        Debug("[~] C"+repr(item))
                     
     # Perform cache only changes
     Debug("[TraktCache] Updating cache")
@@ -236,7 +236,7 @@ def _updateCache(changes, traktData = {}):
         for change in changes['movies']:
             Debug("[TraktCache] Cache update: "+repr(change))
             if 'remoteId' in change and 'subject' in change and 'value' in change:
-                if change['subject'] in ('title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus', 'trailer', 'poster', 'fanart'):
+                if change['subject'] in ('title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus', 'traktDbStatus','trailer', 'poster', 'fanart'):
                     with SafeShelf('movies') as movies:
                         exists = change['remoteId'] in movies
                         if exists:
@@ -265,7 +265,7 @@ def _updateCache(changes, traktData = {}):
         for change in changes['shows']:
             Debug("[TraktCache] Cache update: "+repr(change))
             if 'remoteId' in change and 'subject' in change and 'value' in change:
-                if change['subject'] in ('title', 'year', 'firstAired', 'country', 'overview', 'runtime', 'network', 'airDay', 'airTime', 'classification', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus', 'poster', 'fanart', 'episodes'):
+                if change['subject'] in ('title', 'year', 'firstAired', 'country', 'overview', 'runtime', 'network', 'airDay', 'airTime', 'classification', 'rating', 'watchlistStatus', 'recommendedStatus', 'libraryStatus', 'traktDbStatus', 'poster', 'fanart', 'episodes'):
                     with SafeShelf('shows') as shows:
                         exists = change['remoteId'] in shows
                         if exists:
@@ -691,11 +691,11 @@ attributes = {
     },
     'trakt': {
         'movies': {
-            'primary': ['title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'recommendedStatus'],
+            'primary': ['title', 'year', 'runtime', 'released', 'tagline', 'overview', 'classification', 'playcount', 'rating', 'watchlistStatus', 'recommendedStatus', 'traktDbStatus'],
             'secondary': ['trailer', 'poster', 'fanart', 'libraryStatus']
         },
         'shows': {
-            'primary': ['rating', 'watchlistStatus', 'recommendedStatus'],
+            'primary': ['rating', 'watchlistStatus', 'recommendedStatus', 'traktDbStatus'],
             'secondary': ['poster', 'fanart']
         },
         'episodes': {
@@ -741,8 +741,7 @@ def _listChanges(newer, older, attributes, weakAttributes, xbmc = False, writeBa
         if not validRemoteId(remoteId): continue
         newItem = newer[remoteId]
         if newItem is None: continue
-        Debug("[~] #"+repr(newItem))
-        if newItem['_remoteId'] not in older:
+        if newItem._remoteId not in older:
             if xbmc: changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':True, 'weak': True})
             for attribute in attributes:
                 if newItem['_'+attribute] is not None: changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute], 'weak': True, 'bestBefore': time.time()+24*60*60})
@@ -1111,20 +1110,20 @@ def refreshMovie(remoteId, property = None):
 
 def saveMovie(movie):
     with SafeShelf('movies', True) as movies:
-        movies[movie.remoteId] = movie
+        movies[movie._remoteId] = movie
         
 def saveShow(show):
     with SafeShelf('shows', True) as shows:
-        shows[show.remoteId] = show
+        shows[show._remoteId] = show
         
 def saveEpisode(episode):
     with SafeShelf('episodes', True) as episodes:
-        episodes[episode.remoteId] = episode
+        episodes[episode._remoteId] = episode
 
 def newLocalMovie(localId):
     movie = Movie.fromXbmc(getMovieDetailsFromXbmc(localId,['title', 'year', 'originaltitle', 'imdbnumber', 'playcount', 'lastplayed', 'runtime']))
     movie.save()
-    relateMovieId(localId, movie.remoteId)
+    relateMovieId(localId, movie._remoteId)
     movie.refresh()
   
     
@@ -1145,32 +1144,32 @@ def refreshFromUserActivity(lastTimestamp):
                 continue #ignore
             if event['action'] == 'scrobble':
                 episode = Episode.fromTrakt(event['show'], event['episode'])
-                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'playcount', 'value':episode._playcount, 'bestBefore': time.time()+6*60*60})
+                changes['episodes'].append({'remoteId': episode._remoteId, 'subject': 'playcount', 'value':episode._playcount, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'checkin':
                 continue #ignore
             if event['action'] == 'seen':
                 for traktEpisode in event['episodes']:
                     episode = Episode.fromTrakt(event['show'], event['episode'])
-                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'playcount', 'value':episode._playcount, 'bestBefore': time.time()+6*60*60})
+                changes['episodes'].append({'remoteId': episode._remoteId, 'subject': 'playcount', 'value':episode._playcount, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'collection':
                 for traktEpisode in event['episodes']:
                     episode = Episode.fromTrakt(event['show'], traktEpisode)
-                    changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'libraryStatus', 'value':episode._libraryStatus, 'bestBefore': time.time()+6*60*60})
+                    changes['episodes'].append({'remoteId': episode._remoteId, 'subject': 'libraryStatus', 'value':episode._libraryStatus, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'rating':
                 episode = Episode.fromTrakt(event['show'], event['episode'])
-                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'rating', 'value':episode._rating, 'bestBefore': time.time()+6*60*60})
+                changes['episodes'].append({'remoteId': episode._remoteId, 'subject': 'rating', 'value':episode._rating, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'watchlist':
                 episode = Episode.fromTrakt(event['show'], event['episode'])
-                changes['episodes'].append({'remoteId': episode.remoteId, 'subject': 'watchlistStatus', 'value':episode._watchlistStatus, 'bestBefore': time.time()+6*60*60})
+                changes['episodes'].append({'remoteId': episode._remoteId, 'subject': 'watchlistStatus', 'value':episode._watchlistStatus, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'shout':
                 continue #ignore
         if event['type'] == 'show':
             if event['action'] == 'rating':
                 show = Show.fromTrakt(event['show'])
-                changes['shows'].append({'remoteId': show.remoteId, 'subject': 'rating', 'value':show._rating, 'bestBefore': time.time()+6*60*60})
+                changes['shows'].append({'remoteId': show._remoteId, 'subject': 'rating', 'value':show._rating, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'watchlist':
                 show = Show.fromTrakt(event['show'])
-                changes['shows'].append({'remoteId': show.remoteId, 'subject': 'watchlistStatus', 'value':show._watchlistStatus, 'bestBefore': time.time()+6*60*60})
+                changes['shows'].append({'remoteId': show._remoteId, 'subject': 'watchlistStatus', 'value':show._watchlistStatus, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'shout':
                 continue #ignore
         if event['type'] == 'movie':
@@ -1178,21 +1177,21 @@ def refreshFromUserActivity(lastTimestamp):
                 continue #ignore
             if event['action'] == 'scrobble':
                 movie = Movie.fromTrakt(event['movie'])
-                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'playcount', 'value':movie._playcount, 'bestBefore': time.time()+6*60*60})
+                changes['movies'].append({'remoteId': movie._remoteId, 'subject': 'playcount', 'value':movie._playcount, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'checkin':
                 continue #ignore
             if event['action'] == 'seen':
                 movie = Movie.fromTrakt(event['movie'])
-                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'playcount', 'value':movie._playcount, 'bestBefore': time.time()+6*60*60})
+                changes['movies'].append({'remoteId': movie._remoteId, 'subject': 'playcount', 'value':movie._playcount, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'collection':
                 movie = Movie.fromTrakt(event['movie'])
-                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'libraryStatus', 'value':movie._libraryStatus, 'bestBefore': time.time()+6*60*60})
+                changes['movies'].append({'remoteId': movie._remoteId, 'subject': 'libraryStatus', 'value':movie._libraryStatus, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'rating':
                 movie = Movie.fromTrakt(event['movie'])
-                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'rating', 'value':movie._rating, 'bestBefore': time.time()+6*60*60})
+                changes['movies'].append({'remoteId': movie._remoteId, 'subject': 'rating', 'value':movie._rating, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'watchlist':
                 movie = Movie.fromTrakt(event['movie'])
-                changes['movies'].append({'remoteId': movie.remoteId, 'subject': 'watchlistStatus', 'value':movie._watchlistStatus, 'bestBefore': time.time()+6*60*60})
+                changes['movies'].append({'remoteId': movie._remoteId, 'subject': 'watchlistStatus', 'value':movie._watchlistStatus, 'bestBefore': time.time()+6*60*60})
             if event['action'] == 'shout':
                 continue #ignore
     
@@ -1356,7 +1355,7 @@ def refreshMovieWatchlist():
                 continue
             if movie['_watchlistStatus'] <> (remoteId in watchlist):
                 movie['_watchlistStatus'] = not movie['_watchlistStatus']
-                movies[movie['_remoteId']] = movie
+                movies[movie._remoteId] = movie
     updateSyncTimes(['moviewatchlist'], watchlist.keys())
     
 def refreshShowWatchlist():
@@ -1367,7 +1366,7 @@ def refreshShowWatchlist():
     traktData['shows'] = []
     for show in traktWatchlist:
         localShow = Show.fromTrakt(show)
-        watchlist[localShow['_remoteId']] = localShow
+        watchlist[localShow._remoteId] = localShow
     traktData['shows'] = watchlist
     _sync(traktData = traktData)
     with SafeShelf('shows', True) as shows:
@@ -1378,7 +1377,7 @@ def refreshShowWatchlist():
                 continue
             if show['_watchlistStatus'] <> (remoteId in watchlist):
                 show['_watchlistStatus'] = not show['_watchlistStatus']
-                shows[show['_remoteId']] = show
+                shows[show._remoteId] = show
     updateSyncTimes(['showwatchlist'], watchlist.keys())
         
 def refreshEpisodeWatchlist():
@@ -1389,7 +1388,7 @@ def refreshEpisodeWatchlist():
     traktData['episodes'] = []
     for episode in traktWatchlist:
         localEpisode = Episode.fromTrakt(show)
-        watchlist[localEpisode['_remoteId']] = localEpisode
+        watchlist[localEpisode._remoteId] = localEpisode
     traktData['episodes'] = watchlist
     _sync(traktData = traktData)
     with SafeShelf('episodes', True) as episodes:
@@ -1400,7 +1399,7 @@ def refreshEpisodeWatchlist():
                 continue
             if episode['_watchlistStatus'] <> (remoteId in watchlist):
                 episode['_watchlistStatus'] = not episode['_watchlistStatus']
-                episodes[episode['_remoteId']] = episode
+                episodes[episode._remoteId] = episode
     updateSyncTimes(['episodewatchlist'], watchlist.keys())
     
 def refreshRecommendedMovies():
@@ -1411,7 +1410,7 @@ def refreshRecommendedMovies():
     traktData['movies'] = []
     for movie in traktItems:
         localMovie = Movie.fromTrakt(movie)
-        items[localMovie['_remoteId']] = localMovie
+        items[localMovie._remoteId] = localMovie
     traktData['movies'] = items
     _sync(traktData = traktData)
     with SafeShelf('movies', True) as movies:
@@ -1423,10 +1422,10 @@ def refreshRecommendedMovies():
             status = remoteId in items;
             if movie['_recommendedStatus'] <> True and status:
                 movie['_recommendedStatus'] = True
-                movies[movie['_remoteId']] = movie
+                movies[movie._remoteId] = movie
             elif movie['_recommendedStatus'] <> False and not status:
                 movie['_recommendedStatus'] = False
-                movies[movie['_remoteId']] = movie
+                movies[movie._remoteId] = movie
             
     updateSyncTimes(['movierecommended'], items.keys())
     
@@ -1438,7 +1437,7 @@ def refreshRecommendedShows():
     traktData['shows'] = []
     for show in traktItems:
         localShow = Show.fromTrakt(show)
-        items[localShow['_remoteId']] = localShow
+        items[localShow._remoteId] = localShow
     traktData['shows'] = items
     _sync(traktData = traktData)
     with SafeShelf('shows', True) as shows:
@@ -1450,10 +1449,10 @@ def refreshRecommendedShows():
             status = remoteId in items;
             if show['_recommendedStatus'] <> True and status:
                 show['_recommendedStatus'] = True
-                shows[show['_remoteId']] = show
+                shows[show._remoteId] = show
             elif show['_recommendedStatus'] <> False and not status:
                 show['_recommendedStatus'] = False
-                shows[show['_remoteId']] = show
+                shows[show._remoteId] = show
             
     updateSyncTimes(['showrecommended'], items.keys())
     

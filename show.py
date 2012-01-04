@@ -236,7 +236,7 @@ class Show:
         return self._rating
     @rating.setter
     def rating(self, value):
-        trakt_cache.makeChanges({'shows': [{'remoteId': self.remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
+        trakt_cache.makeChanges({'shows': [{'remoteId': self._remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
         self.refresh()
         
     @property
@@ -251,7 +251,7 @@ class Show:
         return self._watchlistStatus
     @watchlistStatus.setter
     def watchlistStatus(self, value):
-        trakt_cache.makeChanges({'shows': [{'remoteId': self.remoteId, 'subject': 'watchlistStatus', 'value': value}]}, traktOnly = True)
+        trakt_cache.makeChanges({'shows': [{'remoteId': self._remoteId, 'subject': 'watchlistStatus', 'value': value}]}, traktOnly = True)
         self.refresh()
         
     @property

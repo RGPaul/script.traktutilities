@@ -166,7 +166,7 @@ class Episode(object):
         return self._rating
     @rating.setter
     def rating(self, value):
-        trakt_cache.makeChanges({'episodes': [{'remoteId': self.remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
+        trakt_cache.makeChanges({'episodes': [{'remoteId': self._remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
         
     @property
     def playcount(self):
