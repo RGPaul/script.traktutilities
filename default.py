@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 # 
 
+import sys
 import os
-import xbmcgui,xbmcaddon,xbmc
+import xbmcgui,xbmcaddon,xbmc,xbmcplugin
 from utilities import *
-from sync_update import *
-from watchlist import *
-from recommend import *
 from friends import *
-from trending import *
+from trakt import Trakt
+
+try: import simplejson as json
+except ImportError: import json
 
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Justin Nemeth",  "Sean Rudford"]
@@ -23,100 +24,142 @@ __language__ = __settings__.getLocalizedString
 
 Debug("default: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
 
+def switchBoard():
+    Debug("[Default] Request: "+repr(sys.argv))
+    if len(sys.argv[2]) == 0:
+        menu()
+        return
+    if sys.argv[2].find('?menu=') == 0:
+        menuName = sys.argv[2][6:]
+        Debug(str(menuName))
+        if menuName == 'menu':
+            menu()
+        elif menuName == 'watchlist':
+            submenuWatchlist()
+        elif menuName == 'friends':
+            showFriends()
+        elif menuName == 'recommendations':
+            submenuRecommendations()
+        elif menuName == 'trending':
+            submenuTrendingMoviesTVShows()
+        elif menuName == 'updateSyncClean':
+            submenuUpdateSyncClean()
+        elif menuName == 'testing':
+            testing()
+        else:
+            menu()
+        return
+    if sys.argv[2].find('?view=') == 0:
+        windowName = sys.argv[2][6:]
+        Debug("Requesting display of window "+repr(windowName))
+        if windowName in ('watchlistMovies', 'watchlistShows', 'trendingMovies', 'trendingShows', 'recommendedMovies', 'recommendedShows'):
+            rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.View', 'data':{'window':windowName}}, 'id': 1})
+            Debug("[~] "+repr(rpccmd))
+            result = xbmc.executeJSONRPC(rpccmd)
+            result = json.loads(result)
+        return
+    if sys.argv[2].find('?sync=') == 0:
+        setName = sys.argv[2][6:]
+        Debug("Requesting sync of set "+repr(setName))
+        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.Sync', 'data':{'set':setName}}, 'id': 1})
+        result = xbmc.executeJSONRPC(rpccmd)
+        result = json.loads(result)
+        return
+    if sys.argv[2].find('?action=') == 0:
+        actionName = sys.argv[2][8:]
+        Debug(str(actionName))
+        if actionName == 'stop':
+            stopTraktUtilities()
+        elif actionName == 'start':
+            xbmc.executescript('service.py')
+        else:
+            menu()
+        return
+    menu()
+
+def submenu(menuName, title):
+    li = xbmcgui.ListItem(title)
+    url = sys.argv[0]+'?menu=' + str(menuName)
+    return url, li, True
+    
+def view(windowName, title):
+    li = xbmcgui.ListItem(title)
+    url = sys.argv[0]+'?view=' + str(windowName)
+    return url, li, False
+
+def sync(setName, title):
+    li = xbmcgui.ListItem(title)
+    url = sys.argv[0]+'?sync=' + str(setName)
+    return url, li, False
+
 # Usermenu:
 def menu():
-
-    # check if needed settings are set
-    if checkSettings() == False:
-        return
-
-    options = [__language__(1210).encode( "utf-8", "ignore" ), __language__(1211).encode( "utf-8", "ignore" ), __language__(1212).encode( "utf-8", "ignore" ), __language__(1213).encode( "utf-8", "ignore" ), __language__(1214).encode( "utf-8", "ignore" )]
+    options = [
+        submenu('watchlist', __language__(1210).encode( "utf-8", "ignore" )),
+        submenu('friends', __language__(1211).encode( "utf-8", "ignore" )),
+        submenu('recommendations', __language__(1212).encode( "utf-8", "ignore" )),
+        submenu('trending', __language__(1213).encode( "utf-8", "ignore" )),
+        submenu('updateSyncClean', __language__(1214).encode( "utf-8", "ignore" ))]
+        
+    if __settings__.getSetting("debug"):
+        options.append(submenu('testing', "Testing [Employees only]"))
+        
+    xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
-    while True:
-        select = xbmcgui.Dialog().select("Trakt Utilities", options)
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
-        else:
-            if select == 0: # Watchlist
-                submenuWatchlist()
-            elif select == 1: # Friends
-                showFriends()
-            elif select == 2: # Recommendations
-                submenuRecommendations()
-            elif select == 3: # Trending Movies / TV Shows
-                submenuTrendingMoviesTVShows()
-            elif select == 4: # Update / Sync / Clean
-                submenuUpdateSyncClean()
-
+    xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
 
 def submenuUpdateSyncClean():
-
-    options = [__language__(1217).encode( "utf-8", "ignore" ), __language__(1218).encode( "utf-8", "ignore" ), __language__(1219).encode( "utf-8", "ignore" ), __language__(1220).encode( "utf-8", "ignore" ), __language__(1221).encode( "utf-8", "ignore" ), __language__(1222).encode( "utf-8", "ignore" )]
+    options = [
+        sync('movielibrary', __language__(1217).encode( "utf-8", "ignore" )),
+        sync('movielibrary', __language__(1218).encode( "utf-8", "ignore" )),
+        sync('showlibrary', __language__(1219).encode( "utf-8", "ignore" )),
+        sync('showlibrary', __language__(1220).encode( "utf-8", "ignore" ))]
+        
+    xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
-    while True:
-        select = xbmcgui.Dialog().select("Trakt Utilities", options)
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
-        elif select == 0: # Update Movie Collection
-            updateMovieCollection()
-        elif select == 1: # Sync seen Movies
-            syncSeenMovies()
-        elif select == 2: # Update TV Show Collection
-            updateTVShowCollection()
-        elif select == 3: # Sync seen TV Shows
-            syncSeenTVShows()
-        elif select == 4: # Clean Movie Collection
-            cleanMovieCollection()
-        elif select == 5: # Clean TV Show Collection
-            cleanTVShowCollection()
+    xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
 
 def submenuTrendingMoviesTVShows():
-
-    options = [__language__(1250).encode( "utf-8", "ignore" ), __language__(1251).encode( "utf-8", "ignore" )]
+    options = [
+        view('trendingMovies', __language__(1250).encode( "utf-8", "ignore" )),
+        view('trendingTVShows', __language__(1251).encode( "utf-8", "ignore" ))]
+        
+    xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
-    while True:
-        select = xbmcgui.Dialog().select(__language__(1213).encode( "utf-8", "ignore" ), options)
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
-        if select == 0: # Trending Movies
-            showTrendingMovies()
-        elif select == 1: # Trending TV Shows
-            showTrendingTVShows()
+    xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
 
 def submenuWatchlist():
-
-    options = [__language__(1252).encode( "utf-8", "ignore" ), __language__(1253).encode( "utf-8", "ignore" )]
+    options = [
+        view('watchlistMovies', __language__(1252).encode( "utf-8", "ignore" )),
+        view('watchlistShows', __language__(1253).encode( "utf-8", "ignore" ))]
+        
+    xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
-    while True:
-        select = xbmcgui.Dialog().select(__language__(1210).encode( "utf-8", "ignore" ), options)
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
-        if select == 0: # Watchlist Movies
-            showWatchlistMovies()
-        elif select == 1: # Watchlist TV Shows
-            showWatchlistTVShows()
+    xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
 
 def submenuRecommendations():
+    options = [
+        view('recommendedMovies', __language__(1255).encode( "utf-8", "ignore" )),
+        view('recommendedShows', __language__(1256).encode( "utf-8", "ignore" ))]
+        
+    xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
-    options = [__language__(1255).encode( "utf-8", "ignore" ), __language__(1256).encode( "utf-8", "ignore" )]
-    
-    while True:
-        select = xbmcgui.Dialog().select(__language__(1212).encode( "utf-8", "ignore" ), options)
-        Debug("Select: " + str(select))
-        if select == -1:
-            Debug ("menu quit by user")
-            return
-        if select == 0: # Watchlist Movies
-            showRecommendedMovies()
-        elif select == 1: # Watchlist TV Shows
-            showRecommendedTVShows()
+    xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
 
-menu()
+def stopTraktUtilities():
+    rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'JSONRPC.NotifyAll','params':{'sender': 'TraktUtilities', 'message': 'TraktUtilities.Stop', 'data':{}}, 'id': 1})
+    result = xbmc.executeJSONRPC(rpccmd)
+    result = json.loads(result)
+
+def testing():
+    Trakt.testAll()
+    """movie = Movie("dummy=1234455")
+    Debug("[~] rating: "+str(movie.rating))
+    movie.rating = "help"
+    movie.setRating("help")
+    Debug('[TraktCache] _updateTrakt, libraryStatus, unlibrary, responce: '+str(result))
+    Debug(str(trakt_cache.getMovieWatchlist()))"""
+    xbmcgui.Dialog().ok("Trakt Utilities, TESTS", "Success")
+    
+if __name__ == "__main__" :
+    switchBoard()
