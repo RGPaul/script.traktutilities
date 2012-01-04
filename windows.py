@@ -61,7 +61,6 @@ class MoviesWindow(xbmcgui.WindowXML):
         self.getControl(MOVIE_LIST).reset()
         if self.movies != None:
             for movie in self.movies:
-                
                 li = xbmcgui.ListItem(unicode(movie.title), '', unicode(movie.poster))
                 if movie.libraryStatus:
                     li.setProperty('Available','true')
@@ -187,34 +186,23 @@ class MoviesWindow(xbmcgui.WindowXML):
         elif actions[select] == 'play':
             movie.play()
         elif actions[select] == 'unwatchlist':
-            if removeMoviesFromWatchlist([movie.traktise()]) == None:
-                notification("Trakt Utilities", __language__(1311).encode( "utf-8", "ignore" )) # Failed to remove from watch-list
-            else:
-                notification("Trakt Utilities", __language__(1312).encode( "utf-8", "ignore" )) # Successfully removed from watch-list
-                li.setProperty('Watchlist','false')
-                movie['watchlist'] = False;
-                if self.type == 'watchlist':
-                    self.lis.remove(li)
-                    self.getControl(MOVIE_LIST).reset()
-                    self.getControl(MOVIE_LIST).addItems(self.lis)
+            movie.watchlistStatus = False
+            li.setProperty('Watchlist','false')
+            if self.type == 'watchlist':
+                self.lis.remove(li)
+                self.getControl(MOVIE_LIST).reset()
+                self.getControl(MOVIE_LIST).addItems(self.lis)
         elif actions[select] == 'watchlist':
-            if addMoviesToWatchlist([movie.traktise()]) == None:
-                notification("Trakt Utilities", __language__(1309).encode( "utf-8", "ignore" )) # Failed to added to watch-list
-            else:
-                notification("Trakt Utilities", __language__(1310).encode( "utf-8", "ignore" )) # Successfully added to watch-list
-                li.setProperty('Watchlist','true')
-                movie['watchlist'] = True;
+            movie.watchlistStatus = True
+            li.setProperty('Watchlist','true')
         elif actions[select] == 'rate':
-            doRateMovie(imdbid=movie['imdb_id'], title=movie.title, year=movie.year)  
+            doRateMovie(movie)  
         elif actions[select] == 'seen':
-            if Trakt.movieSeen([movie.traktise()]) is None:
-                notification("Trakt Utilities", __language__(1313).encode( "utf-8", "ignore" )) # Failed to mark as seen
-            else:
-                if self.type == 'watchlist':
-                    self.lis.remove(li)
-                    self.getControl(MOVIE_LIST).reset()
-                    self.getControl(MOVIE_LIST).addItems(self.lis)
-                notification("Trakt Utilities", __language__(1314).encode( "utf-8", "ignore" )) # Successfully marked as seen
+            movie.playcount += 1
+            if self.type == 'watchlist':
+                self.lis.remove(li)
+                self.getControl(MOVIE_LIST).reset()
+                self.getControl(MOVIE_LIST).addItems(self.lis)
         
     def onAction(self, action):
         if action.getId() == 0:
@@ -226,10 +214,10 @@ class MoviesWindow(xbmcgui.WindowXML):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
             movie = self.movies[self.getControl(MOVIE_LIST).getSelectedPosition()]
-            if movie['idMovie'] == -1: # Error
+            if not movie.libraryStatus: # Error
                 xbmcgui.Dialog().ok("Trakt Utilities", movie['title'].encode( "utf-8", "ignore" ) + " " + __language__(1162).encode( "utf-8", "ignore" )) # "moviename" not found in your XBMC Library
             else:
-                playMovieById(movie['idMovie'])
+                movie.play()
         elif action.getId() == ACTION_CONTEXT_MENU:
             self.showContextMenu()
         else:
@@ -313,30 +301,29 @@ class MovieWindow(xbmcgui.WindowXML):
 
 class TVShowsWindow(xbmcgui.WindowXML):
 
-    tvshows = None
+    shows = None
+    lis = [] #list items
     type = 'basic'
 
-    def initWindow(self, tvshows, type):
-        self.tvshows = tvshows
+    def initWindow(self, shows, type):
+        self.shows = shows
         self.type = type
         
     def onInit(self):
-        if self.tvshows != None:
-            for tvshow in self.tvshows:
-                li = xbmcgui.ListItem(tvshow['title'], '', tvshow['images']['poster'])
-                if not ('idShow' in tvshow):
-                    tvshow['idShow'] = getShowIdFromXBMC(tvshow['tvdb_id'], tvshow['title'])
-                if tvshow['idShow'] != -1:
+        if self.shows != None:
+            for show in self.tvshows:
+                li = xbmcgui.ListItem(unicode(show.title), '', unicode(show.poster))
+                if show.libraryStatus:
                     li.setProperty('Available','true')
                 if self.type <> 'watchlist':
-                    if 'watchlist' in tvshow:
-                        if tvshow['watchlist']:
-                            li.setProperty('Watchlist','true')
+                    if show.watchlistStatus:
+                        li.setProperty('Watchlist','true')
+                self.lis.append(li)
                 self.getControl(TVSHOW_LIST).addItem(li)
             self.setFocus(self.getControl(TVSHOW_LIST))
             self.listUpdate()
         else:
-            Debug("TVShowsWindow: Error: tvshows array is empty")
+            Debug("TVShowsWindow: Error: shows array is empty")
             self.close()
         
     def onFocus( self, controlId ):
@@ -348,69 +335,75 @@ class TVShowsWindow(xbmcgui.WindowXML):
             current = self.getControl(TVSHOW_LIST).getSelectedPosition()
         except TypeError:
             return # ToDo: error output
+        if current >= len(self.shows) or current < 0:
+            Debug("[TVShowsWindow] invalid current shows size:"+repr(len(self.movies))+" posision:"+repr(current))
+            return
         
         try:
-            self.getControl(BACKGROUND).setImage(self.tvshows[current]['images']['fanart'])
+            self.getControl(BACKGROUND).setImage(self.shows[current].fanart)
         except KeyError:
             Debug("KeyError for Backround")
         except TypeError:
             Debug("TypeError for Backround")
         try:
-            self.getControl(TITLE).setLabel(self.tvshows[current]['title'])
+            self.getControl(TITLE).setLabel(self.shows[current].title)
         except KeyError:
             Debug("KeyError for Title")
             self.getControl(TITLE).setLabel("")
         except TypeError:
             Debug("TypeError for Title")
         try:
-            self.getControl(OVERVIEW).setText(self.tvshows[current]['overview'])
+            self.getControl(OVERVIEW).setText(self.shows[current].overview)
         except KeyError:
             Debug("KeyError for Overview")
             self.getControl(OVERVIEW).setText("")
         except TypeError:
             Debug("TypeError for Overview")
         try:
-            self.getControl(YEAR).setLabel("Year: " + str(self.tvshows[current]['year']))
+            self.getControl(YEAR).setLabel("Year: " + str(self.shows[current].year))
         except KeyError:
             Debug("KeyError for Year")
             self.getControl(YEAR).setLabel("")
         except TypeError:
             Debug("TypeError for Year")
         try:
-            self.getControl(RUNTIME).setLabel("Runtime: " + str(self.tvshows[current]['runtime']) + " Minutes")
+            self.getControl(RUNTIME).setLabel("Runtime: " + str(self.shows[current].runtime) + " Minutes")
         except KeyError:
             Debug("KeyError for Runtime")
             self.getControl(RUNTIME).setLabel("")
         except TypeError:
             Debug("TypeError for Runtime")
         try:
-            self.getControl(TAGLINE).setLabel(str(self.tvshows[current]['tagline']))
+            self.getControl(TAGLINE).setLabel(str(self.shows[current].tagline))
         except KeyError:
             Debug("KeyError for Tagline")
             self.getControl(TAGLINE).setLabel("")
         except TypeError:
             Debug("TypeError for Tagline")
         try:
-            self.getControl(RATING).setLabel("Rating: " + self.tvshows[current]['certification'])
+            self.getControl(RATING).setLabel("Rating: " + self.shows[current].classification)
         except KeyError:
             Debug("KeyError for Rating")
             self.getControl(RATING).setLabel("")
         except TypeError:
             Debug("TypeError for Rating")
-        if self.type == 'trending':
+        """if self.type == 'trending':
             try:
                 self.getControl(WATCHERS).setLabel(str(self.tvshows[current]['watchers']) + " people watching")
             except KeyError:
                 Debug("KeyError for Watchers")
                 self.getControl(WATCHERS).setLabel("")
             except TypeError:
-                Debug("TypeError for Watchers")
+                Debug("TypeError for Watchers")"""
 
     def showContextMenu(self):
-        show = self.tvshows[self.getControl(TVSHOW_LIST).getSelectedPosition()]
+        show = self.shows[self.getControl(TVSHOW_LIST).getSelectedPosition()]
         li = self.getControl(TVSHOW_LIST).getSelectedItem()
         options = []
         actions = []
+        if movie.libraryStatus:
+            options.append("Play next")
+            actions.append('playNext')
         if self.type <> 'watchlist':
             if 'watchlist' in show:
                 if show['watchlist']:
@@ -434,27 +427,20 @@ class TVShowsWindow(xbmcgui.WindowXML):
         if select == -1:
             Debug ("menu quit by user")
             return
-        elif actions[select] == 'play':
-            xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
+        elif actions[select] == 'playNext':
+            show.playNext()
         elif actions[select] == 'unwatchlist':
-            if removeTVShowsFromWatchlist([show]) == None:
-                notification("Trakt Utilities", __language__(1311).encode( "utf-8", "ignore" )) # Failed to remove from watch-list
-            else:
-                notification("Trakt Utilities", __language__(1312).encode( "utf-8", "ignore" )) # Successfully removed from watch-list
-                li.setProperty('Watchlist','false')
-                show['watchlist'] = False;
+            show.watchlistStatus = False
+            li.setProperty('Watchlist','false')
+            if self.type == 'watchlist':
+                self.lis.remove(li)
+                self.getControl(TVSHOW_LIST).reset()
+                self.getControl(TVSHOW_LIST).addItems(self.lis)
         elif actions[select] == 'watchlist':
-            if addTVShowsToWatchlist([show]) == None:
-                notification("Trakt Utilities", __language__(1309).encode( "utf-8", "ignore" )) # Failed to added to watch-list
-            else:
-                notification("Trakt Utilities", __language__(1310).encode( "utf-8", "ignore" )) # Successfully added to watch-list
-                li.setProperty('Watchlist','true')
-                show['watchlist'] = True;
+            show.watchlistStatus = True
+            li.setProperty('Watchlist','true')
         elif actions[select] == 'rate':
-            rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-            rateShow.initDialog(show['tvdb_id'], show['title'], show['year'], getShowRatingFromTrakt(show['tvdb_id'], show['title'], show['year']))
-            rateShow.doModal()
-            del rateShow 
+            doRateShow(show)
 
     def onAction(self, action):
 
@@ -466,7 +452,7 @@ class TVShowsWindow(xbmcgui.WindowXML):
         elif action.getId() in (1,2,107):
             self.listUpdate()
         elif action.getId() == ACTION_SELECT_ITEM:
-            pass # do something here ?
+            show.playNext()
         elif action.getId() == ACTION_CONTEXT_MENU:
             self.showContextMenu()
         else:

@@ -223,8 +223,9 @@ class Show:
     @staticmethod
     def cancelWatching():
         raise NotImplementedError("This function has not been written")
-    def play(self):
-        raise NotImplementedError("This function has not been written")
+    def playNext(self):
+        # Determine which is the next episode and play it
+        xbmcgui.Dialog().ok("Trakt Utilities", "comming soon")
     
     def Property(func):
         return property(**func()) 
@@ -236,6 +237,7 @@ class Show:
     @rating.setter
     def rating(self, value):
         trakt_cache.makeChanges({'shows': [{'remoteId': self.remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
+        self.refresh()
         
     @property
     def watchingStatus(self):
@@ -249,7 +251,8 @@ class Show:
         return self._watchlistStatus
     @watchlistStatus.setter
     def watchlistStatus(self, value):
-        raise NotImplementedError("This function has not been written")
+        trakt_cache.makeChanges({'shows': [{'remoteId': self.remoteId, 'subject': 'watchlistStatus', 'value': value}]}, traktOnly = True)
+        self.refresh()
         
     @property
     def recommendedStatus(self):

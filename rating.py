@@ -39,7 +39,7 @@ def ratingCheck(curVideo, watchedTime, totalTime, playlistLength):
             if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
                 doRateEpisode(trakt_cache.getEpisode(localId = curVideo['id']))
 
-# ask user if they liked the movie
+# ask user if they like the movie
 def doRateMovie(movie):
     # display rate dialog
     import windows
@@ -48,7 +48,16 @@ def doRateMovie(movie):
     ui.doModal()
     del ui
 
-# ask user if they liked the episode
+# ask user if they like the show
+def doRateShow(show):
+    # display rate dialog
+    import windows
+    ui = windows.RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initDialog(show)
+    ui.doModal()
+    del ui
+    
+# ask user if they like the episode
 def doRateEpisode(episode):
     # display rate dialog
     import windows

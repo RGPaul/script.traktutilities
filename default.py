@@ -131,7 +131,7 @@ def submenuTrendingMoviesTVShows():
 def submenuWatchlist():
     options = [
         view('watchlistMovies', __language__(1252).encode( "utf-8", "ignore" )),
-        view('watchlistTVShows', __language__(1253).encode( "utf-8", "ignore" ))]
+        view('watchlistShows', __language__(1253).encode( "utf-8", "ignore" ))]
         
     xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
@@ -140,7 +140,7 @@ def submenuWatchlist():
 def submenuRecommendations():
     options = [
         view('recommendedMovies', __language__(1255).encode( "utf-8", "ignore" )),
-        view('recommendedTVShows', __language__(1256).encode( "utf-8", "ignore" ))]
+        view('recommendedShows', __language__(1256).encode( "utf-8", "ignore" ))]
         
     xbmcplugin.addDirectoryItems(int(sys.argv[1]), options)
     
@@ -158,7 +158,7 @@ def testing():
     movie.rating = "help"
     movie.setRating("help")
     Debug('[TraktCache] _updateTrakt, libraryStatus, unlibrary, responce: '+str(result))
-    Debug(str(trakt_cache.getMovieWatchList()))"""
+    Debug(str(trakt_cache.getMovieWatchlist()))"""
     xbmcgui.Dialog().ok("Trakt Utilities, TESTS", "Success")
     
 if __name__ == "__main__" :

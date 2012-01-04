@@ -81,6 +81,7 @@ def _fill():
     
 def _sync(xbmcData = None, traktData = None, cacheData = None):
     Debug("[TraktCache] Syncronising")
+    #Debug("[~] "+repr(xbmcData)+"\n\n"+repr(traktData)+"\n\n"+repr(cacheData))
     
     if xbmcData is not None and ('movies' not in xbmcData or xbmcData['movies'] is None): xbmcData['movies'] = {}
     if traktData is not None and ('movies' not in traktData or traktData['movies'] is None): traktData['movies'] = {}
@@ -108,19 +109,28 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
             traktData['episodes'] = {isolatedId: traktData['episodes'][isolatedId]}
         else:
             traktData['episodes'] = {}"""
-    
+            
+    # Find and list all changes
+    if xbmcData is not None:
+        for item in xbmcData['movies']:
+        #    if item['remoteId'] == isolatedId:
+                if item is not None: Debug("[~] X0"+repr(xbmcData['movies'][item]))
+    if traktData is not None:
+        for item in traktData['movies']:
+        #    if item['remoteId'] == isolatedId:
+                if item is not None: Debug("[~] T0"+repr(traktData['movies'][item]))
     
     # Find and list all changes
     if traktData is not None:
         xbmcChanges = trakt_cache._syncCompare(traktData, cache = cacheData)
-        #for item in xbmcChanges['episodes']:
+        for item in xbmcChanges['movies']:
         #    if item['remoteId'] == isolatedId:
-        #        Debug("[~] X"+repr(item))
+                Debug("[~] X1"+repr(item))
     if xbmcData is not None:
         traktChanges = trakt_cache._syncCompare(xbmcData, xbmc = True, cache = cacheData)
-        #for item in traktChanges['episodes']:
+        for item in traktChanges['movies']:
         #    if item['remoteId'] == isolatedId:
-        #        Debug("[~] T"+repr(item))
+                Debug("[~] T1"+repr(item))
         
     # Find unanimous changes and direct them to the cache
     cacheChanges = {}
@@ -181,17 +191,17 @@ def _sync(xbmcData = None, traktData = None, cacheData = None):
                 traktChanges[type].remove(item)
                 cacheChanges[type].append(item)
     
-    """if traktData is not None:
-        for item in xbmcChanges['episodes']:
-            if item['remoteId'] == isolatedId:
+    if traktData is not None:
+        for item in xbmcChanges['movies']:
+    #        if item['remoteId'] == isolatedId:
                 Debug("[~] X"+repr(item))
     if xbmcData is not None:
-        for item in traktChanges['episodes']:
-            if item['remoteId'] == isolatedId:
+        for item in traktChanges['movies']:
+    #        if item['remoteId'] == isolatedId:
                 Debug("[~] T"+repr(item))
-    for item in cacheChanges['episodes']:
-        if item['remoteId'] == isolatedId:
-            Debug("[~] C"+repr(item))"""
+    for item in cacheChanges['movies']:
+    #    if item['remoteId'] == isolatedId:
+            Debug("[~] C"+repr(item))
                     
     # Perform cache only changes
     Debug("[TraktCache] Updating cache")
@@ -565,6 +575,8 @@ def _copyTraktMovies():
     traktMovies = ~traktMovies
     watchlistMovies = ~watchlistMovies
     
+    Debug("[~] :"+str(len(traktMovies)))
+    
     if traktMovies is None: return movies
     watchlistMovies = traktMovieListByImdbID(watchlistMovies)
     for movie in traktMovies:
@@ -729,12 +741,14 @@ def _listChanges(newer, older, attributes, weakAttributes, xbmc = False, writeBa
         if not validRemoteId(remoteId): continue
         newItem = newer[remoteId]
         if newItem is None: continue
+        Debug("[~] #"+repr(newItem))
         if newItem['_remoteId'] not in older:
             if xbmc: changes.append({'remoteId': remoteId, 'subject': 'libraryStatus', 'value':True, 'weak': True})
             for attribute in attributes:
                 if newItem['_'+attribute] is not None: changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute], 'weak': True, 'bestBefore': time.time()+24*60*60})
             for attribute in weakAttributes:
                 if newItem['_'+attribute] is not None: changes.append({'remoteId': remoteId, 'subject': attribute, 'value':newItem['_'+attribute], 'weak': True, 'bestBefore': time.time()+24*60*60})
+        Debug(str(len(changes)))
     
     for remoteId in older:
         if len(remoteId) == 0: continue
@@ -1244,7 +1258,7 @@ def getShows():
     raise NotImplementedError()
 def getShowEpisodes():
     raise NotImplementedError()
-def getMovieWatchList():
+def getMovieWatchlist():
     needSyncAtLeast(['moviewatchlist'])
     watchlist = []
     with SafeShelf('movies') as movies:
@@ -1256,6 +1270,18 @@ def getMovieWatchList():
             if movie['_watchlistStatus'] == True:
                 watchlist.append(movie)
     return watchlist    
+def getShowWatchlist():
+    needSyncAtLeast(['showwatchlist'])
+    watchlist = []
+    with SafeShelf('shows') as shows:
+        for remoteId in shows:
+            if not validRemoteId(remoteId): continue
+            show = shows[remoteId]
+            if show is None:
+                continue
+            if show['_watchlistStatus'] == True:
+                watchlist.append(show)
+    return watchlist  
 def getRecommendedMovies():
     needSyncAtLeast(['movierecommended'])
     items = []

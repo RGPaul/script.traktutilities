@@ -49,7 +49,7 @@ class Viewer():
     @staticmethod
     def watchlistMovies():
         
-        movies = getMovieWatchList()
+        movies = getMovieWatchlist()
         
         if movies == None: # movies = None => there was an error
             return # error already displayed in utilities.py
@@ -69,8 +69,7 @@ class Viewer():
     @staticmethod
     def watchlistShows():
 
-        tvshows = getWatchlistTVShowsFromTrakt()
-        
+        tvshows = getShowWatchlist()
         if tvshows == None: # tvshows = None => there was an error
             return # error already displayed in utilities.py
         

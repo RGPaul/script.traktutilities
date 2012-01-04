@@ -216,6 +216,7 @@ class Movie(object):
     @rating.setter
     def rating(self, value):
         trakt_cache.makeChanges({'movies': [{'remoteId': self.remoteId, 'subject': 'rating', 'value': value}]}, traktOnly = True)
+        self.refresh()
         
     @property
     def playcount(self):
@@ -224,7 +225,8 @@ class Movie(object):
         return self._playcount
     @playcount.setter
     def playcount(self, value):
-        raise NotImplementedError("This function has not been written")
+        trakt_cache.makeChanges({'movies': [{'remoteId': self.remoteId, 'subject': 'playcount', 'value': value}]}, traktOnly = True)
+        self.refresh()
         
     @property
     def libraryStatus(self):
@@ -244,7 +246,8 @@ class Movie(object):
         return self._watchlistStatus
     @watchlistStatus.setter
     def watchlistStatus(self, value):
-        raise NotImplementedError("This function has not been written")
+        trakt_cache.makeChanges({'movies': [{'remoteId': self.remoteId, 'subject': 'watchlistStatus', 'value': value}]}, traktOnly = True)
+        self.refresh()
         
     @property
     def recommendedStatus(self):
