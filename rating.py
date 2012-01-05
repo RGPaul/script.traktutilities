@@ -4,6 +4,7 @@
 import os
 import xbmc,xbmcaddon,xbmcgui
 from utilities import *
+import trakt_cache
   
 __author__ = "Ralph-Gordon Paul, Adrian Cowan"
 __credits__ = ["Ralph-Gordon Paul", "Adrian Cowan", "Justin Nemeth",  "Sean Rudford"]
@@ -34,45 +35,33 @@ def ratingCheck(curVideo, watchedTime, totalTime, playlistLength):
     if (watchedTime/totalTime)*100>=float(rateMinViewTimeOption):
         if (playlistLength <= 1) or (rateEachInPlaylistOption == 'true'):
             if curVideo['type'] == 'movie' and rateMovieOption == 'true':
-                doRateMovie(curVideo['id'])
+                doRateMovie(trakt_cache.getMovie(localId = curVideo['id']))
             if curVideo['type'] == 'episode' and rateEpisodeOption == 'true':
-                doRateEpisode(curVideo['id'])
+                doRateEpisode(trakt_cache.getEpisode(localId = curVideo['id']))
 
-# ask user if they liked the movie
-def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
-    if (movieid <> None) :
-        match = getMovieDetailsFromXbmc(movieid, ['imdbnumber','title','year'])
-        if not match:
-            #add error message here
-            return
-        
-        imdbid = match['imdbnumber']
-        title = match['title']
-        year = match['year']
-        
+# ask user if they like the movie
+def doRateMovie(movie):
     # display rate dialog
     import windows
     ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initDialog(imdbid, title, year, getMovieRatingFromTrakt(imdbid, title, year))
+    ui.initDialog(movie)
     ui.doModal()
     del ui
 
-# ask user if they liked the episode
-def doRateEpisode(episodeId):
-    match = getEpisodeDetailsFromXbmc(episodeId, ['showtitle', 'season', 'episode'])
-    if not match:
-        #add error message here
-        return
+# ask user if they like the show
+def doRateShow(show):
+    # display rate dialog
+    import windows
+    ui = windows.RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+    ui.initDialog(show)
+    ui.doModal()
+    del ui
     
-    tvdbid = None #match['tvdbnumber']
-    title = match['showtitle']
-    year = None #match['year']
-    season = match['season']
-    episode = match['episode']
-    
+# ask user if they like the episode
+def doRateEpisode(episode):
     # display rate dialog
     import windows
     ui = windows.RateEpisodeDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-    ui.initDialog(tvdbid, title, year, season, episode, getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode))
+    ui.initDialog(episode)
     ui.doModal()
     del ui
