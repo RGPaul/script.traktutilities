@@ -99,7 +99,9 @@ def xbmcHttpapiQuery(query):
 
 # execute a httpapi based XBMC db query (set data)
 def xbmcHttpapiExec(query):
+    Debug("[httpapi-sql] query: "+query)
     xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus(query), )
+    Debug("[httpapi-sql] responce: "+xml_data)
     return xml_data
 
 # get a connection to trakt
@@ -434,38 +436,20 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     # httpapi till jsonrpc supports playcount update
-    # select tvshow by tvdb_id # c12 => TVDB ID # c00 = title
-    match = xbmcHttpapiQuery(
-    "SELECT tvshow.idShow, tvshow.c00 FROM tvshow"+
-    " WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)})
-    
-    if match:
-        Debug("TV Show: " + match[1] + " idShow: " + str(match[0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
+    responce = xbmcHttpapiExec(
+    "UPDATE files"+
+    " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
+    " WHERE idFile IN ("+
+    "  SELECT idFile"+
+    "  FROM episode"+
+    "  INNER JOIN tvshowlinkepisode ON episode.idEpisode = tvshowlinkepisode.idEpisode"+
+    "   INNER JOIN tvshow ON tvshowlinkepisode.idShow = tvshow.idShow"+
+    "   WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
+    "    AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
+    "    AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)}+
+    " )")
 
-        # select episode table by idShow
-        match = xbmcHttpapiQuery(
-        "SELECT tvshowlinkepisode.idEpisode FROM tvshowlinkepisode"+
-        " WHERE tvshowlinkepisode.idShow=%(idShow)s" % {'idShow':xcp(match[0])})
-        
-        for idEpisode in match:
-            # get idfile from episode table # c12 = season, c13 = episode
-            match2 = xbmcHttpapiQuery(
-            "SELECT episode.idFile FROM episode"+
-            " WHERE episode.idEpisode=%(idEpisode)d" % {'idEpisode':int(idEpisode)}+
-            " AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
-            " AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)})
-            
-            if match2:
-                for idFile in match2:
-                    Debug("idFile: " + str(idFile) + " setting playcount...")
-                    responce = xbmcHttpapiExec(
-                    "UPDATE files"+
-                    " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
-                    " WHERE idFile=%(idFile)s" % {'idFile':xcp(idFile)})
-                    
-                    Debug("xml answer: " + str(responce))
-    else:
-        Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
+    Debug("xml answer: " + str(responce))
     
 # get current video being played from XBMC
 def getCurrentPlayingVideoFromXBMC():
