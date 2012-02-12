@@ -51,6 +51,9 @@ def Debug(msg, force=False):
         except UnicodeEncodeError:
             print "Trakt Utilities: " + msg.encode( "utf-8", "ignore" )
 
+#This class needs debug
+from raw_xbmc_database import RawXbmcDb
+
 def notification( header, message, time=5000, icon=__settings__.getAddonInfo( "icon" ) ):
     xbmc.executebuiltin( "XBMC.Notification(%s,%s,%i,%s)" % ( header, message, time, icon ) )
 
@@ -84,25 +87,6 @@ def checkSettings(daemon=False):
 # SQL string quote escaper
 def xcp(s):
     return re.sub('''(['])''', r"''", unicode(s))
-
-# make a httpapi based XBMC db query (get data)
-def xbmcHttpapiQuery(query):
-    Debug("[httpapi-sql] query: "+query)
-    
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(query), )
-    match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
-    
-    Debug("[httpapi-sql] responce: "+xml_data)
-    Debug("[httpapi-sql] matches: "+unicode(match))
-    
-    return match
-
-# execute a httpapi based XBMC db query (set data)
-def xbmcHttpapiExec(query):
-    Debug("[httpapi-sql] query: "+query)
-    xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus(query), )
-    Debug("[httpapi-sql] responce: "+xml_data)
-    return xml_data
 
 # get a connection to trakt
 def getTraktConnection():
@@ -418,7 +402,7 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    match = xbmcHttpapiQuery(
+    match = RawXbmcDb.query(
     "SELECT movie.idFile FROM movie"+
     " WHERE movie.c09='%(imdb_id)s'" % {'imdb_id':xcp(imdb_id)})
     
@@ -426,7 +410,7 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
         #add error message here
         return
     
-    result = xbmcHttpapiExec(
+    RawXbmcDb.execute(
     "UPDATE files"+
     " SET playcount=%(playcount)d" % {'playcount':int(playcount)}+
     " WHERE idFile=%(idFile)s" % {'idFile':xcp(match[0])})
@@ -436,7 +420,7 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     # httpapi till jsonrpc supports playcount update
-    responce = xbmcHttpapiExec(
+    RawXbmcDb.execute(
     "UPDATE files"+
     " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
     " WHERE idFile IN ("+
@@ -448,8 +432,6 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     "    AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
     "    AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)}+
     " )")
-
-    Debug("xml answer: " + str(responce))
     
 # get current video being played from XBMC
 def getCurrentPlayingVideoFromXBMC():
@@ -536,7 +518,7 @@ def getMovieIdFromXBMC(imdb_id, title):
     # Get id of movie by movies IMDB
     Debug("Searching for movie: "+imdb_id+", "+title)
     
-    match = xbmcHttpapiQuery(
+    match = RawXbmcDb.query(
     " SELECT idMovie FROM movie"+
     "  WHERE c09='%(imdb_id)s'" % {'imdb_id':imdb_id}+
     " UNION"+
@@ -556,7 +538,7 @@ def getShowIdFromXBMC(tvdb_id, title):
     
     Debug("Searching for show: "+str(tvdb_id)+", "+title)
     
-    match = xbmcHttpapiQuery(
+    match = RawXbmcDb.query(
     " SELECT idShow FROM tvshow"+
     "  WHERE c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
     " UNION"+
@@ -881,8 +863,7 @@ def scrobbleEpisodeOnTrakt(tvdb_id, title, year, season, episode, duration, perc
         Debug("Error in request from 'scrobbleEpisodeOnTrakt()'")
     return responce
 
-            
-            
+
 """
 ToDo:
 
