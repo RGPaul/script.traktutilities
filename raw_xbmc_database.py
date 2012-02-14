@@ -9,14 +9,14 @@ class RawXbmcDb():
 
     # make a httpapi based XBMC db query (get data)
     @staticmethod
-    def query(query):
+    def query(str):
         global _RawXbmcDb__conn
         if _RawXbmcDb__conn is None:
             _RawXbmcDb__conn = _findXbmcDb()
 
-        Debug("[RawXbmcDb] query: "+query)
+        Debug("[RawXbmcDb] query: "+str)
         cursor = _RawXbmcDb__conn.cursor()
-        cursor.execute(query)
+        cursor.execute(str)
 
         matches = []
         for row in cursor:
@@ -30,13 +30,8 @@ class RawXbmcDb():
 
     # execute a httpapi based XBMC db query (set data)
     @staticmethod
-    def execute(query):
-        global _RawXbmcDb__conn
-        if _RawXbmcDb__conn is None:
-            _RawXbmcDb__conn = _findXbmcDb()
-        cursor = _RawXbmcDb__conn.cursor()
-        Debug("[RawXbmcDb] query: "+query)
-        cursor.execute(query)
+    def execute(str):
+        return RawXbmcDb.query(str)
 
 def _findXbmcDb():
     type = None
@@ -71,20 +66,21 @@ def _findXbmcDb():
     
     if type == 'sqlite3':
         if host is None:
-            path = xbmc.translatePath("special://userdata/database")
+            path = xbmc.translatePath("special://userdata/Database")
             files = os.listdir(path)
             latest = ""
             for file in files:
-                if file[:8] == 'MyVideos':
+                if file[:8] == 'MyVideos' and file[-3:] == '.db':
                     if file > latest:
                         latest = file
-            Debug(latest)
             host = os.path.join(path,latest)
         else:
             host += ".db"
+        Debug("[RawXbmcDb] Found sqlite3db: "+str(host))
         import sqlite3
         return sqlite3.connect(host)
     if type == 'mysql':
+        Debug("[RawXbmcDb] Found mysqldb: "+str(host)+":"+str(port)+", "+str(database))
         import mysql.connector
         return mysql.connector.Connect(host = host, port = port, database = name, user = user, password = passwd)
         
