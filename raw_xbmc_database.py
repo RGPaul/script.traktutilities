@@ -80,7 +80,7 @@ def _findXbmcDb():
         import sqlite3
         return sqlite3.connect(host)
     if type == 'mysql':
-        Debug("[RawXbmcDb] Found mysqldb: "+str(host)+":"+str(port)+", "+str(database))
+        Debug("[RawXbmcDb] Found mysqldb: "+str(host)+":"+str(port)+", "+str(name))
         import mysql.connector
         return mysql.connector.Connect(host = host, port = port, database = name, user = user, password = passwd)
         
