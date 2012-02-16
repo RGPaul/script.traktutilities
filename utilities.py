@@ -410,10 +410,15 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
         #add error message here
         return
     
+    try:
+        match[0][0]
+    except KeyError:
+        return
+    
     RawXbmcDb.execute(
     "UPDATE files"+
     " SET playcount=%(playcount)d" % {'playcount':int(playcount)}+
-    " WHERE idFile=%(idFile)s" % {'idFile':xcp(match[0])})
+    " WHERE idFile=%(idFile)s" % {'idFile':xcp(match[0][0])})
     
     Debug("xml answer: " + str(result))
 
