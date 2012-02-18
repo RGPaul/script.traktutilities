@@ -419,8 +419,6 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
     "UPDATE files"+
     " SET playcount=%(playcount)d" % {'playcount':int(playcount)}+
     " WHERE idFile=%(idFile)s" % {'idFile':xcp(match[0][0])})
-    
-    Debug("xml answer: " + str(result))
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
