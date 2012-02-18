@@ -34,12 +34,15 @@ class RawXbmcDb():
         return RawXbmcDb.query(str)
 
 def _findXbmcDb():
+    import re
     type = None
     host = None
     port = 3306
-    name = None
+    name = 'video_database'
     user = None
     passwd = None
+    version = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xbmc.executehttpapi("QueryVideoDatabase(SELECT idVersion FROM version)"),)[0]
+    Debug(version)
     if not os.path.exists(xbmc.translatePath("special://userdata/advancedsettings.xml")):
         type = 'sqlite3'
     else:
@@ -75,12 +78,16 @@ def _findXbmcDb():
                         latest = file
             host = os.path.join(path,latest)
         else:
-            host += ".db"
+            host += version+".db"
         Debug("[RawXbmcDb] Found sqlite3db: "+str(host))
         import sqlite3
         return sqlite3.connect(host)
     if type == 'mysql':
-        Debug("[RawXbmcDb] Found mysqldb: "+str(host)+":"+str(port)+", "+str(name))
+        if version >= 60:
+            database = name+version
+        else:
+            database = name
+        Debug("[RawXbmcDb] Found mysqldb: "+str(host)+":"+str(port)+", "+str(database))
         import mysql.connector
-        return mysql.connector.Connect(host = host, port = int(port), database = name, user = user, password = passwd)
+        return mysql.connector.Connect(host = host, port = int(port), database = database, user = user, password = passwd)
         
