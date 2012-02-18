@@ -745,9 +745,9 @@ def syncSeenTVShows(daemon=False):
                 episodes = getEpisodesFromXBMC(xbmc_tvshows['tvshows'][i], seasonid)
                 if episodes['limits']['total'] > 0:
                     break
-                if seasonid > 50:  # maybe something went wrong
-                    break          # is there any tvshow out there with 50 seasons ?
-            if seasonid > 50:
+                if seasonid > 250:  # maybe something went wrong
+                    break          # is there any tvshow out there with 50 seasons? (othrayte) yes but not with more than 250
+            if seasonid > 250:
                 continue
             try:
                 foundseason = False
