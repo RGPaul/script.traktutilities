@@ -26,7 +26,7 @@ debug = __settings__.getSetting( "debug" )
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 class Scrobbler(threading.Thread):
-    totalTime = 0
+    totalTime = 1
     watchedTime = 0
     startTime = 0
     curVideo = None
@@ -62,6 +62,13 @@ class Scrobbler(threading.Thread):
                         Debug("[Scrobbler] Suddenly stopped watching item")
                         return
                     self.totalTime = xbmc.Player().getTotalTime()
+                    if self.totalTime == 0:
+                        if self.curVideo['type'] == 'movie':
+                            self.totalTime = 90
+                        elif self.curVideo['type'] == 'episode':
+                            self.totalTime = 30
+                        else:
+                            self.totalTime = 1
                     self.playlistLength = getPlaylistLengthFromXBMCPlayer(data['player']['playerid'])
                     if (self.playlistLength == 0):
                         Debug("[Scrobbler] Warning: Cant find playlist length?!, assuming that this item is by itself")
@@ -147,7 +154,7 @@ class Scrobbler(threading.Thread):
             match = getEpisodeDetailsFromXbmc(self.curVideo['id'], ['showtitle', 'season', 'episode'])
             if match == None:
                 return
-            responce = scrobbleEpisodeOnTrakt(None, match['showtitle'], None, match['season'], match['episode'], self.totalTime/60, int(100*self.watchedTime/self.totalTime))
+            responce = scrobbleEpisodeOnTrakt(None, match['showtitle'], None, match['season'], match['episode'], self.totalTime/60, )
             if responce != None:
                 Debug("[Scrobbler] Scrobble responce: "+str(responce));
 
