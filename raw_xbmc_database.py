@@ -82,5 +82,5 @@ def _findXbmcDb():
     if type == 'mysql':
         Debug("[RawXbmcDb] Found mysqldb: "+str(host)+":"+str(port)+", "+str(name))
         import mysql.connector
-        return mysql.connector.Connect(host = host, port = port, database = name, user = user, password = passwd)
+        return mysql.connector.Connect(host = host, port = int(port), database = name, user = user, password = passwd)
         
