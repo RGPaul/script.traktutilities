@@ -38,7 +38,7 @@ def _findXbmcDb():
     type = None
     host = None
     port = 3306
-    name = 'video_database'
+    name = 'myvideo'
     user = None
     passwd = None
     version = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xbmc.executehttpapi("QueryVideoDatabase(SELECT idVersion FROM version)"),)[0]
