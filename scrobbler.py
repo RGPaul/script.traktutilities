@@ -154,7 +154,7 @@ class Scrobbler(threading.Thread):
             match = getEpisodeDetailsFromXbmc(self.curVideo['id'], ['showtitle', 'season', 'episode'])
             if match == None:
                 return
-            responce = scrobbleEpisodeOnTrakt(None, match['showtitle'], None, match['season'], match['episode'], self.totalTime/60, )
+            responce = scrobbleEpisodeOnTrakt(None, match['showtitle'], None, match['season'], match['episode'], self.totalTime/60, int(100*self.watchedTime/self.totalTime))
             if responce != None:
                 Debug("[Scrobbler] Scrobble responce: "+str(responce));
 
