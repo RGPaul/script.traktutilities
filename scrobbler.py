@@ -51,6 +51,8 @@ class Scrobbler(threading.Thread):
                     count = 0
             else:
                 count = 0
+        
+        Debug("Scrobbler stopping")
     
     def playbackStarted(self, data):
         self.curVideo = data['item']

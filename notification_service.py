@@ -33,6 +33,7 @@ class NotificationService(threading.Thread):
         scrobbler.start()
         
         while (not (self.abortRequested or xbmc.abortRequested)):
+            time.sleep(1)
             try:
                 tn = telnetlib.Telnet('localhost', 9090, 10)
             except IOError as (errno, strerror):
@@ -88,7 +89,10 @@ class NotificationService(threading.Thread):
                             instantSyncPlayCount(data)
                     elif data['method'] == 'System.OnQuit':
                         self.abortRequested = True
-                
-            time.sleep(1)
-        tn.close()
+        try:
+            tn.close()
+        except:
+            Debug("[NotificationService] Encountered error attempting to close the telnet connection")
+            raise
         scrobbler.abortRequested = True
+        Debug("Notification service stopping")
