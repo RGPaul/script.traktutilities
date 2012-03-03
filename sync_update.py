@@ -64,15 +64,15 @@ def updateMovieCollection(daemon=False):
         try:
             imdbid = xbmc_movies[i]['imdbnumber']
             try:
-                Debug("found Movie: " + xbmc_movies[i]['label'] + " - IMDb ID: " + str(imdbid))
+                Debug("found Movie: " + repr(xbmc_movies[i]['label']) + " - IMDb ID: " + str(imdbid))
             except KeyError:
                 Debug("found Movie with IMDb ID: " + str(imdbid))
         except KeyError:
             try:
-                Debug("skipping " + xbmc_movies[i]['label'] + " - no IMDb ID found")
+                Debug("skipping " + repr(xbmc_movies[i]['label']) + " - no IMDb ID found")
             except KeyError:
                 try:
-                    Debug("skipping " + xbmc_movies[i]['titel'] + " - no IMDb ID found")
+                    Debug("skipping " + repr(xbmc_movies[i]['title']) + " - no IMDb ID found")
                 except KeyError:
                     Debug("skipping a movie: no title and no IMDb ID found")
             continue
@@ -135,7 +135,7 @@ def updateMovieCollection(daemon=False):
                 Debug ("successfully uploaded collection: ")
                 Debug ("inserted: " + str(data['inserted']) + " already_exist: " + str(data['already_exist']) + " skipped: " + str(data['skipped']))
                 if data['skipped'] > 0:
-                    Debug ("skipped movies: " + str(data['skipped_movies']))
+                    Debug ("skipped movies: " + repr(data['skipped_movies']))
                 inserted += data['inserted']
                 exist += data['already_exist']
                 skipped += data['skipped']
@@ -342,7 +342,7 @@ def cleanMovieCollection(daemon=False):
                 xbmc_movies_imdbid[movie[1]['imdb_id']]
             except KeyError: # not on xbmc database
                 to_unlibrary.append(movie[1])
-                Debug (movie[1]['title'] + " not found in xbmc library")
+                Debug (repr(movie[1]['title']) + " not found in xbmc library")
     
     if len(to_unlibrary) > 0:
         data = traktJsonRequest('POST', '/movie/unlibrary/%%API_KEY%%', {'movies': to_unlibrary}, returnStatus = True)
@@ -458,7 +458,7 @@ def cleanTVShowCollection(daemon=False):
                     if seasonid > 50:
                         continue
                 if foundseason == False:
-                    Debug("Season not found: " + str(trakt_tvshow[1]['title']) + ": " + str(trakt_tvshow[1]['seasons'][i]['season']))
+                    Debug("Season not found: " + repr(trakt_tvshow[1]['title']) + ": " + str(trakt_tvshow[1]['seasons'][i]['season']))
                     # delte season from trakt collection
                     for episodeid in trakt_tvshow[1]['seasons'][i]['episodes']:
                         tvshow['episodes'].append({'season': trakt_tvshow[1]['seasons'][i]['season'], 'episode': episodeid})
@@ -466,7 +466,7 @@ def cleanTVShowCollection(daemon=False):
                 seasonid = -1
             
         except KeyError:
-            Debug ("TVShow not found: " + trakt_tvshow[1]['title'])
+            Debug ("TVShow not found: " + str(trakt_tvshow[1]['title']))
             # delete tvshow from trakt collection
             for season in trakt_tvshow[1]['seasons']:
                 for episode in season['episodes']:
@@ -557,10 +557,10 @@ def syncSeenMovies(daemon=False):
             imdbid = xbmc_movies[i]['imdbnumber']
         except KeyError:
             try:
-                Debug("skipping " + xbmc_movies[i]['title'] + " - no IMDbID found")
+                Debug("skipping " + repr(xbmc_movies[i]['title']) + " - no IMDbID found")
             except KeyError:
                 try:
-                    Debug("skipping " + xbmc_movies[i]['label'] + " - no IMDbID found")
+                    Debug("skipping " + repr(xbmc_movies[i]['label']) + " - no IMDbID found")
                 except KeyError:
                     Debug("skipping a movie - no IMDbID, title, or label found")
             continue
@@ -583,7 +583,7 @@ def syncSeenMovies(daemon=False):
                         except KeyError:
                             movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount']})
                 else:
-                    Debug("skipping " + xbmc_movies[i]['title'] + " - unknown year")
+                    Debug("skipping " + repr(xbmc_movies[i]['title']) + " - unknown year")
             continue
             
         if xbmc_movies[i]['playcount'] > 0 and trakt_movie['plays'] == 0:
@@ -600,7 +600,7 @@ def syncSeenMovies(daemon=False):
                     except KeyError:
                         movies_seen.append({'imdb_id': imdbid, 'title': xbmc_movies[i]['title'], 'year': xbmc_movies[i]['year'], 'plays': xbmc_movies[i]['playcount']})
             else:
-                Debug("skipping " + xbmc_movies[i]['title'] + " - unknown year")
+                Debug("skipping " + repr(xbmc_movies[i]['title']) + " - unknown year")
     
     movies_string = ""
     for i in range(0, len(movies_seen)):
@@ -822,10 +822,10 @@ def syncSeenTVShows(daemon=False):
                 if xbmc.abortRequested: raise SystemExit()
                 data = traktJsonRequest('POST', '/show/episode/seen/%%API_KEY%%', {'tvdb_id': set_as_seen[i]['tvdb_id'], 'title': set_as_seen[i]['title'], 'year': set_as_seen[i]['year'], 'episodes': set_as_seen[i]['episodes']}, returnStatus = True, conn = conn)
                 if data['status'] == 'failure':
-                    Debug("Error uploading tvshow: " + set_as_seen[i]['title'] + ": " + str(data['error']))
+                    Debug("Error uploading tvshow: " + repr(set_as_seen[i]['title']) + ": " + str(data['error']))
                     error = data['error']
                 else:
-                    Debug("Successfully uploaded tvshow " + set_as_seen[i]['title'] + ": " + str(data['message']))
+                    Debug("Successfully uploaded tvshow " + repr(set_as_seen[i]['title']) + ": " + str(data['message']))
                 
             if error == None:
                 if daemon:
@@ -875,7 +875,7 @@ def syncSeenTVShows(daemon=False):
             
         tvshow_to_set['episodes'] = []
         
-        Debug("checking: " + tvshow['title'])
+        Debug("checking: " + repr(tvshow['title']))
         
         trakt_seasons = tvshow['seasons']
         for trakt_season in trakt_seasons:
