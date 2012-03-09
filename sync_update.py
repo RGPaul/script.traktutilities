@@ -466,7 +466,7 @@ def cleanTVShowCollection(daemon=False):
                 seasonid = -1
             
         except KeyError:
-            Debug ("TVShow not found: " + str(trakt_tvshow[1]['title']))
+            Debug ("TVShow not found: " + repr(trakt_tvshow[1]['title']))
             # delete tvshow from trakt collection
             for season in trakt_tvshow[1]['seasons']:
                 for episode in season['episodes']:
@@ -521,7 +521,7 @@ def cleanTVShowCollection(daemon=False):
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1137).encode( "utf-8", "ignore" )) # Episodes sucessfully updated to Trakt
         else:
             if daemon:
-                notification("Trakt Utilities", __language__(1135).encode( "utf-8", "ignore" ) + str(error)) # Error uploading TVShow collection
+                notification("Trakt Utilities", __language__(1135).encode( "utf-8", "ignore" ) + unicode(error)) # Error uploading TVShow collection
             else:
                 xbmcgui.Dialog().ok("Trakt Utilities", __language__(1135).encode( "utf-8", "ignore" ), error) # Error uploading TVShow collection
     else:
