@@ -1,434 +1,285 @@
-
 <window>
-    <defaultcontrol always="true">101</defaultcontrol>
-    
-    <animation effect="fade" time="250">WindowOpen</animation>
-    <animation effect="fade" time="250">WindowClose</animation>
-    
-    <controls>
-        <control type="image" id="102">
-            <description>Background</description>
+  <defaultcontrol always="true">101</defaultcontrol>
+
+  <animation effect="fade" time="250">WindowOpen</animation>
+  <animation effect="fade" time="250">WindowClose</animation>
+
+  <controls>
+    <control type="image" id="102">
+      <description>Background</description>
+      <posx>0</posx>
+      <posy>0</posy>
+      <width>1280</width>
+      <height>800</height>
+      <aspectratio>scale down</aspectratio>
+    </control>
+    <control type="group">
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+      <control type="image">
+        <posx>0</posx>
+        <posy>315</posy>
+        <width>1280</width>
+        <height>405</height>
+        <texture>views/showcase_floor.png</texture>
+      </control>
+      <control type="image">
+        <posy>-138</posy>
+        <width>1280</width>
+        <height>720</height>
+        <texture>common/black.png</texture>
+        <colordiffuse>aaffffff</colordiffuse>
+        <animation effect="fade" start="0" end="100" time="550" delay="200">Visible</animation>
+        <animation effect="fade" start="100" end="0" time="100">Hidden</animation>
+        <visible>Skin.HasSetting(darkinfopane)</visible>
+      </control>
+      <control type="image">
+        <posx>-70</posx>
+        <posy>0</posy>
+        <width>464</width>
+        <height>720</height>
+        <texture>views/showcase_vignette.png</texture>
+        <colordiffuse>vignette</colordiffuse>
+        <visible>true</visible>
+      </control>
+      <control type="image">
+        <posx>886</posx>
+        <posy>0</posy>
+        <width>464</width>
+        <height>720</height>
+        <visible>true</visible>
+        <colordiffuse>vignette</colordiffuse>
+        <texture flipx="true">views/showcase_vignette.png</texture>
+      </control>
+      <include>Neon_Floor</include>
+    </control>
+
+    <control type="group">
+      <include>Animation_OpenCloseZoom_New</include>
+      <control type="image">
+        <posx>25</posx>
+        <posy>45</posy>
+        <width>1230</width>
+        <height>692</height>
+        <texture>wall/wall_bg.png</texture>
+      </control>
+      <control type="image">
+        <posx>25</posx>
+        <posy>45</posy>
+        <width>1230</width>
+        <height>692</height>
+        <texture>wall/wall_bg_reflection.png</texture>
+      </control>
+    </control>
+
+    <control type="group">
+      <posy>-20</posy>
+      <include>Animation_OpenCloseZoom</include>
+      <control type="panel" id="110">
+        <posx>40</posx>
+        <posy>103</posy>
+        <width>760</width>
+        <height>538</height>
+        <onleft>60</onleft>
+        <onright>60</onright>
+        <onup>110</onup>
+        <ondown>110</ondown>
+        <preloaditems>4</preloaditems>
+        <scrolltime>150</scrolltime>
+        <visible>true</visible>
+        <viewtype label="$LOCALIZE[31283]">icon</viewtype>
+        <pagecontrol>60</pagecontrol>
+        <itemlayout height="179" width="126">
+          <control type="group">
+            <animation effect="fade" end="90" time="0" condition="true">Conditional</animation>
+            <control type="image">
+              <posx>0</posx>
+              <posy>0</posy>
+              <width>126</width>
+              <height>179</height>
+              <aspectratio scalediffuse="false">scale</aspectratio>
+              <fadetime>IconCrossfadeTime2</fadetime>
+              <texture background="true">$INFO[ListItem.Icon]</texture>
+              <bordertexture border="5">thumbs/bordershadow4.png</bordertexture>
+              <bordersize>5</bordersize>
+            </control>
+            <control type="image">
+              <posx>81.5</posx>
+              <posy>5</posy>
+              <width>40</width>
+              <height>40</height>
+              <fadetime>IconCrossfadeTime2</fadetime>
+              <texture>local.png</texture>
+              <visible>ListItem.Property(Available)</visible>
+            </control>
+            <control type="image">
+              <posx>81.5</posx>
+              <posy>5</posy>
+              <width>40</width>
+              <height>40</height>
+              <fadetime>IconCrossfadeTime2</fadetime>
+              <texture>watchlist.png</texture>
+              <visible>ListItem.Property(Watchlist)</visible>
+            </control>
+          </control>
+        </itemlayout>
+        <focusedlayout height="179" width="126">
+          <control type="image">
             <posx>0</posx>
             <posy>0</posy>
-            <width>1280</width>
-            <height>800</height>
-            <aspectratio>scale down</aspectratio>
-        </control>
+            <width>126</width>
+            <height>179</height>
+            <aspectratio scalediffuse="false">scale</aspectratio>
+            <fadetime>IconCrossfadeTime2</fadetime>
+            <texture background="true">$INFO[ListItem.Icon]</texture>
+            <bordertexture border="5">featured/tile_fo.png</bordertexture>
+            <bordersize>5</bordersize>
+          </control>
+          <control type="image">
+            <posx>81.5</posx>
+            <posy>5</posy>
+            <width>40</width>
+            <height>40</height>
+            <fadetime>IconCrossfadeTime2</fadetime>
+            <texture>local.png</texture>
+            <visible>ListItem.Property(Available)</visible>
+          </control>
+          <control type="image">
+            <posx>81.5</posx>
+            <posy>5</posy>
+            <width>40</width>
+            <height>40</height>
+            <fadetime>IconCrossfadeTime2</fadetime>
+            <texture>watchlist.png</texture>
+            <visible>ListItem.Property(Watchlist)</visible>
+          </control>
+        </focusedlayout>
 
+      </control>
+      <control type="scrollbar" id="60">
+        <posx>1230</posx>
+        <posy>103</posy>
+        <width>6</width>
+        <height>538</height>
+        <showonepage>false</showonepage>
+        <include>CommonVerticalScrollbar</include>
+        <onleft>110</onleft>
+        <onright>9000</onright>
+      </control>
       <control type="group">
-        <visible>Skin.HasSetting(altoverlayinfowall)]</visible>
+        <visible>true</visible>
+        <control type="label" id="107">
+          <include>HiddenObject</include>
+        </control>
+        <control type="label" id="108">
+          <include>HiddenObject</include>
+        </control>
+        <control type="label" id="111">
+          <include>HiddenObject</include>
+        </control>
+      </control>
+      <control type="group">
+        <posx>-15</posx>
+        <control type="label" id="103">
+          <posx>840</posx>
+          <posy>103</posy>
+          <height>13</height>
+          <width>380</width>
+          <font>Font_Bold25_Caps</font>
+          <textcolor>white2</textcolor>
+          <scroll>true</scroll>
+        </control>
         <control type="image">
-          <width>1280</width>
-          <height>720</height>
-          <texture>wall/wall_bg_small.png</texture>
-          <include>Animation_WindowFade200</include>
-          <animation effect="fade" start="90" end="90" time="400" condition="Control.IsVisible(512)|Control.IsVisible(514)">Conditional</animation>
+          <posx>830</posx>
+          <posy>123</posy>
+          <height>40</height>
+          <width>400</width>
+          <texture>osd/osd_settings_buttonnf.png</texture>
         </control>
-      </control>
-      <control type="group">
-        <visible>!Skin.HasSetting(altoverlayinfowall)</visible>
-        <include>Common_Fanartoverlay</include>
-      </control>
-      <include>CommonCurtainBackdrop</include>
-      <control type="group">
-            <posy>-20</posy>
-         
-            <control type="panel" id="110">
-                <posx>35</posx>
-                <posy>100</posy>
-                <width>760</width>
-                <height>570</height>
-                <onleft>9000</onleft>
-                <onright>60</onright>
-                <onup>110</onup>
-                <ondown>110</ondown>
-                <preloaditems>4</preloaditems>
-                <scrolltime>150</scrolltime>
-                <visible>true</visible>
-                <viewtype label="$LOCALIZE[31283]">icon</viewtype>
-                <pagecontrol>60</pagecontrol>
-                <itemlayout height="190" width="126">
-                    <control type="image">
-                        <posx>-2</posx>
-                        <posy>3</posy>
-                        <width>120</width>
-                        <height>175</height>
-                        <aspectratio scalediffuse="false">stretch</aspectratio>
-                        <fadetime>IconCrossfadeTime2</fadetime>
-                        <texture>wall/boxes/wall_movie_nfborder.png</texture>
-                        <visible>Skin.HasSetting(useclearcasesinfowall)</visible>
-                    </control>
-                    <control type="image">
-                        <posx>3</posx>
-                        <posy>7</posy>
-                        <width>110</width>
-                        <height>164</height>
-                        <aspectratio scalediffuse="false">stretch</aspectratio>
-                        <fadetime>IconCrossfadeTime2</fadetime>
-                        <texture background="true" diffuse="wall/wall_movie_mask.png">$INFO[ListItem.Icon]</texture>
-                    </control>
-                    <control type="image">
-                        <posx>3</posx>
-                        <posy>7</posy>
-                        <width>110</width>
-                        <height>164</height>
-                        <aspectratio scalediffuse="false">stretch</aspectratio>
-                        <texture diffuse="wall/wall_movie_mask.png">common/blank.png</texture>
-                        <bordertexture border="-6">wall/wall_movie_nfborder.png</bordertexture>
-                        <visible>!Skin.HasSetting(useclearcasesinfowall)</visible>
-                    </control>
-                    <control type="image">
-                        <posx>-2</posx>
-                        <posy>3</posy>
-                        <width>120</width>
-                        <height>175</height>
-                        <aspectratio scalediffuse="false">stretch</aspectratio>
-                        <fadetime>IconCrossfadeTime2</fadetime>
-                        <texture>wall/boxes/wall_nfoverlay.png</texture>
-                        <visible>Skin.HasSetting(useclearcasesinfowall)</visible>
-                    </control>
-                    <control type="image">
-                        <posx>73</posx>
-                        <posy>7</posy>
-                        <width>40</width>
-                        <height>40</height>
-                        <fadetime>IconCrossfadeTime2</fadetime>
-                        <texture scalediffuse="false">local.png</texture>
-                        <visible>ListItem.Property(Available)</visible>
-                    </control>
-                    <control type="image">
-                        <posx>73</posx>
-                        <posy>7</posy>
-                        <width>40</width>
-                        <height>40</height>
-                        <fadetime>IconCrossfadeTime2</fadetime>
-                        <texture scalediffuse="false">watchlist.png</texture>
-                        <visible>ListItem.Property(Watchlist)</visible>
-                    </control>
-                </itemlayout>
-                <focusedlayout height="190" width="126">
-                    <control type="group">
-                        <animation effect="zoom" center="58,89" start="100" end="120" time="400" easing="out" tween="back" reversible="false">Focus</animation>
-                        <control type="image">
-                            <posx>-2</posx>
-                            <posy>3</posy>
-                            <width>120</width>
-                            <height>175</height>
-                            <aspectratio scalediffuse="false">stretch</aspectratio>
-                            <fadetime>IconCrossfadeTime2</fadetime>
-                            <texture>wall/boxes/wall_movie_nfborder.png</texture>
-                            <visible>Skin.HasSetting(useclearcasesinfowall)</visible>
-                        </control>
-                        <control type="image">
-                            <posx>3</posx>
-                            <posy>7</posy>
-                            <width>110</width>
-                            <height>164</height>
-                            <aspectratio scalediffuse="false">stretch</aspectratio>
-                            <fadetime>IconCrossfadeTime2</fadetime>
-                            <texture background="true" diffuse="wall/wall_movie_mask.png">$INFO[ListItem.Icon]</texture>
-                        </control>
-                        <control type="image">
-                            <posx>3</posx>
-                            <posy>7</posy>
-                            <width>110</width>
-                            <height>164</height>
-                            <aspectratio scalediffuse="false">stretch</aspectratio>
-                            <texture diffuse="wall/wall_movie_mask.png">common/blank.png</texture>
-                            <bordertexture border="-12">wall/wall_movie_fborder.png</bordertexture>
-                            <visible>!Skin.HasSetting(useclearcasesinfowall)</visible>
-                        </control>
-                        <control type="image">
-                            <posx>-2</posx>
-                            <posy>3</posy>
-                            <width>120</width>
-                            <height>175</height>
-                            <aspectratio scalediffuse="false">stretch</aspectratio>
-                            <fadetime>IconCrossfadeTime2</fadetime>
-                            <texture>wall/boxes/wall_nfoverlay.png</texture>
-                            <visible>Skin.HasSetting(useclearcasesinfowall)</visible>
-                        </control>
-                        <control type="image">
-                            <posx>73</posx>
-                            <posy>7</posy>
-                            <width>40</width>
-                            <height>40</height>
-                            <fadetime>IconCrossfadeTime2</fadetime>
-                            <texture scalediffuse="false">local.png</texture>
-                            <visible>ListItem.Property(Available)</visible>
-                        </control>
-                        <control type="image">
-                            <posx>73</posx>
-                            <posy>7</posy>
-                            <width>40</width>
-                            <height>40</height>
-                            <fadetime>IconCrossfadeTime2</fadetime>
-                            <texture scalediffuse="false">watchlist.png</texture>
-                            <visible>ListItem.Property(Watchlist)</visible>
-                        </control>
-                    </control>
-                </focusedlayout>
-
-            </control>
-            <control type="scrollbar" id="60">
-                <posx>1227</posx>
-                <posy>100</posy>
-                <width>65</width>
-                <height>548</height>
-                <visible allowhiddenfocus="true">Control.HasFocus(60)</visible>
-                <texturesliderbackground>views/scrollbarbacklist.png</texturesliderbackground>
-                <texturesliderbar>-</texturesliderbar>
-                <texturesliderbarfocus>-</texturesliderbarfocus>
-                <textureslidernib>views/scrollbarnub-nofocus.png</textureslidernib>
-                <textureslidernibfocus>views/scrollbarnub-focus.png</textureslidernibfocus>
-                <orientation>vertical</orientation>
-                <showonepage>false</showonepage>
-                <pulseonselect>yes</pulseonselect>
-                <onleft>110</onleft>
-                <onright>9000</onright>
-            </control>
-            <control type="label" id="103">
-                <include>HiddenObject</include>
-            </control>
-            <control type="label">
-                <posx>840</posx>
-                <posy>103</posy>
-                <height>13</height>
-                <width>400</width>
-                <font>Font_Bold25</font>
-                <textcolor>white2</textcolor>
-                <scroll>true</scroll>
-                <label>[UPPERCASE]$INFO[Control.GetLabel(103)][/UPPERCASE]</label>
-            </control>
-          <control type="image">
-            <posx>840</posx>
-            <posy>162</posy>
-            <height>1</height>
-            <width>375</width>
-            <texture>views/listpanel_line.png</texture>
-          </control>
-          <control type="image">
-            <posx>840</posx>
-            <posy>412</posy>
-            <height>1</height>
-            <width>375</width>
-            <texture>views/listpanel_line.png</texture>
-          </control>
-          <control type="group">
-                <visible>true</visible>
-                <control type="label" id="109">
-                  <posx>840</posx>
-                  <posy>135</posy>
-                  <height>13</height>
-                  <width>400</width>
-                  <font>Font_Reg18</font>
-                  <textcolor>abFFFFFF</textcolor>
-                  <scroll>true</scroll>
-                </control>
-                <control type="label" id="107">
-                  <include>HiddenObject</include>
-                </control>
-                <control type="label" id="108">
-                  <include>HiddenObject</include>
-                </control>
-                <control type="label" id="111">
-                  <include>HiddenObject</include>
-                </control>
-                <control type="label" id="112">
-                  <include>HiddenObject</include>
-                </control>
-            <control type="label">
-              <posx>1260</posx>
-              <posy>685</posy>
-              <height>13</height>
-              <width>1200</width>
-              <font>Font_Reg18</font>
-              <align>right</align>
-              <textcolor>abFFFFFF</textcolor>
-              <label>$INFO[Control.GetLabel(112)]</label>
-            </control>
-            <control type="label">
-              <posx>1260</posx>
-              <posy>710</posy>
-              <height>13</height>
-              <width>500</width>
-              <font>Font_Reg18</font>
-              <align>right</align>
-              <textcolor>abFFFFFF</textcolor>
-              <scroll>true</scroll>
-              <label>$INFO[Control.GetLabel(107)]$INFO[Control.GetLabel(108), | ]$INFO[Control.GetLabel(111), | ]</label>
-            </control>
-            <control type="textbox" id="104">
-                  <posx>840</posx>
-                  <posy>170</posy>
-                  <width>400</width>
-                  <height>230</height>
-                  <font>Font_Reg18</font>
-                    <textcolor>d0FFFFFF</textcolor>
-                    <visible>true</visible>
-                    <autoscroll delay="8000" time="2000" repeat="8000">Skin.HasSetting(AutoScroll)</autoscroll>
-                </control>
-            </control>
-            <control type="group">
-                <posx>800</posx>
-                <posy>-35</posy>
-                <include>Animation_OpenCloseZoom</include>
-                <include>Animation_CommonFade</include>
-                <control type="image">
-                    <description>gradient</description>
-                    <posx>20</posx>
-                    <posy>456</posy>
-                    <width>420</width>
-                    <height>245</height>
-                    <texture>home/nowplaying/OverlayDialogBackground.png</texture>
-                </control>
-                <control type="image">
-                    <posx>35</posx>
-                    <posy>471</posy>
-                    <width>390</width>
-                    <height>215</height>
-                    <fadetime>IconCrossfadeTime</fadetime>
-                    <aspectratio scalediffuse="false">scale</aspectratio>
-                    <texture background="true">$INFO[Control.GetLabel(102)]</texture>
-                </control>
-            </control>
-        </control>
-      <!---MEDIA MENU-->
-      <control type="group" id="9000">
-        <enable>!Skin.HasSetting(kioskmode)</enable>
-        <visible>!Skin.HasSetting(kioskmode)</visible>
-        <posy>25</posy>
-        <control type="group" >
-          <description>Second Panel</description>
-          <animation type="Conditional" condition="!Control.HasFocus(9010)">
-            <effect type="fade" start="100" end="0" time="400" reversible="false"/>
-            <effect type="rotatey" start="0" end="-130" time="700" center="-20,0" tween="cubic" easing="in"/>
-          </animation>
-          <control type="image">
-            <posx>0</posx>
-            <posy>190</posy>
-            <width>680</width>
-            <height>300</height>
-            <texture background="true">views/listpanel_black.png</texture>
-            <animation effect="rotate" center="auto" start="0" end="-90" time="100" condition="true">Conditional</animation>
-            <include>Animation_MediaMenuSlide</include>
-          </control>
-          <control type="image">
-            <posx>0</posx>
-            <posy>190</posy>
-            <width>680</width>
-            <height>300</height>
-            <texture background="true">views/listpanel_back_noreflect.png</texture>
-            <animation effect="rotate" center="auto" start="0" end="-90" time="100" condition="true">Conditional</animation>
-            <include>Animation_MediaMenuSlide</include>
-          </control>
-        </control>
-
         <control type="group">
-          <description>First Panel</description>
-          <control type="image">
-            <posx>-215</posx>
-            <posy>190</posy>
-            <width>680</width>
-            <height>300</height>
-            <texture background="true">views/listpanel_black.png</texture>
-            <animation effect="rotate" center="auto" start="0" end="-90" time="100" condition="true">Conditional</animation>
-            <include>Animation_MediaMenuSlide</include>
-          </control>
-          <control type="image">
-            <posx>-215</posx>
-            <posy>190</posy>
-            <width>680</width>
-            <height>300</height>
-            <texture background="true">views/listpanel_back_noreflect.png</texture>
-            <animation effect="rotate" center="auto" start="0" end="-90" time="100" condition="true">Conditional</animation>
-            <include>Animation_MediaMenuSlide</include>
-          </control>
-          <control type="grouplist" id="9003">
-            <posx>0</posx>
-            <posy>15</posy>
-            <width>300</width>
-            <height>650</height>
-            <itemgap>0</itemgap>
-            <orientation>vertical</orientation>
+          <control type="label" id="109">
+            <posx>840</posx>
+            <posy>135</posy>
+            <height>13</height>
+            <width>380</width>
+            <font>Font_Reg18</font>
+            <textcolor>abFFFFFF</textcolor>
             <scroll>true</scroll>
-            <onleft>110</onleft>
-            <onright>110</onright>
-            <onup>9003</onup>
-            <ondown>9003</ondown>
-            <onback>110</onback>
-            <include>Animation_MediaMenuSlide2</include>
-           <control type="button" id="1601">
-              <description>Backdrop options label</description>
-              <textcolor>selected</textcolor>
-              <disabledcolor>selected</disabledcolor>
-              <include>Objects_MediaMenuButtonAlt</include>
-              <label>$LOCALIZE[31383] [LOWERCASE]$LOCALIZE[33063][/LOWERCASE]</label>
-              <enable>no</enable>
-            </control>
-            <control type="radiobutton" id="1605">
-              <description>Curtain Backdrop</description>
-              <label>31384</label>
-              <onclick>Skin.ToggleSetting(CurtainBackdrop)</onclick>
-              <selected>Skin.HasSetting(CurtainBackdrop)</selected>
-              <include>Objects_MediaMenuButtonAlt</include>
-            </control>
-            <control type="togglebutton" id="1666">
-              <description>Toggle Overlay</description>
-              <pulseonselect>yes</pulseonselect>
-              <include>Objects_MediaMenuButtonAlt</include>
-              <label>$LOCALIZE[31102] [B]1[/B]</label>
-              <aligny>center</aligny>
-              <altlabel>$LOCALIZE[31102] [B]2[/B]</altlabel>
-              <onclick>Skin.ToggleSetting(altoverlayinfowall)</onclick>
-              <usealttexture>Skin.HasSetting(altoverlayinfowall)</usealttexture>
-              <visible>!Skin.HasSetting(hideoptions)</visible>
-            </control>
-            <control type="button" id="1606">
-              <description>Viewtype options label</description>
-              <textcolor>selected</textcolor>
-              <disabledcolor>selected</disabledcolor>
-              <include>Objects_MediaMenuButtonAlt</include>
-              <label>$LOCALIZE[31185] [LOWERCASE]$LOCALIZE[33063][/LOWERCASE]</label>
-              <enable>no</enable>
-            </control>
-            <control type="radiobutton" id="1642">
-              <description>Cases</description>
-              <include>Objects_MediaMenuButtonAlt</include>
-              <label>$LOCALIZE[31248]</label>
-              <onclick>Skin.ToggleSetting(usecasesinfowall)</onclick>
-              <onclick>Skin.Reset(useclearcasesinfowall)</onclick>
-              <selected>Skin.HasSetting(usecasesinfowall)</selected>
-              <visible>!Skin.HasSetting(hideoptions)</visible>
-            </control>
-            <control type="radiobutton" id="1643">
-              <description>Clear Cases</description>
-              <include>Objects_MediaMenuButtonAlt</include>
-              <label>$LOCALIZE[31282]</label>
-              <onclick>Skin.ToggleSetting(useclearcasesinfowall)</onclick>
-              <onclick>Skin.Reset(usecasesinfowall)</onclick>
-              <selected>Skin.HasSetting(useclearcasesinfowall)</selected>
-              <visible>!Skin.HasSetting(hideoptions)</visible>
-            </control>
-            <control type="button" id="1685">
-              <description>Set topbar color</description>
-              <include>Objects_MediaMenuButtonAlt</include>
-              <label>31389</label>
-              <onclick>ActivateWindow(1128)</onclick>
-              <visible>!Skin.HasSetting(hideoptions)</visible>
-            </control>
+          </control>
+          <control type="label" id="112">
+            <posx>1220</posx>
+            <posy>685</posy>
+            <height>13</height>
+            <width>460</width>
+            <font>Font_Reg18</font>
+            <align>right</align>
+            <textcolor>floor</textcolor>
+            <scroll>true</scroll>
+          </control>
+          <control type="label">
+            <posx>1220</posx>
+            <posy>710</posy>
+            <height>13</height>
+            <width>460</width>
+            <font>Font_Reg18</font>
+            <align>right</align>
+            <textcolor>floor</textcolor>
+            <label>$INFO[Control.GetLabel(107)]$INFO[Control.GetLabel(108), | ]$INFO[Control.GetLabel(111), | ]</label>
+          </control>
+          <control type="textbox" id="104">
+            <posx>840</posx>
+            <posy>170</posy>
+            <width>380</width>
+            <height>230</height>
+            <font>Font_Reg18</font>
+            <align>justify</align>
+            <textcolor>white6</textcolor>
+            <autoscroll delay="8000" time="2000" repeat="8000">Skin.HasSetting(AutoScroll)</autoscroll>
+          </control>
+        </control>
+        <control type="group">
+          <posx>835</posx>
+          <posy>415</posy>
+          <control type="image">
+            <posx>-15</posx>
+            <posy>-15</posy>
+            <width>412</width>
+            <height>245</height>
+            <texture>common/black.png</texture>
+            <bordertexture border="15">home/nowplaying/OverlayDialogBackground.png</bordertexture>
+            <bordersize>15</bordersize>
+          </control>
+          <control type="image">
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>382</width>
+            <height>215</height>
+            <fadetime>IconCrossfadeTime</fadetime>
+            <aspectratio>scale</aspectratio>
+            <texture background="true">$INFO[Control.GetLabel(102)]</texture>
+            <visible>!Player.Hasvideo</visible>
+            <include>Animation_VisibleChange200</include>
+          </control>
+          <control type="videowindow" id="40001">
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>382</width>
+            <height>215</height>
+            <visible>Player.Hasvideo + !VideoPlayer.IsFullscreen</visible>
           </control>
         </control>
       </control>
-      <control type="button" id="9000">
-        <include>HiddenObject</include>
-        <enable>Skin.HasSetting(kioskmode)</enable>
-        <visible>Skin.HasSetting(kioskmode)</visible>
-        <onfocus>SetFocus(50)</onfocus>
-      </control>
+    </control>
 
 
-      <include condition="Skin.HasSetting(breadcrumb)">Breadcrumbs</include>
+
+
+
+    <control type="group">
+      <description>Breadcrumbs</description>
+      <visible>Skin.HasSetting(breadcrumb)</visible>
+      <include>Animation_HideBreadCrumbs</include>
+      <include>Breadcrumbs_BackBar</include>
       <control type="grouplist">
         <posx>15</posx>
         <posy>0</posy>
@@ -450,30 +301,8 @@
           <animation effect="slide" start="0,0" end="-6,1" time="0" condition="true">Conditional</animation>
         </control>
         <control type="label">
-          <posx>0</posx>
-          <posy>0</posy>
-          <height>25</height>
-          <aligny>center</aligny>
-          <width min="10" max="1280">auto</width>
-          <font>Font_Reg17</font>
+          <include>BreadcrumbsLabel</include>
           <label>$LOCALIZE[20342]</label>
-          <textcolor>white2</textcolor>
-          <scroll>false</scroll>
-          <align>left</align>
-          <visible>Window.IsVisible(movies.xml)</visible>
-        </control>
-        <control type="label">
-          <posx>0</posx>
-          <posy>0</posy>
-          <height>25</height>
-          <aligny>center</aligny>
-          <width min="10" max="1280">auto</width>
-          <font>Font_Reg17</font>
-          <label>$LOCALIZE[20343]</label>
-          <textcolor>white2</textcolor>
-          <scroll>false</scroll>
-          <align>left</align>
-          <visible>Window.IsVisible(tvshows.xml)</visible>
         </control>
       </control>
       <control type="grouplist">
@@ -485,9 +314,22 @@
         <itemgap>10</itemgap>
         <visible>!IsEmpty(Container(110).NumItems)</visible>
         <orientation>horizontal</orientation>
-        <include>Animation_HideBreadCrumbs</include>
         <animation effect="fade" time="400" delay="400">Visible</animation>
         <animation effect="fade" time="400">Hidden</animation>
+        <control type="label">
+          <posx>0</posx>
+          <posy>0</posy>
+          <height>22</height>
+          <aligny>center</aligny>
+          <width min="10" max="1280">auto</width>
+          <font>Font_Condensed20</font>
+          <label>$VAR[BreadcrumbsTrailerVar]</label>
+          <textcolor>bclabel</textcolor>
+          <shadowcolor>bcshadow</shadowcolor>
+          <scroll>false</scroll>
+          <animation effect="slide" start="0,0" end="0,-6" time="0" condition="true">Conditional</animation>
+          <visible>!IsEmpty(ListItem.Trailer)</visible>
+        </control>
         <control type="image">
           <description>Items Icon</description>
           <posx>0</posx>
@@ -496,17 +338,18 @@
           <height>15</height>
           <aspectratio>stretch</aspectratio>
           <texture>breadcrumbs/items.png</texture>
-          <colordiffuse>60ffffff</colordiffuse>
+          <colordiffuse>bcicon</colordiffuse>
         </control>
         <control type="label">
           <posx>0</posx>
           <posy>0</posy>
-          <height>25</height>
+          <height>22</height>
           <aligny>center</aligny>
           <width min="10" max="1280">auto</width>
-          <font>Font_Reg17</font>
+          <font>Font_Condensed20</font>
           <label>$INFO[Container(110).NumItems] $LOCALIZE[31025]</label>
-          <textcolor>white2</textcolor>
+          <textcolor>bclabel</textcolor>
+          <shadowcolor>bcshadow</shadowcolor>
           <scroll>false</scroll>
           <animation effect="slide" start="0,0" end="0,-6" time="0" condition="true">Conditional</animation>
         </control>
@@ -518,34 +361,28 @@
           <height>15</height>
           <aspectratio>stretch</aspectratio>
           <texture>breadcrumbs/pages.png</texture>
-          <colordiffuse>60ffffff</colordiffuse>
+          <colordiffuse>bcicon</colordiffuse>
           <animation effect="fade" time="400" delay="400">Visible</animation>
           <animation effect="fade" time="400">Hidden</animation>
         </control>
         <control type="label">
           <posx>0</posx>
           <posy>0</posy>
-          <height>25</height>
+          <height>22</height>
           <aligny>center</aligny>
           <width min="10" max="1280">auto</width>
-          <font>Font_Reg17</font>
+          <font>Font_Condensed20</font>
           <label>$LOCALIZE[31024] $INFO[Container(110).CurrentPage]/$INFO[Container(110).NumPages]</label>
-          <textcolor>white2</textcolor>
+          <textcolor>bclabel</textcolor>
+          <shadowcolor>bcshadow</shadowcolor>
           <scroll>false</scroll>
           <align>left</align>
           <animation effect="slide" start="0,0" end="0,-6" time="0" condition="true">Conditional</animation>
         </control>
       </control>
-      <include>Furniture_NowPlayingWidget</include>
-      <include condition="Skin.HasSetting(globaltime)">Furniture_Clock</include>
-      <control type="image">
-        <description>Items Icon</description>
-        <posx>35</posx>
-        <posy>668</posy>
-        <width>45</width>
-        <height>45</height>
-        <aspectratio>keep</aspectratio>
-        <texture>icon.png</texture>
-      </control>
-    </controls>
+      <include>Breadcrumbs_Furniture</include>
+    </control>
+    <include>Furniture_NowPlayingWidget</include>
+    <include condition="Skin.HasSetting(globaltime)">Furniture_Clock</include>
+  </controls>
 </window>

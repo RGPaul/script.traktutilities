@@ -26,7 +26,7 @@ debug = __settings__.getSetting( "debug" )
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 class Scrobbler(threading.Thread):
-    totalTime = 0
+    totalTime = 1
     watchedTime = 0
     startTime = 0
     curVideo = None
@@ -51,6 +51,8 @@ class Scrobbler(threading.Thread):
                     count = 0
             else:
                 count = 0
+        
+        Debug("Scrobbler stopping")
     
     def playbackStarted(self, data):
         self.curVideo = data['item']
@@ -62,6 +64,13 @@ class Scrobbler(threading.Thread):
                         Debug("[Scrobbler] Suddenly stopped watching item")
                         return
                     self.totalTime = xbmc.Player().getTotalTime()
+                    if self.totalTime == 0:
+                        if self.curVideo['type'] == 'movie':
+                            self.totalTime = 90
+                        elif self.curVideo['type'] == 'episode':
+                            self.totalTime = 30
+                        else:
+                            self.totalTime = 1
                     self.playlistLength = getPlaylistLengthFromXBMCPlayer(data['player']['playerid'])
                     if (self.playlistLength == 0):
                         Debug("[Scrobbler] Warning: Cant find playlist length?!, assuming that this item is by itself")
@@ -83,8 +92,6 @@ class Scrobbler(threading.Thread):
             self.watchedTime += time.time() - self.startTime
             Debug("[Scrobbler] Paused after: "+str(self.watchedTime))
             self.startTime = 0
-            self.pinging = False
-            self.stoppedWatching()
 
     def playbackEnded(self):
         if self.startTime <> 0:

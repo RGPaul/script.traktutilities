@@ -1,3 +1,19 @@
+Version 0.6.5:
+    - Changed the logic for pausing to not treat it as a stop in the video
+    - Fixed problem where connections to trakt were closed before readin the responce
+    - Fixed syncing error that occured when a last played value was not a correctly formatted date
+    - Fixed #110, Coping with unicoded names in sql quiries
+    - Added polish translations
+    - Skin updates for Aeon Nox
+    - Fixed stupidity in playcount updater
+    - Probable solution for #101, #61 the freezing of xbmc when syncing seen back to xbmc.Removed all uses of httpapi for sql db access, replaced with smart (db finding) direct access.
+    - Fixed the list of tuples bug, where it talks about commas during syncing
+    - Season limit changed
+    - A possible fix for the error 'InterfaceError: an integer is required'
+    - Posible fix for divide by 0 error
+    - Added debug messages to aid in identifying quitting problems
+    - Fixed bugs with sync debug statements
+
 Version 0.6.4:
     - Fixed broken syncing and scrobbling due to changes in xbmc json-rpc schema
 

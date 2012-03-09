@@ -51,6 +51,9 @@ def Debug(msg, force=False):
         except UnicodeEncodeError:
             print "Trakt Utilities: " + msg.encode( "utf-8", "ignore" )
 
+#This class needs debug
+from raw_xbmc_database import RawXbmcDb
+
 def notification( header, message, time=5000, icon=__settings__.getAddonInfo( "icon" ) ):
     xbmc.executebuiltin( "XBMC.Notification(%s,%s,%i,%s)" % ( header, message, time, icon ) )
 
@@ -83,24 +86,7 @@ def checkSettings(daemon=False):
 
 # SQL string quote escaper
 def xcp(s):
-    return re.sub('''(['])''', r"''", str(s))
-
-# make a httpapi based XBMC db query (get data)
-def xbmcHttpapiQuery(query):
-    Debug("[httpapi-sql] query: "+query)
-    
-    xml_data = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % urllib.quote_plus(query), )
-    match = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xml_data,)
-    
-    Debug("[httpapi-sql] responce: "+xml_data)
-    Debug("[httpapi-sql] matches: "+str(match))
-    
-    return match
-
-# execute a httpapi based XBMC db query (set data)
-def xbmcHttpapiExec(query):
-    xml_data = xbmc.executehttpapi( "ExecVideoDatabase(%s)" % urllib.quote_plus(query), )
-    return xml_data
+    return re.sub('''(['])''', r"''", unicode(s))
 
 # get a connection to trakt
 def getTraktConnection():
@@ -168,26 +154,24 @@ def traktJsonRequest(method, req, args={}, returnStatus=False, anon=False, conn=
     conn.go()
     
     while True:
-        if conn.hasResult() or xbmc.abortRequested:
-            if xbmc.abortRequested:
-                Debug("Broke loop due to abort")
-                if returnStatus:
-                    data = {}
-                    data['status'] = 'failure'
-                    data['error'] = 'Abort requested, not waiting for responce'
-                    return data;
-                return None
-            if closeConnection:
-                conn.close()
+        if xbmc.abortRequested:
+            Debug("Broke loop due to abort")
+            if returnStatus:
+                data = {}
+                data['status'] = 'failure'
+                data['error'] = 'Abort requested, not waiting for responce'
+                return data;
+            return None
+        if conn.hasResult():
             break
-        time.sleep(1)
+        time.sleep(0.1)
     
     response = conn.getResult()
+    raw = response.read()
     if closeConnection:
         conn.close()
     
     try:
-        raw = response.read()
         data = json.loads(raw)
     except ValueError:
         Debug("traktQuery: Bad JSON responce: "+raw)
@@ -418,7 +402,7 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 
     # httpapi till jsonrpc supports playcount update
     # c09 => IMDB ID
-    match = xbmcHttpapiQuery(
+    match = RawXbmcDb.query(
     "SELECT movie.idFile FROM movie"+
     " WHERE movie.c09='%(imdb_id)s'" % {'imdb_id':xcp(imdb_id)})
     
@@ -426,48 +410,31 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
         #add error message here
         return
     
-    result = xbmcHttpapiExec(
+    try:
+        match[0][0]
+    except KeyError:
+        return
+    
+    RawXbmcDb.execute(
     "UPDATE files"+
     " SET playcount=%(playcount)d" % {'playcount':int(playcount)}+
-    " WHERE idFile=%(idFile)s" % {'idFile':xcp(match[0])})
-    
-    Debug("xml answer: " + str(result))
+    " WHERE idFile=%(idFile)s" % {'idFile':xcp(match[0][0])})
 
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     # httpapi till jsonrpc supports playcount update
-    # select tvshow by tvdb_id # c12 => TVDB ID # c00 = title
-    match = xbmcHttpapiQuery(
-    "SELECT tvshow.idShow, tvshow.c00 FROM tvshow"+
-    " WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)})
-    
-    if match:
-        Debug("TV Show: " + match[1] + " idShow: " + str(match[0]) + " season: " + str(seasonid) + " episode: " + str(episodeid))
-
-        # select episode table by idShow
-        match = xbmcHttpapiQuery(
-        "SELECT tvshowlinkepisode.idEpisode FROM tvshowlinkepisode"+
-        " WHERE tvshowlinkepisode.idShow=%(idShow)s" % {'idShow':xcp(match[0])})
-        
-        for idEpisode in match:
-            # get idfile from episode table # c12 = season, c13 = episode
-            match2 = xbmcHttpapiQuery(
-            "SELECT episode.idFile FROM episode"+
-            " WHERE episode.idEpisode=%(idEpisode)d" % {'idEpisode':int(idEpisode)}+
-            " AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
-            " AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)})
-            
-            if match2:
-                for idFile in match2:
-                    Debug("idFile: " + str(idFile) + " setting playcount...")
-                    responce = xbmcHttpapiExec(
-                    "UPDATE files"+
-                    " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
-                    " WHERE idFile=%(idFile)s" % {'idFile':xcp(idFile)})
-                    
-                    Debug("xml answer: " + str(responce))
-    else:
-        Debug("setXBMCEpisodePlaycount: no tv show found for tvdb id: " + str(tvdb_id))
+    RawXbmcDb.execute(
+    "UPDATE files"+
+    " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
+    " WHERE idFile IN ("+
+    "  SELECT idFile"+
+    "  FROM episode"+
+    "  INNER JOIN tvshowlinkepisode ON episode.idEpisode = tvshowlinkepisode.idEpisode"+
+    "   INNER JOIN tvshow ON tvshowlinkepisode.idShow = tvshow.idShow"+
+    "   WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
+    "    AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
+    "    AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)}+
+    " )")
     
 # get current video being played from XBMC
 def getCurrentPlayingVideoFromXBMC():
@@ -554,7 +521,7 @@ def getMovieIdFromXBMC(imdb_id, title):
     # Get id of movie by movies IMDB
     Debug("Searching for movie: "+imdb_id+", "+title)
     
-    match = xbmcHttpapiQuery(
+    match = RawXbmcDb.query(
     " SELECT idMovie FROM movie"+
     "  WHERE c09='%(imdb_id)s'" % {'imdb_id':imdb_id}+
     " UNION"+
@@ -574,7 +541,7 @@ def getShowIdFromXBMC(tvdb_id, title):
     
     Debug("Searching for show: "+str(tvdb_id)+", "+title)
     
-    match = xbmcHttpapiQuery(
+    match = RawXbmcDb.query(
     " SELECT idShow FROM tvshow"+
     "  WHERE c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
     " UNION"+
@@ -899,8 +866,7 @@ def scrobbleEpisodeOnTrakt(tvdb_id, title, year, season, episode, duration, perc
         Debug("Error in request from 'scrobbleEpisodeOnTrakt()'")
     return responce
 
-            
-            
+
 """
 ToDo:
 
