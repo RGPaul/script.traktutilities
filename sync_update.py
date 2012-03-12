@@ -38,6 +38,9 @@ debug = __settings__.getSetting( "debug" )
 
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
+import datetime
+year = datetime.datetime.now().year
+
 # updates movie collection entries on trakt (don't unlibrary)
 def updateMovieCollection(daemon=False):
 
@@ -210,9 +213,11 @@ def updateTVShowCollection(daemon=False):
                 
                 if episodes['limits']['total'] > 0:
                     break
-                if seasonid > 50:  # maybe something went wrong
-                    break          # is there any tv show out there with 51+ seasons ?
-            if seasonid > 50:
+                if seasonid > 250:
+                    seasonid = 1900  # check seasons that are numbered by year
+                if seasonid > year+2:
+                    break # some seasons off the end?!
+            if seasonid > year+2:
                 continue
             try:
                 foundseason = False
@@ -453,9 +458,11 @@ def cleanTVShowCollection(daemon=False):
                                 break
                         if count >= xbmc_seasons['limits']['total']:
                             break
-                        if seasonid > 50:  # maybe something went wrong
-                            break          # is there any tvshow out there with 50 seasons ?
-                    if seasonid > 50:
+                        if seasonid > 250:
+                            seasonid = 1900  # check seasons that are numbered by year
+                        if seasonid > year+2:
+                            break # some seasons off the end?!
+                    if seasonid > year+2:
                         continue
                 if foundseason == False:
                     Debug("Season not found: " + repr(trakt_tvshow[1]['title']) + ": " + str(trakt_tvshow[1]['seasons'][i]['season']))
@@ -745,9 +752,11 @@ def syncSeenTVShows(daemon=False):
                 episodes = getEpisodesFromXBMC(xbmc_tvshows['tvshows'][i], seasonid)
                 if episodes['limits']['total'] > 0:
                     break
-                if seasonid > 250:  # maybe something went wrong
-                    break          # is there any tvshow out there with 50 seasons? (othrayte) yes but not with more than 250
-            if seasonid > 250:
+                if seasonid > 250:
+                    seasonid = 1900  # check seasons that are numbered by year
+                if seasonid > year+2:
+                    break # some seasons off the end?!
+            if seasonid > year+2:
                 continue
             try:
                 foundseason = False
