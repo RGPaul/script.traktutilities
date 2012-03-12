@@ -92,7 +92,6 @@ class Scrobbler(threading.Thread):
                 self.startTime = 0
 
     def playbackPaused(self):
-        Debug(str(xbmc.Player().getTime()))
         if self.startTime <> 0:
             self.watchedTime += time.time() - self.startTime
             Debug("[Scrobbler] Paused after: "+str(self.watchedTime))
