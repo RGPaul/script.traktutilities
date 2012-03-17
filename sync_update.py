@@ -492,6 +492,8 @@ def cleanTVShowCollection(daemon=False):
         
     tvshows_string = ""
     for i in range(0, len(to_unlibrary)):
+        if to_unlibrary[i]['title'] is None:
+            to_unlibrary[i]['title'] = "Unknown"
         if i == 0:
             tvshows_string += to_unlibrary[i]['title']
         elif i > 5:
