@@ -38,7 +38,7 @@ def _findXbmcDb():
     type = None
     host = None
     port = 3306
-    name = 'myvideo'
+    name = 'myvideos'
     user = None
     passwd = None
     version = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xbmc.executehttpapi("QueryVideoDatabase(SELECT idVersion FROM version)"),)[0]
@@ -89,5 +89,4 @@ def _findXbmcDb():
             database = name
         Debug("[RawXbmcDb] Found mysqldb: "+str(host)+":"+str(port)+", "+str(database))
         import mysql.connector
-        return mysql.connector.Connect(host = host, port = int(port), database = database, user = user, password = passwd)
-        
+        return mysql.connector.Connect(host = str(host), port = int(port), database = str(database), user = str(user), password = str(passwd))        
