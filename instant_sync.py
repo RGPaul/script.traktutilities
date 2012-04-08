@@ -25,12 +25,16 @@ __language__ = __settings__.getLocalizedString
 def instantSyncPlayCount(data):
     if data['params']['data']['item']['type'] == 'episode':
         info = getEpisodeDetailsFromXbmc(data['params']['data']['item']['id'], ['showtitle', 'season', 'episode'])
+        rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShowDetails','params':{'tvshowid': info['tvshowid'], 'properties': ['imdbnumber']}, 'id': 1})
+        result = xbmc.executeJSONRPC(rpccmd)
+        result = json.loads(result)
+        Debug("[Instant-sync] (TheTVDB ID: )"+str(result))
         if info == None: return
         Debug("[Instant-sync] (episode playcount): "+str(info))
         if data['params']['data']['playcount'] == 0:
-            res = setEpisodesUnseenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
+            res = setEpisodesUnseenOnTrakt(result['result']['tvshowdetails']['imdbnumber'], info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
         elif data['params']['data']['playcount'] == 1:
-            res = setEpisodesSeenOnTrakt(None, info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
+            res = setEpisodesSeenOnTrakt(result['result']['tvshowdetails']['imdbnumber'], info['showtitle'], None, [{'season':info['season'], 'episode':info['episode']}])
         else:
             return
         Debug("[Instant-sync] (episode playcount): responce "+str(res))
