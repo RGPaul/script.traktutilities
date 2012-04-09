@@ -486,6 +486,12 @@ def cleanTVShowCollection(daemon=False):
     if not daemon:
         progress.close()
     
+    for i in range(0, len(to_unlibrary)):
+        episodes_debug_string = ""
+        for j in range(0, len(to_unlibrary[i]['episodes'])):
+            episodes_debug_string += "S" + str(to_unlibrary[i]['episodes'][j]['season']) + "E" + str(to_unlibrary[i]['episodes'][j]['episode']) + " "
+        Debug("Found for deletion: " + to_unlibrary[i]['title'] + ": " + episodes_debug_string)
+        
     count = 0
     for tvshow in to_unlibrary:
         count += len(tvshow['episodes'])
