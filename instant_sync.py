@@ -24,7 +24,7 @@ __language__ = __settings__.getLocalizedString
 # Move this to its own file
 def instantSyncPlayCount(data):
     if data['params']['data']['item']['type'] == 'episode':
-        info = getEpisodeDetailsFromXbmc(data['params']['data']['item']['id'], ['showtitle', 'season', 'episode'])
+        info = getEpisodeDetailsFromXbmc(data['params']['data']['item']['id'], ['tvshowid','showtitle', 'season', 'episode'])
         rpccmd = json.dumps({'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShowDetails','params':{'tvshowid': info['tvshowid'], 'properties': ['imdbnumber']}, 'id': 1})
         result = xbmc.executeJSONRPC(rpccmd)
         result = json.loads(result)
