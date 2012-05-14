@@ -35,7 +35,7 @@ __status__ = "Production"
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
-apikey = '48dfcb4813134da82152984e8c4f329bc8b8b46a'
+apikey = __settings__.getSetting('apikey')
 username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
