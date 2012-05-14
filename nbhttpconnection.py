@@ -31,7 +31,7 @@ __status__ = "Production"
 # Allows non-blocking http requests
 class NBHTTPConnection():    
     def __init__(self, host, port = None, strict = None, timeout = None):
-        self.rawConnection = httplib.HTTPConnection(host, port, strict, timeout)
+        self.rawConnection = httplib.HTTPSConnection(host, port, strict, timeout)
         self.responce = None
         self.responceLock = threading.Lock()
         self.closing = False

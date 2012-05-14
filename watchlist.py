@@ -40,7 +40,7 @@ username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
 
-conn = httplib.HTTPConnection('api.trakt.tv')
+conn = httplib.HTTPSConnection('api.trakt.tv')
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 # list watchlist movies
