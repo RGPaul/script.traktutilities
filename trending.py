@@ -39,8 +39,13 @@ apikey = __settings__.getSetting('apikey')
 username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
+https = __settings__.getSetting('https')
 
-conn = httplib.HTTPSConnection('api.trakt.tv')
+if (https == 'true'):
+    conn = httplib.HTTPSConnection('api.trakt.tv')
+else:
+    conn = httplib.HTTPConnection('api.trakt.tv')
+
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 def showTrendingMovies():

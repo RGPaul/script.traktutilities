@@ -7,6 +7,7 @@
 	<string id="1013">Gebruikersnaam</string>
 	<string id="1014">Wachtwoord</string>
         <string id="1015">API Key</string>
+        <string id="1016">HTTPS</string>
 	
 	<string id="1020">Automatisch synchroniseren</string>
 	<string id="1021">Automatisch bijwerken Film Collectie bij opstarten</string>

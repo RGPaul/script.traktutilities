@@ -6,6 +6,7 @@
     <string id="1003">Benutzername</string>
     <string id="1004">Passwort</string>
     <string id="1015">API Key</string>
+        <string id="1016">HTTPS</string>
     <string id="1005">Aktualisiere Filmsammlung beim start</string>
     <string id="1006">Aktualisiere Seriensammlung beim start</string>
     <string id="1007">Synchronisiere gesehene Filme beim start</string>

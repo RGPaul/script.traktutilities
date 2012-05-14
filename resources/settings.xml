@@ -5,6 +5,7 @@
         <setting id="password" type="text" option="hidden" label="1014" default="" />
         <setting id="apikey" type="text" label="1015" default="" />
         <setting id="debug" type="bool" label="1011" default="false"/>
+        <setting id="https" type="bool" label="1016" default="false"/>
     </category>
     <category label="1020"><!-- Auto Sync -->
         <setting id="autosync_moviecollection" type="bool" label="1021" default="false"/>
