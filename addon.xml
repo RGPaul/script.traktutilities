@@ -13,11 +13,6 @@
     </extension>
     <res width="1280" height="720" aspect="16x9" default="true" folder="720p" />
     <extension point="xbmc.service" name="TraktUtilities.service" library="service.py"/>
-    <extension point="xbmc.addon.repository" name="Manromen XBMC Addons">
-        <info compressed="true">http://dl.dropbox.com/u/1711476/XBMC-Repository/addons.xml</info>
-        <checksum>http://dl.dropbox.com/u/1711476/XBMC-Repository/addons.xml.md5</checksum>
-        <datadir zip="true">http://dl.dropbox.com/u/1711476/XBMC-Repository</datadir>
-    </extension>
     <extension point="xbmc.addon.metadata" name="TraktUtilities.metadata">
         <summary lang="en">some trakt utilities</summary>
         <description lang="en">Trakt Utilities
