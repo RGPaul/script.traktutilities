@@ -14,6 +14,7 @@
     <res width="1280" height="720" aspect="16x9" default="true" folder="720p" />
     <extension point="xbmc.service" name="TraktUtilities.service" library="service.py"/>
     <extension point="xbmc.addon.metadata" name="TraktUtilities.metadata">
+        <language></language>
         <summary lang="en">some trakt utilities</summary>
         <description lang="en">Trakt Utilities
     Synchronise Movies / TVShows with Trakt (more infos and account creation: http://trakt.tv/).
