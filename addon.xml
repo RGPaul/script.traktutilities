@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.TraktUtilities"
+<addon id="script.traktutilities"
     name="Trakt Utilities"
     version="0.6.5"
     provider-name="Manromen">
