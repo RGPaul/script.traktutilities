@@ -6,6 +6,8 @@
     <string id="1012">API Key (found on trakt --&gt; Settings --&gt; API)</string>
     <string id="1013">Username</string>
     <string id="1014">Password</string>
+    <string id="1015">API Key</string>
+        <string id="1016">HTTPS</string>
     
     <string id="1020">Auto Syncing</string>
     <string id="1021">Auto update Movies Collection at startup</string>
