@@ -13,7 +13,7 @@
     </extension>
     <res width="1280" height="720" aspect="16x9" default="true" folder="720p" />
     <extension point="xbmc.service" name="TraktUtilities.service" library="service.py"/>
-    <extension point="xbmc.addon.metadata" name="TraktUtilities.metadata">
+    <extension point="xbmc.addon.metadata" name="traktutilities.metadata">
         <language></language>
         <summary lang="en">some trakt utilities</summary>
         <description lang="en">Trakt Utilities

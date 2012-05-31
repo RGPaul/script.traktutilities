@@ -32,7 +32,7 @@ __email__ = "ralph-gordon.paul@uni-duesseldorf.de"
 __status__ = "Production"
 
 # read settings
-__settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
+__settings__ = xbmcaddon.Addon( "script.traktutilities" )
 __language__ = __settings__.getLocalizedString
 
 apikey = __settings__.getSetting('apikey')

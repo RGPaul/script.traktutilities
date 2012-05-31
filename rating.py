@@ -13,7 +13,7 @@ __email__ = "ralph-gordon.paul@uni-duesseldorf.de"
 __status__ = "Production"
 
 # read settings
-__settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
+__settings__ = xbmcaddon.Addon( "script.traktutilities" )
 __language__ = __settings__.getLocalizedString
 
 apikey = __settings__.getSetting('apikey')
@@ -24,7 +24,7 @@ debug = __settings__.getSetting( "debug" )
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 
 def ratingCheck(curVideo, watchedTime, totalTime, playlistLength):
-    __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
+    __settings__ = xbmcaddon.Addon( "script.traktutilities" ) #read settings again, encase they have changed
     # you can disable rating in options
     rateMovieOption = __settings__.getSetting("rate_movie")
     rateEpisodeOption = __settings__.getSetting("rate_episode")
