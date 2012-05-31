@@ -9,6 +9,7 @@ try: import simplejson as json
 except ImportError: import json
 
 from nbhttpconnection import *
+from nbhttpsconnection import *
 
 import urllib, re
 
@@ -37,7 +38,7 @@ __status__ = "Production"
 __settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
 __language__ = __settings__.getLocalizedString
 
-apikey = '48dfcb4813134da82152984e8c4f329bc8b8b46a'
+apikey = __settings__.getSetting('apikey')
 username = __settings__.getSetting("username")
 pwd = sha.new(__settings__.getSetting("password")).hexdigest()
 debug = __settings__.getSetting( "debug" )
@@ -90,8 +91,12 @@ def xcp(s):
 
 # get a connection to trakt
 def getTraktConnection():
+    https = __settings__.getSetting('https')
     try:
-        conn = NBHTTPConnection('api.trakt.tv')
+        if (https == 'true'):
+            conn = NBHTTPSConnection('api.trakt.tv')
+        else:
+            conn = NBHTTPConnection('api.trakt.tv')
     except socket.timeout:
         Debug("getTraktConnection: can't connect to trakt - timeout")
         notification("Trakt Utilities", __language__(1108).encode( "utf-8", "ignore" ) + ": timeout") # can't connect to trakt
