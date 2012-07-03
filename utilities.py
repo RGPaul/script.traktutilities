@@ -429,11 +429,10 @@ def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     " WHERE idFile IN ("+
     "  SELECT idFile"+
     "  FROM episode"+
-    "  INNER JOIN tvshowlinkepisode ON episode.idEpisode = tvshowlinkepisode.idEpisode"+
-    "   INNER JOIN tvshow ON tvshowlinkepisode.idShow = tvshow.idShow"+
-    "   WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
-    "    AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
-    "    AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)}+
+    "  INNER JOIN tvshow ON episode.idShow = tvshow.idShow"+
+    "  WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
+    "   AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
+    "   AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)}+
     " )")
     
 # get current video being played from XBMC
