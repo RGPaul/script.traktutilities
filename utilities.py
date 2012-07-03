@@ -423,18 +423,33 @@ def setXBMCMoviePlaycount(imdb_id, playcount):
 # sets the playcount of a given episode by tvdb_id
 def setXBMCEpisodePlaycount(tvdb_id, seasonid, episodeid, playcount):
     # httpapi till jsonrpc supports playcount update
-    RawXbmcDb.execute(
-    "UPDATE files"+
-    " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
-    " WHERE idFile IN ("+
-    "  SELECT idFile"+
-    "  FROM episode"+
-    "  INNER JOIN tvshowlinkepisode ON episode.idEpisode = tvshowlinkepisode.idEpisode"+
-    "   INNER JOIN tvshow ON tvshowlinkepisode.idShow = tvshow.idShow"+
-    "   WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
-    "    AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
-    "    AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)}+
-    " )")
+    try:
+        # For database version 60 and below
+        RawXbmcDb.execute(
+        "UPDATE files"+
+        " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
+        " WHERE idFile IN ("+
+        "  SELECT idFile"+
+        "  FROM episode"+
+        "  INNER JOIN tvshowlinkepisode ON episode.idEpisode = tvshowlinkepisode.idEpisode"+
+        "   INNER JOIN tvshow ON tvshowlinkepisode.idShow = tvshow.idShow"+
+        "   WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
+        "    AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
+        "    AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)}+
+        " )")
+    except:
+        # For database version 64 and above
+        RawXbmcDb.execute(
+        "UPDATE files"+
+        " SET playcount=%(playcount)s" % {'playcount':xcp(playcount)}+
+        " WHERE idFile IN ("+
+        "  SELECT idFile"+
+        "  FROM episode"+
+        "  INNER JOIN tvshow ON episode.idShow = tvshow.idShow"+
+        "  WHERE tvshow.c12='%(tvdb_id)s'" % {'tvdb_id':xcp(tvdb_id)}+
+        "   AND episode.c12='%(seasonid)s'" % {'seasonid':xcp(seasonid)}+
+        "   AND episode.c13='%(episodeid)s'" % {'episodeid':xcp(episodeid)}+
+        " )")
     
 # get current video being played from XBMC
 def getCurrentPlayingVideoFromXBMC():
