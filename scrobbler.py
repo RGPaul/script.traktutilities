@@ -17,7 +17,7 @@ __email__ = "ralph-gordon.paul@uni-duesseldorf.de"
 __status__ = "Production"
 
 # read settings
-__settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
+__settings__ = xbmcaddon.Addon( "script.traktutilities" )
 __language__ = __settings__.getLocalizedString
 
 apikey = '0a698a20b222d0b8637298f6920bf03a'
@@ -163,7 +163,7 @@ class Scrobbler(threading.Thread):
                 Debug("[Scrobbler] Scrobble responce: "+str(responce));
 
     def check(self):
-        __settings__ = xbmcaddon.Addon( "script.TraktUtilities" ) #read settings again, encase they have changed
+        __settings__ = xbmcaddon.Addon( "script.traktutilities" ) #read settings again, encase they have changed
         scrobbleMinViewTimeOption = __settings__.getSetting("scrobble_min_view_time")
         
         if (self.watchedTime/self.totalTime)*100>=float(scrobbleMinViewTimeOption):
