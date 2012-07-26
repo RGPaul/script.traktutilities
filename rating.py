@@ -54,7 +54,7 @@ def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
     import windows
 
     #Guess we'll re-read the settings again for changes, but this seems non-ideal really
-    __settings__ = xbmcaddon.Addon( "script.traktutilities" ) )
+    __settings__ = xbmcaddon.Addon( "script.traktutilities" )
     rateAdvanced = __settings__.getSetting("rate_advanced")
 
     if rateAdvanced:
