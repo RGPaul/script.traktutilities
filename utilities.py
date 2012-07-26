@@ -651,7 +651,7 @@ def removeTVShowsFromWatchlist(data):
 
 #Set the rating for a movie on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
 def rateMovieOnTrakt(imdbid, title, year, rating):
-    if not (rating in ("love", "hate", "unrate")):
+    if not (rating in ("love", "hate", "unrate", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")):
         #add error message
         return
     
@@ -687,7 +687,7 @@ def getMovieRatingFromTrakt(imdbid, title, year):
 
 #Set the rating for a tv episode on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
 def rateEpisodeOnTrakt(tvdbid, title, year, season, episode, rating):
-    if not (rating in ("love", "hate", "unrate")):
+    if not (rating in ("love", "hate", "unrate", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")):
         #add error message
         return
     
@@ -723,7 +723,7 @@ def getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode):
 
 #Set the rating for a tv show on trakt, rating: "hate" = Weak sauce, "love" = Totaly ninja
 def rateShowOnTrakt(tvdbid, title, year, rating):
-    if not (rating in ("love", "hate", "unrate")):
+    if not (rating in ("love", "hate", "unrate", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")):
         #add error message
         return
     
