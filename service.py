@@ -14,7 +14,7 @@ __maintainer__ = "Ralph-Gordon Paul"
 __email__ = "ralph-gordon.paul@uni-duesseldorf.de"
 __status__ = "Production"
 
-__settings__ = xbmcaddon.Addon( "script.TraktUtilities" )
+__settings__ = xbmcaddon.Addon( "script.traktutilities" )
 __language__ = __settings__.getLocalizedString
 
 Debug("service: " + __settings__.getAddonInfo("id") + " - version: " + __settings__.getAddonInfo("version"))
