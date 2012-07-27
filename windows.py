@@ -436,10 +436,7 @@ class TVShowsWindow(xbmcgui.WindowXML):
                 li.setProperty('Watchlist','true')
                 show['watchlist'] = True;
         elif actions[select] == 'rate':
-            if not __settings__.getSetting("rate_advanced"):
-                rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-            else:
-                rateShow = RateShowDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
+            rateShow = RateShowDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
             rateShow.initDialog(show['tvdb_id'], show['title'], show['year'], getShowRatingFromTrakt(show['tvdb_id'], show['title'], show['year']))
             rateShow.doModal()
             del rateShow 
@@ -689,10 +686,7 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
             self.getControl(RATE_RATE_SHOW_BG).setVisible(False)
             self.getControl(RATE_RATE_SHOW_BTN).setVisible(False)
             self.setFocus(self.getControl(RATE_SKIP_RATING))
-            if not __settings__.getSetting("rate_advanced"):
-                rateShow = RateShowDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-            else:
-                rateShow = RateShowDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
+            rateShow = RateShowDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
             rateShow.initDialog(self.tvdbid, self.title, self.year, getShowRatingFromTrakt(self.tvdbid, self.title, self.year))
             rateShow.doModal()
             del rateShow

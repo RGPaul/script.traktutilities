@@ -52,16 +52,7 @@ def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
         
     # display rate dialog
     import windows
-
-    #Guess we'll re-read the settings again for changes, but this seems non-ideal really
-    __settings__ = xbmcaddon.Addon( "script.traktutilities" )
-    rateAdvanced = __settings__.getSetting("rate_advanced")
-
-    if rateAdvanced:
-        ui = windows.RateMovieDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
-    else:
-        ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-
+    ui = windows.RateMovieDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initDialog(imdbid, title, year, getMovieRatingFromTrakt(imdbid, title, year))
     ui.doModal()
     del ui
@@ -81,14 +72,8 @@ def doRateEpisode(episodeId):
     
     # display rate dialog
     import windows
-    __settings__ = xbmcaddon.Addon( "script.traktutilities" ) )
-    rateAdvanced = __settings__.getSetting("rate_advanced")
-    
-    if rateAdvanced:
-        ui = windows.RateMovieDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
-    else:
-        ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
-
+    __settings__ = xbmcaddon.Addon( "script.traktutilities" )
+    ui = windows.RateEpisodeDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
     ui.initDialog(tvdbid, title, year, season, episode, getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode))
     ui.doModal()
     del ui
