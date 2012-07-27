@@ -474,7 +474,7 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         self.title = title
         self.year = year
         self.curRating = curRating
-        if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
+        if not self.curRating in ["love", "hate", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]: self.curRating = None
         
     def onInit(self):
         self.getControl(RATE_TITLE).setLabel(__language__(1303).encode( "utf-8", "ignore" )) # How would you rate that movie?
@@ -609,7 +609,7 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         self.season = season
         self.episode = episode
         self.curRating = curRating
-        if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
+        if not self.curRating in ["love", "hate", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]: self.curRating = None
         
     def onInit(self):
         self.getControl(RATE_TITLE).setLabel(__language__(1304).encode( "utf-8", "ignore" )) # How would you rate that episode?
@@ -748,7 +748,7 @@ class RateShowDialog(xbmcgui.WindowXMLDialog):
         self.title = title
         self.year = year
         self.curRating = curRating
-        if self.curRating <> "love" and self.curRating <> "hate": self.curRating = None
+        if not self.curRating in ["love", "hate", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]: self.curRating = None
         
     def onInit(self):
         self.getControl(RATE_TITLE).setLabel(__language__(1306).encode( "utf-8", "ignore" )) # How would you rate that show?
