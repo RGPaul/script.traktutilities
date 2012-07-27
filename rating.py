@@ -52,7 +52,12 @@ def doRateMovie(movieid=None, imdbid=None, title=None, year=None):
         
     # display rate dialog
     import windows
-    ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+    data = traktJsonRequest('POST', '/account/settings/%%API_KEY%%')
+    if data['viewing']['ratings']['mode'] == "advanced":
+        ui = windows.RateMovieDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
+    else:
+        ui = windows.RateMovieDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+
     ui.initDialog(imdbid, title, year, getMovieRatingFromTrakt(imdbid, title, year))
     ui.doModal()
     del ui
@@ -72,7 +77,13 @@ def doRateEpisode(episodeId):
     
     # display rate dialog
     import windows
-    ui = windows.RateEpisodeDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+
+    data = traktJsonRequest('POST', '/account/settings/%%API_KEY%%')
+    if data['viewing']['ratings']['mode'] == "advanced":
+        ui = windows.RateEpisodeDialog("rate_advanced.xml", __settings__.getAddonInfo('path'), "Default")
+    else:
+        ui = windows.RateEpisodeDialog("rate.xml", __settings__.getAddonInfo('path'), "Default")
+
     ui.initDialog(tvdbid, title, year, season, episode, getEpisodeRatingFromTrakt(tvdbid, title, year, season, episode))
     ui.doModal()
     del ui
