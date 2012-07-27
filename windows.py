@@ -40,15 +40,25 @@ RATE_HATE_BTN = 106
 RATE_RATE_SHOW_BG = 107
 RATE_RATE_SHOW_BTN = 108
 RATE_ADVANCED_1_BTN = 201
+RATE_CUR_ADVANCED_1 = 211
 RATE_ADVANCED_2_BTN = 202
+RATE_CUR_ADVANCED_2 = 212
 RATE_ADVANCED_3_BTN = 203
+RATE_CUR_ADVANCED_3 = 213
 RATE_ADVANCED_4_BTN = 204
+RATE_CUR_ADVANCED_4 = 214
 RATE_ADVANCED_5_BTN = 205
+RATE_CUR_ADVANCED_5 = 215
 RATE_ADVANCED_6_BTN = 206
+RATE_CUR_ADVANCED_6 = 216
 RATE_ADVANCED_7_BTN = 207
+RATE_CUR_ADVANCED_7 = 217
 RATE_ADVANCED_8_BTN = 208
+RATE_CUR_ADVANCED_8 = 218
 RATE_ADVANCED_9_BTN = 209
+RATE_CUR_ADVANCED_9 = 219
 RATE_ADVANCED_10_BTN = 210
+RATE_CUR_ADVANCED_10 = 220
 
 #get actioncodes from keymap.xml
 ACTION_PARENT_DIRECTORY = 9
@@ -554,7 +564,7 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         elif controlId == RATE_SKIP_RATING:
             self.close()
             return
-        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
+        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE, RATE_CUR_ADVANCED_1, RATE_CUR_ADVANCED_2, RATE_CUR_ADVANCED_3, RATE_CUR_ADVANCED_4, RATE_CUR_ADVANCED_5, RATE_CUR_ADVANCED_6, RATE_CUR_ADVANCED_7, RATE_CUR_ADVANCED_8, RATE_CUR_ADVANCED_9, RATE_CUR_ADVANCED_10): #unrate clicked
             self.curRating = None
             self.updateRatedButton()
             rateMovieOnTrakt(self.imdbid, self.title, self.year, "unrate")
@@ -578,6 +588,17 @@ class RateMovieDialog(xbmcgui.WindowXMLDialog):
         self.getControl(RATE_CUR_NO_RATING).setVisible(False if self.curRating <> None else True)
         self.getControl(RATE_CUR_LOVE).setVisible(False if self.curRating <> "love" else True)
         self.getControl(RATE_CUR_HATE).setVisible(False if self.curRating <> "hate" else True)
+        self.getControl(RATE_CUR_ADVANCED_1).setVisible(False if self.curRating <> "1" else True)
+        self.getControl(RATE_CUR_ADVANCED_2).setVisible(False if self.curRating <> "2" else True)
+        self.getControl(RATE_CUR_ADVANCED_3).setVisible(False if self.curRating <> "3" else True)
+        self.getControl(RATE_CUR_ADVANCED_4).setVisible(False if self.curRating <> "4" else True)
+        self.getControl(RATE_CUR_ADVANCED_5).setVisible(False if self.curRating <> "5" else True)
+        self.getControl(RATE_CUR_ADVANCED_6).setVisible(False if self.curRating <> "6" else True)
+        self.getControl(RATE_CUR_ADVANCED_7).setVisible(False if self.curRating <> "7" else True)
+        self.getControl(RATE_CUR_ADVANCED_8).setVisible(False if self.curRating <> "8" else True)
+        self.getControl(RATE_CUR_ADVANCED_9).setVisible(False if self.curRating <> "9" else True)
+        self.getControl(RATE_CUR_ADVANCED_10).setVisible(False if self.curRating <> "10" else True)
+
 
 class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
 
@@ -677,7 +698,7 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         elif controlId == RATE_SKIP_RATING:
             self.close()
             return
-        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
+        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE, RATE_CUR_ADVANCED_1, RATE_CUR_ADVANCED_2, RATE_CUR_ADVANCED_3, RATE_CUR_ADVANCED_4, RATE_CUR_ADVANCED_5, RATE_CUR_ADVANCED_6, RATE_CUR_ADVANCED_7, RATE_CUR_ADVANCED_8, RATE_CUR_ADVANCED_9, RATE_CUR_ADVANCED_10): #unrate clicked        
             self.curRating = None
             self.updateRatedButton();
             rateEpisodeOnTrakt(self.tvdbid, self.title, self.year, self.season, self.episode, "unrate")
@@ -709,6 +730,16 @@ class RateEpisodeDialog(xbmcgui.WindowXMLDialog):
         self.getControl(RATE_CUR_NO_RATING).setVisible(False if self.curRating <> None else True)
         self.getControl(RATE_CUR_LOVE).setVisible(False if self.curRating <> "love" else True)
         self.getControl(RATE_CUR_HATE).setVisible(False if self.curRating <> "hate" else True)
+        self.getControl(RATE_CUR_ADVANCED_1).setVisible(False if self.curRating <> "1" else True)
+        self.getControl(RATE_CUR_ADVANCED_2).setVisible(False if self.curRating <> "2" else True)
+        self.getControl(RATE_CUR_ADVANCED_3).setVisible(False if self.curRating <> "3" else True)
+        self.getControl(RATE_CUR_ADVANCED_4).setVisible(False if self.curRating <> "4" else True)
+        self.getControl(RATE_CUR_ADVANCED_5).setVisible(False if self.curRating <> "5" else True)
+        self.getControl(RATE_CUR_ADVANCED_6).setVisible(False if self.curRating <> "6" else True)
+        self.getControl(RATE_CUR_ADVANCED_7).setVisible(False if self.curRating <> "7" else True)
+        self.getControl(RATE_CUR_ADVANCED_8).setVisible(False if self.curRating <> "8" else True)
+        self.getControl(RATE_CUR_ADVANCED_9).setVisible(False if self.curRating <> "9" else True)
+        self.getControl(RATE_CUR_ADVANCED_10).setVisible(False if self.curRating <> "10" else True)
 
 class RateShowDialog(xbmcgui.WindowXMLDialog):
 
@@ -808,7 +839,7 @@ class RateShowDialog(xbmcgui.WindowXMLDialog):
         elif controlId == RATE_SKIP_RATING:
             self.close()
             return
-        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE): #unrate clicked
+        elif controlId in (RATE_CUR_LOVE, RATE_CUR_HATE, RATE_CUR_ADVANCED_1, RATE_CUR_ADVANCED_2, RATE_CUR_ADVANCED_3, RATE_CUR_ADVANCED_4, RATE_CUR_ADVANCED_5, RATE_CUR_ADVANCED_6, RATE_CUR_ADVANCED_7, RATE_CUR_ADVANCED_8, RATE_CUR_ADVANCED_9, RATE_CUR_ADVANCED_10): #unrate clicked
             self.curRating = None
             self.updateRatedButton();
             rateShowOnTrakt(self.tvdbid, self.title, self.year, "unrate")
@@ -834,3 +865,14 @@ class RateShowDialog(xbmcgui.WindowXMLDialog):
         self.getControl(RATE_CUR_NO_RATING).setVisible(False if self.curRating <> None else True)
         self.getControl(RATE_CUR_LOVE).setVisible(False if self.curRating <> "love" else True)
         self.getControl(RATE_CUR_HATE).setVisible(False if self.curRating <> "hate" else True)
+        self.getControl(RATE_CUR_ADVANCED_1).setVisible(False if self.curRating <> "1" else True)
+        self.getControl(RATE_CUR_ADVANCED_2).setVisible(False if self.curRating <> "2" else True)
+        self.getControl(RATE_CUR_ADVANCED_3).setVisible(False if self.curRating <> "3" else True)
+        self.getControl(RATE_CUR_ADVANCED_4).setVisible(False if self.curRating <> "4" else True)
+        self.getControl(RATE_CUR_ADVANCED_5).setVisible(False if self.curRating <> "5" else True)
+        self.getControl(RATE_CUR_ADVANCED_6).setVisible(False if self.curRating <> "6" else True)
+        self.getControl(RATE_CUR_ADVANCED_7).setVisible(False if self.curRating <> "7" else True)
+        self.getControl(RATE_CUR_ADVANCED_8).setVisible(False if self.curRating <> "8" else True)
+        self.getControl(RATE_CUR_ADVANCED_9).setVisible(False if self.curRating <> "9" else True)
+        self.getControl(RATE_CUR_ADVANCED_10).setVisible(False if self.curRating <> "10" else True)
+
