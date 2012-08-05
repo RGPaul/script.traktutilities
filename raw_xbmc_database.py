@@ -1,10 +1,13 @@
-import os, xbmc
+import os
+import xbmc
 from utilities import Debug
 #provides access to the raw xbmc video database
 
 
 global _RawXbmcDb__conn
 _RawXbmcDb__conn = None
+
+
 class RawXbmcDb():
 
     # make a httpapi based XBMC db query (get data)
@@ -14,15 +17,15 @@ class RawXbmcDb():
         if _RawXbmcDb__conn is None:
             _RawXbmcDb__conn = _findXbmcDb()
 
-        Debug("[RawXbmcDb] query: "+str)
+        Debug("[RawXbmcDb] query: " + str)
         cursor = _RawXbmcDb__conn.cursor()
         cursor.execute(str)
 
         matches = []
         for row in cursor:
             matches.append(row)
-        
-        Debug("[RawXbmcDb] matches: "+unicode(matches))
+
+        Debug("[RawXbmcDb] matches: " + unicode(matches))
 
         _RawXbmcDb__conn.commit()
         cursor.close()
@@ -33,6 +36,7 @@ class RawXbmcDb():
     def execute(str):
         return RawXbmcDb.query(str)
 
+
 def _findXbmcDb():
     import re
     type = None
@@ -41,7 +45,7 @@ def _findXbmcDb():
     name = 'MyVideos'
     user = None
     passwd = None
-    version = re.findall( "<field>((?:[^<]|<(?!/))*)</field>", xbmc.executehttpapi("QueryVideoDatabase(SELECT idVersion FROM version)"),)[0]
+    version = re.findall("<field>((?:[^<]|<(?!/))*)</field>", xbmc.executehttpapi("QueryVideoDatabase(SELECT idVersion FROM version)"),)[0]
     Debug(version)
     if not os.path.exists(xbmc.translatePath("special://userdata/advancedsettings.xml")):
         type = 'sqlite3'
@@ -66,7 +70,7 @@ def _findXbmcDb():
                     passwd = setting.text
         else:
             type = 'sqlite3'
-    
+
     if type == 'sqlite3':
         if host is None:
             path = xbmc.translatePath("special://userdata/Database")
@@ -76,17 +80,17 @@ def _findXbmcDb():
                 if file[:8] == 'MyVideos' and file[-3:] == '.db':
                     if file > latest:
                         latest = file
-            host = os.path.join(path,latest)
+            host = os.path.join(path, latest)
         else:
-            host += version+".db"
-        Debug("[RawXbmcDb] Found sqlite3db: "+str(host))
+            host += version + ".db"
+        Debug("[RawXbmcDb] Found sqlite3db: " + str(host))
         import sqlite3
         return sqlite3.connect(host)
     if type == 'mysql':
         if version >= 60:
-            database = name+version
+            database = name + version
         else:
             database = name
-        Debug("[RawXbmcDb] Found mysqldb: "+str(host)+":"+str(port)+", "+str(database))
+        Debug("[RawXbmcDb] Found mysqldb: " + str(host) + ":" + str(port) + ", " + str(database))
         import mysql.connector
-        return mysql.connector.Connect(host = str(host), port = int(port), database = str(database), user = str(user), password = str(passwd))        
+        return mysql.connector.Connect(host=str(host), port=int(port), database=str(database), user=str(user), password=str(passwd))
