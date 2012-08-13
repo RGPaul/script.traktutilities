@@ -12,8 +12,7 @@ try:
 except ImportError:
     import json
 
-from nbhttpconnection import *
-from nbhttpsconnection import *
+import nbconnection
 
 import re
 
@@ -104,9 +103,9 @@ def getTraktConnection():
     https = __settings__.getSetting('https')
     try:
         if (https == 'true'):
-            conn = NBHTTPSConnection('api.trakt.tv')
+            conn = nbconnection.NBConnection('api.trakt.tv', https=True)
         else:
-            conn = NBHTTPConnection('api.trakt.tv')
+            conn = nbconnection.NBConnection('api.trakt.tv', https=False)
     except socket.timeout:
         Debug("getTraktConnection: can't connect to trakt - timeout")
         notification("Trakt Utilities", __language__(1108).encode("utf-8", "ignore") + ": timeout")  # can't connect to trakt
