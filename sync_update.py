@@ -67,9 +67,9 @@ def updateMovieCollection(daemon=False):
         try:
             imdbid = xbmc_movies[i]['imdbnumber']
             try:
-                Debug("found Movie: " + repr(xbmc_movies[i]['label']) + " - IMDb ID: " + str(imdbid))
+                Debug("found Movie: " + repr(xbmc_movies[i]['label']) + " - IMDb ID: " + str(imdbid.encode("utf-8", "ignore")))
             except KeyError:
-                Debug("found Movie with IMDb ID: " + str(imdbid))
+                Debug("found Movie with IMDb ID: " + str(imdbid.encode("utf-8", "ignore")))
         except KeyError:
             try:
                 Debug("skipping " + repr(xbmc_movies[i]['label']) + " - no IMDb ID found")
@@ -213,7 +213,7 @@ def updateTVShowCollection(daemon=False):
                 
                 if episodes['limits']['total'] > 0:
                     break
-                if seasonid > 250:
+                if seasonid > 250 and seasonid < 1900:
                     seasonid = 1900  # check seasons that are numbered by year
                 if seasonid > year+2:
                     break # some seasons off the end?!
@@ -458,7 +458,7 @@ def cleanTVShowCollection(daemon=False):
                                 break
                         if count >= xbmc_seasons['limits']['total']:
                             break
-                        if seasonid > 250:
+                        if seasonid > 250 and seasonid < 1900:
                             seasonid = 1900  # check seasons that are numbered by year
                         if seasonid > year+2:
                             break # some seasons off the end?!
@@ -760,7 +760,7 @@ def syncSeenTVShows(daemon=False):
                 episodes = getEpisodesFromXBMC(xbmc_tvshows['tvshows'][i], seasonid)
                 if episodes['limits']['total'] > 0:
                     break
-                if seasonid > 250:
+                if seasonid > 250 and seasonid < 1900:
                     seasonid = 1900  # check seasons that are numbered by year
                 if seasonid > year+2:
                     break # some seasons off the end?!
