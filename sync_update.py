@@ -67,9 +67,9 @@ def updateMovieCollection(daemon=False):
         try:
             imdbid = xbmc_movies[i]['imdbnumber']
             try:
-                Debug("found Movie: " + repr(xbmc_movies[i]['label']) + " - IMDb ID: " + str(imdbid))
+                Debug("found Movie: " + repr(xbmc_movies[i]['label']) + " - IMDb ID: " + str(imdbid.encode("utf-8", "ignore")))
             except KeyError:
-                Debug("found Movie with IMDb ID: " + str(imdbid))
+                Debug("found Movie with IMDb ID: " + str(imdbid.encode("utf-8", "ignore")))
         except KeyError:
             try:
                 Debug("skipping " + repr(xbmc_movies[i]['label']) + " - no IMDb ID found")
